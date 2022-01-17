@@ -23,7 +23,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
   string public name;
 	string public symbol;
 
-  address public RECEPTION_ACCOUNT = 0x836C31094bEa1aE6b65F76D1C906b01329645a94;
+  //address public RECEPTION_ACCOUNT = 0x836C31094bEa1aE6b65F76D1C906b01329645a94;
 
   CountersUpgradeable.Counter private _tokenIdCounter;
   
@@ -54,9 +54,10 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
 
   uint256 maxMemberships = 10;
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, string memory tokenCode) initializer {}
+  constructor(string memory tokenName, address _ownerContract) initializer {
+  }
 
-  function initialize(string memory tokenName, string memory tokenCode) initializer public {
+  function initialize(string memory tokenName, address _ownerContract) initializer public {
     //require(msg.sender == RECEPTION_ACCOUNT, "Wrong Account Deployer");
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
@@ -67,8 +68,8 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(ADMIN_ROLE, msg.sender);
     _grantRole(OWNER_ROLE, msg.sender);
-    _grantRole(ADMIN_ROLE, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
-    _grantRole(OWNER_ROLE, 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+    _grantRole(ADMIN_ROLE, _ownerContract);
+    _grantRole(OWNER_ROLE, _ownerContract);
 
     levelMapping["bronze"] = Levels.BRONZE;
     levelMapping["silver"] = Levels.SILVER;
@@ -76,7 +77,6 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     levelMapping["platinum"] = Levels.PLATINUM;
 
     name = tokenName;
-    symbol = tokenCode;
   }
 
   function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
@@ -110,7 +110,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
       emit NewMembershipTokenCreated(msg.sender, tokenId);
   }
 
-  function membershipMint(uint256 channel, string calldata level) public payable {
+  function membershipMint(uint256 channel, string calldata level, address to) public payable {
     uint256[] memory memberships = _channelMap[channel];
     require(memberships.length > 0, 'No memberships minted for this channel');
     uint256 tokenId;
@@ -130,10 +130,10 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
       console.log('not enough moneybags');
     }
     
-    _mint(msg.sender, tokenId, 1, "");
+    _mint(to, tokenId, 1, "");
     _channelMap[channel].push(tokenId); 
     
-    emit NewMembershipMinted(msg.sender, tokenId);
+    emit NewMembershipMinted(to, tokenId);
   }
   
   function withdrawBalance() public onlyRole(OWNER_ROLE) {

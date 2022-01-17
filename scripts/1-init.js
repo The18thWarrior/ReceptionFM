@@ -15,13 +15,7 @@ let svgString = svgPartOne + svgPartTwo + svgPartThree;
 const nftStorageApiKey = process.env.NFT_STORAGE_API_KEY;
 const nftStorageClient = new nftStore.NFTStorage({ token: nftStorageApiKey })
 
-const mainMemberships = async (channel, name_base) => {
-  // Contract Deployment
-  const membershipContractFactory = await hre.ethers.getContractFactory('Memberships');
-  const membershipContract = await membershipContractFactory.deploy('MembershipContract', 'MEMC');
-  await membershipContract.deployed();
-  console.log("Membership Contract deployed to:", membershipContract.address);
-
+const mainMemberships = async (worksManager, channel, name_base) => {
   // 1.4a
   // Construct/Store Metadata
   const metadata1Image = String.format(svgString, String.format(name_base, 'Bronze'));
@@ -36,7 +30,7 @@ const mainMemberships = async (channel, name_base) => {
 
   // 1.5a
   // Call the function.
-  let txn = await membershipContract.membershipTokenCreate(channel.toHexString(), 0, 'bronze', metadata1.url);
+  let txn = await worksManager.membershipTokenCreate(channel.toHexString(), 0, 'bronze', metadata1.url);
   // Wait for it to be mined.
   await txn.wait();
   console.log('create membership 1 complete', txn.value);
@@ -54,37 +48,30 @@ const mainMemberships = async (channel, name_base) => {
   });
   
   // 1.5b
-  let txn2 = await membershipContract.membershipTokenCreate(channel.toHexString(), 0, 'silver', metadata2.url);
+  let txn2 = await worksManager.membershipTokenCreate(channel.toHexString(), 0, 'silver', metadata2.url);
   // Wait for it to be mined.
   await txn2.wait();
   console.log('create membership 2 complete', txn2.value);
   
   // 2.4a
-  let txn3 = await membershipContract.uri(0);
+  let txn3 = await worksManager.membershipUri(0);
   console.log(txn3);
   
   // 2.4b
-  let txn4 = await membershipContract.uri(1);
+  let txn4 = await worksManager.membershipUri(1);
   console.log(txn4);
 
   // 2.3
-  let txn5 = await membershipContract.getMembershipList(channel.toHexString());
+  let txn5 = await worksManager.getMembershipList(channel.toHexString());
   console.log(txn5);
 
   // 2.5
-  await membershipContract.membershipMint(channel.toHexString(), 'silver');
+  await worksManager.membershipMint(channel.toHexString(), 'silver');
   console.log('membershipMint complete');
   
 };
 
-const mainChannels = async (channelName) => {
-  // Contract Deployment
-  const channelContractFactory = await hre.ethers.getContractFactory('Channels');
-  const channelContract = await channelContractFactory.deploy();
-  await channelContract.deployed();
-  console.log("Channel Contract deployed to:", channelContract.address);
-
-  
+const mainChannels = async (worksManager, channelName) => {
   //1.1
   // Construct/Store Metadata
   const metadata1Image = String.format(svgString, channelName);
@@ -97,21 +84,64 @@ const mainChannels = async (channelName) => {
 
   // 1.2
   // Call the function.
-  let txn = await channelContract.safeMint(channelName, metadata1.url);
+  let txn = await worksManager.mintChannel(channelName, metadata1.url);
   // Wait for it to be mined.
   await txn.wait();
-  console.log('mint channel complete', txn.value);
+  console.log('mint channel complete');
 
   // 1.3
-  let txn2 = await channelContract.getOwnerChannelIds();
+  let txn2 = await worksManager.getOwnerChannelIds();
   return txn2;
   
 };
 
+const deployContracts = async () => {
+  
+  const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
+  const worksManager = await worksManagerFactory.deploy();
+  await worksManager.deployed();
+  //console.log('worksManager address : ',worksManager.address);
+  
+  const channelContractFactory = await hre.ethers.getContractFactory('Channels');
+  const channelContract = await channelContractFactory.deploy(worksManager.address);
+  await channelContract.deployed();
+  //console.log('channels address : ' + channelContract.address);
+
+  await worksManager.setChannelsAddress(channelContract.address);
+  //console.log('setChannelsAddress complete');
+
+  const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
+  const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address);
+  await membershipsContract.deployed();
+  //console.log(membershipsContract.address);
+  //console.log('memberships address : ' + membershipsContract.address);
+  
+  await worksManager.setMembershipsAddress(membershipsContract.address);
+  //console.log('setMembershipsAddress complete');
+
+  
+  const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
+  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address);
+  await postFactoryContract.deployed();
+  //console.log(postFactoryContract.address);
+  //console.log('postFactory address : ' + postFactoryContract.address);
+  
+  await worksManager.setPostFactoryAddress(postFactoryContract.address);
+  console.log('Contract deployment complete');
+
+  return worksManager;
+}
+
 const runMain = async () => {
   try {
-    let channelId = await mainChannels('Our House Channel');
-    await mainMemberships(channelId[0], 'Our House - {0} Membership');
+    let channelName = 'Our House Channel';
+    let channel_base = 'Our House - {0} Membership';
+    let worksManager = await deployContracts();
+    console.log('runMain - worksManager address : ', worksManager.address);
+
+    let channelId = await mainChannels(worksManager, channelName);
+    console.log(channelId);
+    await mainMemberships(worksManager, channelId[0], channel_base);
     process.exit(0);
   } catch (error) {
     console.log(error);

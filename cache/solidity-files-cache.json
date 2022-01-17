@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Channels.sol": {
-      "lastModificationDate": 1642386887773,
-      "contentHash": "9c870f4ca9e75c12f75114c3762b7d18",
+      "lastModificationDate": 1642457830934,
+      "contentHash": "4f98535b0387c7739ade966c213ab842",
       "sourceName": "contracts/Channels.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -516,49 +516,6 @@
       ],
       "artifacts": [
         "IERC165"
-      ]
-    },
-    "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\RFM.sol": {
-      "lastModificationDate": 1642041125667,
-      "contentHash": "31ecbcf91ffb2f8d2734b27ab6070695",
-      "sourceName": "contracts/RFM.sol",
-      "solcConfig": {
-        "version": "0.8.7",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
-        "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol",
-        "@openzeppelin/contracts/security/Pausable.sol",
-        "@openzeppelin/contracts/access/Ownable.sol",
-        "@openzeppelin/contracts/token/ERC20/extensions/ERC20FlashMint.sol",
-        "@openzeppelin/contracts/utils/Strings.sol",
-        "@openzeppelin/contracts/utils/Counters.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "ReceptionFM"
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\node_modules\\@openzeppelin\\contracts\\token\\ERC20\\ERC20.sol": {
@@ -1524,8 +1481,8 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Memberships.sol": {
-      "lastModificationDate": 1642387248538,
-      "contentHash": "1e6771ba7c4a996bf114ce817721ec48",
+      "lastModificationDate": 1642457917027,
+      "contentHash": "8ac25927465bb062089e71c8ec61f8ba",
       "sourceName": "contracts/Memberships.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -2388,6 +2345,177 @@
         "^0.8.0"
       ],
       "artifacts": []
+    },
+    "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\WorksManager.sol": {
+      "lastModificationDate": 1642457933204,
+      "contentHash": "e3e1ced976abfb85b0bb4a991c626aa9",
+      "sourceName": "contracts/WorksManager.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
+        "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
+        "hardhat/console.sol",
+        "./PostFactory.sol",
+        "./Memberships.sol",
+        "./Channels.sol",
+        "./Posts.sol",
+        "./libraries/Base64.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "WorksManager"
+      ]
+    },
+    "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\PostFactory.sol": {
+      "lastModificationDate": 1642456835345,
+      "contentHash": "c59eb724d2f6a798b7ad5d9bfede8bd2",
+      "sourceName": "contracts/PostFactory.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
+        "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
+        "hardhat/console.sol",
+        "./libraries/CloneFactory.sol",
+        "./Posts.sol",
+        "./libraries/Base64.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "PostFactory"
+      ]
+    },
+    "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Posts.sol": {
+      "lastModificationDate": 1642447559902,
+      "contentHash": "cef68b455fe46bbd272b03028a1d24e6",
+      "sourceName": "contracts/Posts.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/utils/Strings.sol",
+        "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
+        "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol",
+        "hardhat/console.sol",
+        "./libraries/Base64.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Posts"
+      ]
+    },
+    "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\libraries\\CloneFactory.sol": {
+      "lastModificationDate": 1642446870859,
+      "contentHash": "d8a80993146711db1cd2327fc8a6fed0",
+      "sourceName": "contracts/libraries/CloneFactory.sol",
+      "solcConfig": {
+        "version": "0.8.7",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "CloneFactory"
+      ]
     }
   }
 }

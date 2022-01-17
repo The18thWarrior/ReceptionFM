@@ -41,17 +41,19 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
   event NewReceptionChannelMinted(address sender, uint256 tokenId);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor() initializer {}
+  constructor(address _masterContract) initializer {}
   // Backend Initialization
-  function initialize() initializer public {
+  function initialize(address _masterContract) initializer public {
       __ERC721_init("TestChannel", "testCHANNEL");
       __ERC721URIStorage_init();
       __Pausable_init();
       __Ownable_init();
       __ERC721Burnable_init();
+
+      _transferOwnership(_masterContract);
   }
-  // User Action
-  function safeMint(string calldata channelName, string calldata channelUri) public payable {
+  // 1.2
+  function safeMint(string calldata channelName, string calldata channelUri, address to) public payable {
     //require(msg.value > cost, "Not enough MATIC to complete transaction");
     uint256 tokenId = _tokenIdCounter.current();
     _tokenIdCounter.increment();
@@ -59,7 +61,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     //require(newItemId >= NFT_LIMIT, "Maximum number of NFTs minted");
     // Get all the JSON metadata in place and base64 encode it.
 
-    ChannelOwner storage owner = channelOwnerList[msg.sender];
+    ChannelOwner storage owner = channelOwnerList[to];
     Channel memory channel = Channel({
       tokenIndex : tokenId,
       channelName : channelName,
@@ -72,13 +74,14 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     // owner channel array
     owner.channels.push(tokenId);
 
-    _safeMint(msg.sender, tokenId);
+    _safeMint(to, tokenId);
     emit NewReceptionChannelMinted(msg.sender, tokenId);
+    setTokenUriInternal(tokenId, channelUri);
     _setTokenURI(tokenId, channelUri);
   }
-  // App Load Step #1
-  function getOwnerChannelIds() public view returns(uint256[] memory){
-    ChannelOwner storage owner = channelOwnerList[msg.sender];
+  // 1.3
+  function getOwnerChannelIds(address ownerId) public view returns(uint256[] memory){
+    ChannelOwner storage owner = channelOwnerList[ownerId];
     return owner.channels;
   }
   // App Load Step #2
@@ -125,10 +128,6 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     // Owner can receive Ether since the address of owner is payable
     (bool success, ) = ownerPayable.call{value: amount}("");
     require(success, "Failed to send MATIC");
-  }
-
-  function getChannelMetadata() public view returns(string memory) {
-
   }
 
   function getCurrentIndex() public view returns(uint256) {
