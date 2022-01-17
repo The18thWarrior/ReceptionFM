@@ -1,6 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
 
+let structure = {
+  memberships : {
+    "membershipId" : []
+  }
+};
+
 function App() {
   return (
     <div className="App">
