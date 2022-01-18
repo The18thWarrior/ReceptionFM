@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Channels.sol": {
-      "lastModificationDate": 1642457830934,
-      "contentHash": "4f98535b0387c7739ade966c213ab842",
+      "lastModificationDate": 1642473275473,
+      "contentHash": "1debae3d5fa66384ca8a479e06019b71",
       "sourceName": "contracts/Channels.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -2347,8 +2347,8 @@
       "artifacts": []
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\WorksManager.sol": {
-      "lastModificationDate": 1642457933204,
-      "contentHash": "e3e1ced976abfb85b0bb4a991c626aa9",
+      "lastModificationDate": 1642487962605,
+      "contentHash": "08800911068189ca83974b97befbfa72",
       "sourceName": "contracts/WorksManager.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -2393,8 +2393,8 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\PostFactory.sol": {
-      "lastModificationDate": 1642456835345,
-      "contentHash": "c59eb724d2f6a798b7ad5d9bfede8bd2",
+      "lastModificationDate": 1642484576929,
+      "contentHash": "43d8e939f2d0431d4483b974c69adde1",
       "sourceName": "contracts/PostFactory.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -2437,8 +2437,8 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Posts.sol": {
-      "lastModificationDate": 1642447559902,
-      "contentHash": "cef68b455fe46bbd272b03028a1d24e6",
+      "lastModificationDate": 1642487897147,
+      "contentHash": "c7f081b8823e7bb3fe9299056fb48f1e",
       "sourceName": "contracts/Posts.sol",
       "solcConfig": {
         "version": "0.8.7",

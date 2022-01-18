@@ -22,6 +22,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   string public name;
+  string public description;
 	string public symbol;
 
   //address public RECEPTION_ACCOUNT = 0x836C31094bEa1aE6b65F76D1C906b01329645a94;
@@ -38,15 +39,14 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   mapping(string => Levels) public levelMapping;
   //mapping(address => Membership) public membershipOwnershipMap;
   mapping(uint256 => string) private _uris;
-  //mapping(uint256 => uint256[]) private _postMap;
-  mapping(uint256 => uint256) private _tokenCost;
   mapping(uint256 => Levels) private _tokenLevel;
+  mapping(address => uint256[]) private _redemptions;
 
   uint256 maxMemberships = 10;
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, string memory tokenCode) initializer {}
+  constructor(string memory tokenName, string memory tokenCode, address to) initializer {}
 
-  function initialize(string memory tokenName, uint256 tokenChannel) initializer public {
+  function initialize(string memory tokenName, uint256 tokenChannel, address to) initializer public {
     //require(msg.sender == RECEPTION_ACCOUNT, "Wrong Account Deployer");
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
@@ -56,12 +56,13 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
 
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(ADMIN_ROLE, msg.sender);
-    _grantRole(OWNER_ROLE, msg.sender);
+    _grantRole(OWNER_ROLE, to);
 
     levelMapping["bronze"] = Levels.BRONZE;
     levelMapping["silver"] = Levels.SILVER;
     levelMapping["gold"] = Levels.GOLD;
     levelMapping["platinum"] = Levels.PLATINUM;
+    levelMapping["all"] = Levels.ALL;
 
     name = tokenName;
     channelToken = tokenChannel;
@@ -71,52 +72,27 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _grantRole(OWNER_ROLE, to);
   }
 
-  function createPostToken(uint256 cost, string calldata level, string calldata computedUri) public {
+  function createPostToken(address owner, string calldata computedUri) public returns(uint256) {
       // TODO : Add function to validate that the msg.sender owns channel
-      
+      //require(hasRole(OWNER_ROLE, owner), 'Contract must be owned by executing user');
+
       uint256 tokenId = _tokenIdCounter.current();
       _tokenIdCounter.increment();
-      //_postMap[channel].push(tokenId); 
-      _tokenCost[tokenId] = cost;
-      _tokenLevel[tokenId] = levelMapping[level];
-      /*Membership memory newMembership = Membership({
-        membershipOwner: to,
-        tokenIndex : tokenId,
-        indefinite : false,
-        level: levelMapping[level],
-        channel: channel
-      });*/
-
-      //membershipOwnershipMap[to] = newMembership;
       setTokenUriInternal(tokenId, computedUri);
       
-      emit NewPostTokenCreated(msg.sender, tokenId);
+      emit NewPostTokenCreated(owner, tokenId);
+      return tokenId;
   }
 
-  function assignPost(uint256 channel, string calldata level) public payable {
-    /*uint256[] memory memberships = _postMap[channel];
-    require(memberships.length > 0, 'No memberships minted for this channel');
-    uint256 tokenId;
-    for (uint256 i = 0;i<memberships.length;i++) {
-      Levels tokenLevel = _tokenLevel[memberships[i]];
-      if (tokenLevel == levelMapping[level]) {
-        tokenId = memberships[i];
-      }
+  function postMint(address to, uint256 tokenId) public{
+    uint256[] storage redemptions = _redemptions[to];
+    for(uint256 i = 0; i < redemptions.length; i++) {
+      require(redemptions[i] != tokenId, 'Sorry, you have already redeemed this NFT');
     }
 
-    // TODO : add function to validate that this membership is not outside the membership limits ()
-    
-    // TODO : add function to require value & submit as a transaction to owner (may require getting nft owner from Channels.sol)
-    //require(msg.value > cost, 'Not enough value included in transaction');
-    uint256 cost = _tokenCost[tokenId];
-    if (cost >= msg.value) {
-      console.log('not enough moneybags');
-    }
-    
-    _mint(msg.sender, tokenId, 1, "");
-    _channelMap[channel].push(tokenId); 
-    
-    emit NewPostMinted(msg.sender, tokenId);*/
+    _mint(to, tokenId, 1, "");
+    _redemptions[to].push(tokenId); 
+    emit NewPostMinted(to, tokenId);
   }
   
   function withdrawBalance() public onlyRole(OWNER_ROLE) {
@@ -147,8 +123,8 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     return _tokenIdCounter.current();
   }
 
-  function getPost(uint256 tokenId) public view returns (uint256) {
-    return balanceOf(msg.sender, tokenId);
+  function getPostTokenBalance(uint256 tokenId, address to) public view returns (uint256) {
+    return balanceOf(to, tokenId);
   }
 
 

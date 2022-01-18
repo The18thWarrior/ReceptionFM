@@ -21,6 +21,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   address private postFactoryAddress;
   address private membershipsAddress;
   address private channelsAddress;
+  address private postsAddress;
 
   PostFactory postFactoryContract;
   Memberships membershipContract;
@@ -30,8 +31,8 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   constructor(){
-    _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    _grantRole(ADMIN_ROLE, msg.sender);
+    _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    _setupRole(ADMIN_ROLE, msg.sender);
   }
   
   function initialize() initializer public{
@@ -42,7 +43,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     _grantRole(ADMIN_ROLE, msg.sender);
   }
 
-  // UI Interfaces
+  // Artist UI Interfaces
   // 1.2
   function mintChannel(string calldata channelName, string calldata channelUri) public {
     return channelContract.safeMint(channelName, channelUri, msg.sender);
@@ -53,16 +54,30 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     return channelContract.getOwnerChannelIds(msg.sender);
   }
 
-  // 1.5
+  // 1.4 (UI Only) - mint IPFS URI
+
+  // 1.5 / 2.6
   function membershipTokenCreate(uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
     return membershipContract.membershipTokenCreate(channel, cost, level, computedUri);
   }
-  
-  // 1.5
-  function createPostChannel(string calldata tokenName, uint256 tokenChannel) public {
-    return postFactoryContract.createPost(tokenName, tokenChannel);
+
+  // 1.6
+  function getChannelPostContract(uint256 channelToken) public view returns(Posts) {
+    return postFactoryContract.getChannelPostContract(channelToken);
   }
 
+  // 1.7
+  function createPostContract(string calldata tokenName, uint256 channel) public payable{
+    return postFactoryContract.createPostContract(tokenName, channel, msg.sender);
+  }
+
+  // 1.8
+  function createPostToken(address contractAddress, string calldata computedUri) public payable returns(uint256){
+    Posts postContract = Posts(contractAddress);
+    return postContract.createPostToken(msg.sender, computedUri);
+  }
+
+  // Artist UI Interfaces
   // 2.1
   function getCurrentChannelIndex() public view returns(uint256){
     return channelContract.getCurrentIndex();
@@ -88,6 +103,37 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     return membershipContract.membershipMint(channel, level, msg.sender);
   }
 
+  // 2.7
+  function getPostTokenIndex(address contractAddress) public payable returns(uint256){
+    Posts postContract = Posts(contractAddress);
+    return postContract.getTokenIndex();
+  }
+  
+  // 2.8
+  function getPostUri(address contractAddress, uint256 tokenId) public payable returns(string memory){
+    Posts postContract = Posts(contractAddress);
+    return postContract.uri(tokenId);
+  }
+
+  // 2.9
+  function getPostTokenBalance(address contractAddress, uint256 tokenId) public view returns(uint256){
+    Posts postContract = Posts(contractAddress);
+    return postContract.getPostTokenBalance(tokenId, msg.sender);
+  }
+
+  
+
+  // 2.10
+  function postMint(address contractAddress, uint256 tokenId) public payable{
+    Posts postContract = Posts(contractAddress);
+    return postContract.postMint(msg.sender, tokenId);
+  }
+
+  function getPostContracts() public view returns(Posts[] memory){
+    return postFactoryContract.getChildren();
+  }
+  
+
   // Functions for setting static variables
   function setPostFactoryAddress(address _postFactoryAddress) public onlyRole(ADMIN_ROLE) {
     postFactoryAddress = _postFactoryAddress;
@@ -102,5 +148,9 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   function setChannelsAddress(address _channelsAddress) public onlyRole(ADMIN_ROLE) {
     channelsAddress = _channelsAddress;
     channelContract = Channels(_channelsAddress);
+  }
+  
+  function setPostAddress(address _postAddress) public onlyRole(ADMIN_ROLE) {
+    postsAddress = _postAddress;
   }
 }

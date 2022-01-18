@@ -15,6 +15,44 @@ let svgString = svgPartOne + svgPartTwo + svgPartThree;
 const nftStorageApiKey = process.env.NFT_STORAGE_API_KEY;
 const nftStorageClient = new nftStore.NFTStorage({ token: nftStorageApiKey })
 
+const mainPosts = async (worksManager, channel, channelName) => {
+  // 1.7
+  let txn = await worksManager.createPostContract(channelName, channel.toHexString());
+  // Wait for it to be mined.
+  await txn.wait();
+  console.log('create post contract complete', txn.value);
+
+  // 1.6
+  let postContract = await worksManager.getChannelPostContract(channel.toHexString());
+  console.log(postContract);
+
+  // Construct/Store Metadata
+  const metadata1Image = String.format(svgString, channelName + ' Post');
+  const metadata1Blob = new nftStore.Blob([metadata1Image], {type: 'image/svg+xml'});
+  const metadata1 = await nftStorageClient.store({
+    name: channelName,
+    description: 'Post',
+    image: metadata1Blob,
+    channel: channel.toHexString()
+  });
+
+  // 1.8
+  let postTokenId = await worksManager.createPostToken(postContract, metadata1.url);
+  await postTokenId.wait();
+  
+  console.log('create post complete', postTokenId.value);
+
+
+  // 2.10
+  let txn2 = await worksManager.postMint(postContract, postTokenId.value);
+  await txn2.wait();
+  console.log('mint post complete');
+
+  // 2.8
+  let postMetadata = await worksManager.getPostUri(postContract, postTokenId.value);
+  console.log(postMetadata.value);
+};
+
 const mainMemberships = async (worksManager, channel, name_base) => {
   // 1.4a
   // Construct/Store Metadata
@@ -120,8 +158,16 @@ const deployContracts = async () => {
   //console.log('setMembershipsAddress complete');
 
   
+  const postContractFactory = await hre.ethers.getContractFactory('Posts');
+  const postContract = await postContractFactory.deploy("default Post", "DFLT", worksManager.address);
+  await postContract.deployed();
+  //console.log(postFactoryContract.address);
+  //console.log('postFactory address : ' + postFactoryContract.address);
+  
+  await worksManager.setPostAddress(postContract.address);
+  
   const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
-  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address);
+  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, postContract.address);
   await postFactoryContract.deployed();
   //console.log(postFactoryContract.address);
   //console.log('postFactory address : ' + postFactoryContract.address);
@@ -142,6 +188,7 @@ const runMain = async () => {
     let channelId = await mainChannels(worksManager, channelName);
     console.log(channelId);
     await mainMemberships(worksManager, channelId[0], channel_base);
+    await mainPosts(worksManager, channelId[0], channelName);
     process.exit(0);
   } catch (error) {
     console.log(error);

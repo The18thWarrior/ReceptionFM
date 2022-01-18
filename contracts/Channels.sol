@@ -50,10 +50,12 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
       __Ownable_init();
       __ERC721Burnable_init();
 
-      _transferOwnership(_masterContract);
+      transferOwnership(_masterContract);
+      console.log('owner: ', owner(), _masterContract);
   }
   // 1.2
   function safeMint(string calldata channelName, string calldata channelUri, address to) public payable {
+    console.log('channel mint', owner(), msg.sender);
     //require(msg.value > cost, "Not enough MATIC to complete transaction");
     uint256 tokenId = _tokenIdCounter.current();
     _tokenIdCounter.increment();
