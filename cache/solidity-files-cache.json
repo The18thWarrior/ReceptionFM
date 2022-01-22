@@ -2347,8 +2347,8 @@
       "artifacts": []
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\WorksManager.sol": {
-      "lastModificationDate": 1642487962605,
-      "contentHash": "08800911068189ca83974b97befbfa72",
+      "lastModificationDate": 1642567994122,
+      "contentHash": "6834c3c564844d61e40bf6c071ba1e22",
       "sourceName": "contracts/WorksManager.sol",
       "solcConfig": {
         "version": "0.8.7",

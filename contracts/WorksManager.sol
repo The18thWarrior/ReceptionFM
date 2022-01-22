@@ -121,8 +121,6 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     return postContract.getPostTokenBalance(tokenId, msg.sender);
   }
 
-  
-
   // 2.10
   function postMint(address contractAddress, uint256 tokenId) public payable{
     Posts postContract = Posts(contractAddress);

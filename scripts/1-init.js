@@ -8,7 +8,7 @@ let svgPartOne = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://ww
 let svgPartTwo = ' <filter x="0%" y="0%" width="100%" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:actuate="onLoad" height="100%" id="a" xlink:show="other"> <feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" color-interpolation-filters="sRGB" /> </filter> <mask id="c"> <g filter="url(#a)"> <path fill-opacity=".6" d="M-225 -225H2475V2475H-225z" /> </g> </mask> </defs> <g clip-path="url(#b)"> <path fill="#FFF" d="M 0.5 0 L 2249.5 0 L 2249.5 2256.496094 L 0.5 2256.496094 Z M 0.5 0" /> <path fill="#FFF" d="M 0.5 0 L 2249.5 0 L 2249.5 2249 L 0.5 2249 Z M 0.5 0" /> <path fill="#4C1BB0" d="M 0.5 0 L 2249.5 0 L 2249.5 2249 L 0.5 2249 Z M 0.5 0" /> <g mask="url(#c)"> <g> <g clip-path="url(#d)"> <g clip-path="url(#e)"> <path fill="url(#f)" d="M 0.5 2249 L 2249.351562 2249 L 2249.351562 0 L 0.5 0 Z M 0.5 2249" /> </g> </g> </g> </g> </g> <g clip-path="url(#g)"> <g clip-path="url(#h)"> <path fill="url(#i)" d="M 567.492188 566.992188 L 567.492188 1681.640625 L 1682.140625 1681.640625 L 1682.140625 566.992188 Z M 567.492188 566.992188" /> </g> </g> <g clip-path="url(#j)"> <path fill="#FFF" d="M 1245.632812 1061.660156 L 1132.527344 1061.660156 L 1241.28125 841.566406 L 1117.304688 841.566406 L 1004.199219 1127.035156 L 1108.601562 1127.035156 L 1030.300781 1408.148438 Z M 1245.632812 1061.660156" /> </g> <text font-family="Open Sans" x="50%" y="90%" class="base" dominant-baseline="middle" text-anchor="middle" font-size="10em" stroke="white" fill="white"> <tspan>';
 let svgPartThree = "{0}</tspan></text></svg>";
 let svgString = svgPartOne + svgPartTwo + svgPartThree;
-// local execution - npx hardhat run scripts/1-init.js 
+// local execution - npx hardhat run scripts/1-init.js --network localhost
 // network deploy - npx hardhat run scripts/2-deploy.js --network mumbai
 //console.log(nftStore);
 // NFT Storage
@@ -178,17 +178,35 @@ const deployContracts = async () => {
   return worksManager;
 }
 
+const sendMoney = async () => {
+  const accounts = await hre.ethers.getSigners();
+  const gas_price = await hre.ethers.provider.getGasPrice();
+  let account1 = accounts[0];
+
+  console.log("Account balance:", (await account1.getBalance()).toString());
+  
+
+  let results = await account1.sendTransaction({
+    to: '0x836C31094bEa1aE6b65F76D1C906b01329645a94',
+    value : hre.ethers.utils.parseEther('10'),
+  });
+  
+  console.log(results);
+}
+
 const runMain = async () => {
   try {
-    let channelName = 'Our House Channel';
-    let channel_base = 'Our House - {0} Membership';
+    //let channelName = 'Our House Channel';
+    //let channel_base = 'Our House - {0} Membership';
+
     let worksManager = await deployContracts();
     console.log('runMain - worksManager address : ', worksManager.address);
+    let sendMoney1 = await sendMoney();
 
-    let channelId = await mainChannels(worksManager, channelName);
-    console.log(channelId);
-    await mainMemberships(worksManager, channelId[0], channel_base);
-    await mainPosts(worksManager, channelId[0], channelName);
+    //let channelId = await mainChannels(worksManager, channelName);
+    //console.log(channelId);
+    //await mainMemberships(worksManager, channelId[0], channel_base);
+    //await mainPosts(worksManager, channelId[0], channelName);
     process.exit(0);
   } catch (error) {
     console.log(error);
