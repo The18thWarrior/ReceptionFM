@@ -1,47 +1,47 @@
+import env from "react-dotenv";
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { DAppProvider } from '@usedapp/core';
+import { DAppProvider, Mainnet } from '@usedapp/core';
 import { Helmet } from "react-helmet";
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 
 const config = {
-  readOnlyChainId: process.env.CHAIN_ID,
-  readOnlyUrls: {
-    [process.env.CHAIN_ID]: process.env.CHAIN_RPC_URL,
-  },
   multicallAddresses: {
-    31337 : '0xa40b14bd26aa8b469182ecff4f02781a08946d83'
+    //31337 : '0xa40b14bd26aa8b469182ecff4f02781a08946d83'
+    [env.REACT_APP_CHAIN_ID] : env.REACT_APP_MULTICALL_ADDRESS
   }
 };
+const config2 = {
+  readOnlyChainId: Mainnet.chainId,
+  readOnlyUrls: {
+    [Mainnet.chainId]: 'https://mainnet.infura.io/v3/3165a249c65f4198bf57200109b8fadf',
+  },
+};
+
+console.log(config);
 const mdTheme = createTheme({
   spacing: 2,
   palette: {
     mode: 'dark',
   },
 });
-
-console.log(config);
 /*
-,
-  multicallAddresses: {
-    [process.env.CHAIN_ID] : 
-  }
-  */
-
+<Helmet>
+  <title>Reception.fm</title>
+  <meta name="keywords" content="HTML,CSS,JavaScript" />
+  <meta name="viewport" content="initial-scale=1, width=device-width" />
+  <meta
+    name="description"
+    content="web3 Patreon"
+  />
+</Helmet>
+*/
 ReactDOM.render(
   <React.StrictMode>
-    <Helmet>
-      <title>Reception.fm</title>
-      <meta name="keywords" content="HTML,CSS,JavaScript" />
-      <meta name="viewport" content="initial-scale=1, width=device-width" />
-      <meta
-        name="description"
-        content="web3 Patreon"
-      />
-    </Helmet>
+    
     <DAppProvider config={config}>
       <ThemeProvider theme={mdTheme}>
         <App />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useEtherBalance, useEthers } from '@usedapp/core';
+//import { useEtherBalance, useEthers } from '@usedapp/core';
 import { formatEther } from '@ethersproject/units';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
@@ -23,10 +23,6 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 
 function MenuLinks () {
-  const { account } = useEthers()
-  const etherBalance = useEtherBalance(account);
-
-
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -48,8 +44,12 @@ function MenuLinks () {
       link: '/'
     },
     {
-      name: 'Footer',
-      link: '/footer'
+      name: 'My Account',
+      link: '/account'
+    },
+    {
+      name: 'Channel Manager',
+      link: '/manage'
     }
   ];
 
@@ -77,7 +77,6 @@ function MenuLinks () {
         anchor={'left'}
         open={state['left']}
         onClose={toggleMenu('left', false)}
-        onOpen={toggleMenu('left', true)}
       >
         {list('left')}
       </Drawer>

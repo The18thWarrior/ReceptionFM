@@ -45,7 +45,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
 
   // Artist UI Interfaces
   // 1.2
-  function mintChannel(string calldata channelName, string calldata channelUri) public {
+  function mintChannel(string calldata channelName, string calldata channelUri) public payable{
     return channelContract.safeMint(channelName, channelUri, msg.sender);
   }
 

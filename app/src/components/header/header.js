@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useEtherBalance, useEthers } from '@usedapp/core';
 import { formatEther } from '@ethersproject/units';
@@ -8,18 +8,20 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import MenuLinks from './menu';
+import {AccountButton} from './accountButton';
 
 function Header() {
-  const { activateBrowserWallet, account, deactivate } = useEthers()
-  const etherBalance = useEtherBalance(account);
-  
+  const {account} = useEthers();
+
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar position="absolute">
         <Toolbar>
-          {account &&
+           {account && 
             <MenuLinks />
-          }
+           }
+            
+          
           <Typography
             component="h1"
             variant="h6"
@@ -30,28 +32,11 @@ function Header() {
             Reception.fm
           </Typography>
           
-          {account === undefined && 
-            <Button color="secondary" variant="contained"
-              onClick={() => activateBrowserWallet()}
-            >Connect</Button>
-          }
-
-          {account && 
-            <Button component={Link} to="/account" variant="contained" color="primary" sx={{mx:2}}>
-              Account
-            </Button>
-          }
-
-
-          {account && 
-            <Button color="secondary" variant="contained" sx={{mx:2}}
-              onClick={() => deactivate()}
-            >Disconnect</Button>
-          }
+          <AccountButton></AccountButton>
         </Toolbar>
       </AppBar>
     </Box>
   );
 }
-
+// 
 export default Header;

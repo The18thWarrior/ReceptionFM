@@ -1,5 +1,6 @@
 
 function Homepage() {
+  console.log('home');
   return (
     <div >
       <header className="App-header">
