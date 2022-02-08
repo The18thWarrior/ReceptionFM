@@ -17,6 +17,10 @@
   background-color: #282c34;
 }
 
+.primary-background {
+  background-color: #90caf9;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -30,6 +34,15 @@
 
 .App-link {
   color: #61dafb;
+}
+
+.overwrite-disabled {
+  color: white !important;
+}
+
+.overwrite-disabled label, .overwrite-disabled div textarea, .overwrite-disabled div input {
+  color: white !important;
+  -webkit-text-fill-color: white !important
 }
 
 @keyframes App-logo-spin {

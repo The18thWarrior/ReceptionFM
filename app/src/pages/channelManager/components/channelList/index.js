@@ -1,55 +1,60 @@
 import env from "react-dotenv";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useContractCall } from "@usedapp/core";
+import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+
+import { getOwnerChannelIds, getChannelMetadata } from '../../../../service/worksManager';
+import { channelListColumns } from '../../../../static/constants';
+import { cleanImageUrl, fetchMetadata } from "../../../../service/utility";
 
 //let worksManagerAddress = env.REACT_APP_WORKSMANAGER_ADDRESS;
 
-const columns = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  {
-    field: 'firstName',
-    headerName: 'First name',
-    width: 150,
-    editable: false,
-    sortable: true
-  },
-  {
-    field: 'lastName',
-    headerName: 'Last name',
-    width: 150,
-    editable: false,
-    sortable: true
-  },
-  {
-    field: 'age',
-    headerName: 'Age',
-    type: 'number',
-    width: 110,
-    editable: false,
-    sortable: true
-  }
-];
-
-const rows = [
-  { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-  { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-  { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-  { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-  { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-  { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-  { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-  { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-];
+const columns = channelListColumns;
 
 function ChannelList() {
-  console.log('loading channelList');
+  const [channelMetadata, setChannelMetadata] = useState([]);
+  const updateChannelMetadata = (metadata) => {
+    setChannelMetadata([...channelMetadata, metadata]);
+  }
+  const [channelMap, setChannelMap] = useState({});
+  const updateChannelMap = (channel, metadata) => {
+    let cm = [...channelMap];
+    cm[channel] = metadata;
+    setChannelMap(cm);
+  }
+
+  useEffect(() => {
+    //setChannelMetadata([]);
+    //setChannelMap({});
+    const getChannelList = async () => {
+      const channelVals = await getOwnerChannelIds();
+      let channelList = [];
+      if (channelVals) {
+        for (let channel of channelVals) {
+          let channelMetadataUri = await getChannelMetadata(channel);
+          if (channelMetadataUri) {
+            let channelMetadataResponse = await fetchMetadata(channel, channelMetadataUri);
+            console.log(channelMetadataResponse);
+            //updateChannelMap(channel, channelMedataResponse);
+            channelList.push(channelMetadataResponse);
+          }
+        }
+        setChannelMetadata(channelList);
+      }
+    } 
+    getChannelList();
+  },[]);
+  
+
   return (
     <div className="dark-background" style={{ height: '100%'}}>
       <div style={{ height: 400, width: '100%'}}>
         <DataGrid
-          rows={rows}
+          rows={channelMetadata}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}

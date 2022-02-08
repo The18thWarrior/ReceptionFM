@@ -1,5 +1,6 @@
 import env from "react-dotenv";
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { DataGrid } from '@mui/x-data-grid';
 import { useContractCall } from "@usedapp/core";
 import Container from '@mui/material/Container';
@@ -12,14 +13,11 @@ import SendIcon from '@mui/icons-material/Send';
 import { NFTStorage, File } from 'nft.storage';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {mintChannel} from '../../../../service/worksManager';
+import {storeMetadata} from '../../../../service/utility';
 
 
 //Static References
 const nftStorageAddress = env.REACT_APP_NFT_STORAGE_API_KEY;
-
-
-
-
 
 //const contract = new Contract(wethContractAddress, wethInterface);
 const storageClient = new NFTStorage({ token: nftStorageAddress });
@@ -28,6 +26,8 @@ const storageClient = new NFTStorage({ token: nftStorageAddress });
 //const svgString = basicSvg.svgPartOne + basicSvg.svgPartTwo + basicSvg.svgPartThree;
 
 function ChannelCreator() {
+  let navigate = useNavigate();
+  
   const [submissionLoading, setSubmissionLoading] = useState(false);
 
   const [channelName, setChannelName] = useState('');
@@ -57,24 +57,15 @@ function ChannelCreator() {
 
       if (channelName.length > 0) {
         console.log('running storage');
-        const metadata = await storageClient.store({
-          name: channelName,
-          description: channelDescription,
-          image: new File(
-            [
-              channelImage
-            ],
-            channelImage.name,
-            { type: channelImage.type }
-          ),
-        });
+        const metadata = await storeMetadata(channelName, channelDescription, channelImage, 'channel');
 
-        console.log(metadata.url);
-        handleMetadataChange(metadata.url);      
-        const channelChange = await mintChannel(channelName, channelMetadata);
+        console.log(metadata);
+        handleMetadataChange(metadata.ipnft);      
+        const channelChange = await mintChannel(channelName, metadata.ipnft);
         console.log(channelChange);
 
         setSubmissionLoading(false);
+        navigate("/manage", { replace: true });
       } else {
         setSubmissionLoading(false);
       }

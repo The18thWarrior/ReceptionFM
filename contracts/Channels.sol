@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
 
 // We first import some OpenZeppelin Contracts.
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -13,6 +14,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "hardhat/console.sol";
 import { Base64 } from "./libraries/Base64.sol";
+import { Structs } from "./libraries/ReceptionStructs.sol";
 
 /// @custom:security-contact ReceptionFM
 contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, PausableUpgradeable, OwnableUpgradeable, ERC721BurnableUpgradeable {
@@ -22,22 +24,8 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
   mapping(uint256 => string) private _uris;
   uint256 public cost = 0.0000025 ether;
 
-  struct Channel {
-    // Index of this token
-    uint256 tokenIndex;
-    // Channel Name
-    string channelName;
-    // Membership token Address
-    address membershipToken;
-  }
-
-  struct ChannelOwner {
-    uint256[] channels;
-    mapping(uint256 => uint256) channelMap;
-  }
-
-  mapping(address => ChannelOwner) channelOwnerList;
-  mapping(uint256 => Channel) channelList;
+  mapping(address => Structs.ChannelOwner) channelOwnerList;
+  mapping(uint256 => Structs.Channel) channelList;
   event NewReceptionChannelMinted(address sender, uint256 tokenId);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
@@ -54,7 +42,14 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
       console.log('owner: ', owner(), _masterContract);
   }
   // 1.2
-  function safeMint(string calldata channelName, string calldata channelUri, address to) public payable {
+  function safeMint(
+    string calldata channelName, 
+    string calldata channelUri, 
+    address to, 
+    string calldata author,
+    string calldata copyright,
+    string calldata language
+    ) public payable {
     console.log('channel mint', owner(), msg.sender);
     //require(msg.value > cost, "Not enough MATIC to complete transaction");
     uint256 tokenId = _tokenIdCounter.current();
@@ -63,18 +58,21 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     //require(newItemId >= NFT_LIMIT, "Maximum number of NFTs minted");
     // Get all the JSON metadata in place and base64 encode it.
 
-    ChannelOwner storage owner = channelOwnerList[to];
-    Channel memory channel = Channel({
+    Structs.ChannelOwner storage owner = channelOwnerList[to];
+    Structs.Channel memory channel = Structs.Channel({
       tokenIndex : tokenId,
       channelName : channelName,
-      membershipToken : address(0)
+      membershipToken : address(0),
+      author: author,
+      copyright: copyright,      
+      language: language
     });
     // global channel map
     channelList[tokenId] = channel;
     // owner channelId to index map
     owner.channelMap[tokenId] = owner.channels.length;
     // owner channel array
-    owner.channels.push(tokenId);
+    //owner.channels.push(tokenId);
 
     _safeMint(to, tokenId);
     emit NewReceptionChannelMinted(msg.sender, tokenId);
@@ -83,22 +81,34 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
   }
   // 1.3
   function getOwnerChannelIds(address ownerId) public view returns(uint256[] memory){
-    ChannelOwner storage owner = channelOwnerList[ownerId];
+    Structs.ChannelOwner storage owner = channelOwnerList[ownerId];
     return owner.channels;
   }
   // App Load Step #2
-  function getOwnerChannelList(uint256[] calldata channelIds) public view returns(Channel[] memory) {
-    Channel[] memory channelL;
+  function getOwnerChannelList(uint256[] calldata channelIds) public view returns(Structs.Channel[] memory) {
+    Structs.Channel[] memory channelL;
     for (uint256 i = 0; i < channelIds.length; i++) {
       channelL[i]= channelList[channelIds[i]];
     }
 
     return channelL;
   } 
-  // Backend Execution post Channel deploy
-  function updateChannelAddress(uint256 tokenId, address contractAddress) public onlyOwner returns (bool){
-    require(channelList[tokenId].membershipToken != address(0), "Channel has already been assigned.");
-    channelList[tokenId].membershipToken = contractAddress;
+  // User Action 
+  function updateChannelDetails(
+    address from, 
+    uint256 tokenId, 
+    string calldata channelName,
+    string calldata author, 
+    string calldata copyright, 
+    string calldata language
+  ) public returns (bool){
+    address channelOwner = getApproved(tokenId);
+    require(from == channelOwner, "You must be the channel owner to modify channel details");
+
+    channelList[tokenId].channelName = channelName;
+    channelList[tokenId].author = author;
+    channelList[tokenId].copyright = copyright;
+    channelList[tokenId].language = language;
     return true;
   }
   // User Action
@@ -107,8 +117,8 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
       whenNotPaused
       override
   {
-    ChannelOwner storage originalOwner = channelOwnerList[from];
-    ChannelOwner storage newOwner = channelOwnerList[to];
+    Structs.ChannelOwner storage originalOwner = channelOwnerList[from];
+    Structs.ChannelOwner storage newOwner = channelOwnerList[to];
     if (originalOwner.channels.length > 0) {
       uint256 channelIndex = originalOwner.channelMap[tokenId];
       delete originalOwner.channels[channelIndex];

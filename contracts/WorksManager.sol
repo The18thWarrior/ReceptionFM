@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
@@ -12,20 +13,24 @@ import "hardhat/console.sol";
 import { PostFactory } from "./PostFactory.sol";
 import { Memberships } from "./Memberships.sol";
 import { Channels } from "./Channels.sol";
+import { Broadcasts } from "./Broadcasts.sol";
 import { Posts } from "./Posts.sol";
 import { Base64 } from "./libraries/Base64.sol";
+import { Structs } from "./libraries/ReceptionStructs.sol";
 
 
 /// @custom:security-contact ReceptionFM
 contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgradeable  {
   address private postFactoryAddress;
   address private membershipsAddress;
+  address private broadcastsAddress;
   address private channelsAddress;
   address private postsAddress;
 
   PostFactory postFactoryContract;
   Memberships membershipContract;
   Channels channelContract;
+  Broadcasts broadcastContract;
 
   mapping(uint256 => address) private channelPostAddressMap;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -45,20 +50,34 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
 
   // Artist UI Interfaces
   // 1.2
-  function mintChannel(string calldata channelName, string calldata channelUri) public payable{
-    return channelContract.safeMint(channelName, channelUri, msg.sender);
+  function mintChannel(
+    string calldata channelName, 
+    string calldata channelUri, 
+    string calldata author,
+    string calldata copyright,
+    string calldata language
+  ) public payable{
+    return channelContract.safeMint(channelName, channelUri, msg.sender, author, copyright, language);
   }
 
   // 1.3
   function getOwnerChannelIds() public view returns(uint256[] memory) {
     return channelContract.getOwnerChannelIds(msg.sender);
   }
+  
+  function getOwnerChannelList(uint256[] calldata channelIds) public view returns(Structs.Channel[] memory) {
+    return channelContract.getOwnerChannelList(channelIds);
+  }
 
   // 1.4 (UI Only) - mint IPFS URI
 
   // 1.5 / 2.6
   function membershipTokenCreate(uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
-    return membershipContract.membershipTokenCreate(channel, cost, level, computedUri);
+    return membershipContract.membershipTokenCreate(msg.sender, channel, cost, level, computedUri);
+  }
+
+  function broadcastTokenCreate(uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
+    return broadcastContract.broadcastTokenCreate(msg.sender, channel, cost, level, computedUri);
   }
 
   // 1.6
@@ -72,9 +91,10 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }
 
   // 1.8
-  function createPostToken(address contractAddress, string calldata computedUri) public payable returns(uint256){
+  //address owner, bool isPublic, string calldata computedUri, string calldata paywallUri_, bool mintable, string[] calldata levels
+  function createPostToken(address contractAddress, bool isPublic, string calldata computedUri,  string calldata paywallUri, bool mintable, string[] calldata levels) public payable returns(uint256){
     Posts postContract = Posts(contractAddress);
-    return postContract.createPostToken(msg.sender, computedUri);
+    return postContract.createPostToken(msg.sender, isPublic, computedUri, paywallUri, mintable, levels);
   }
 
   // Artist UI Interfaces
@@ -92,15 +112,27 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   function getMembershipList(uint256 channel) public view returns (uint256[] memory) {
     return membershipContract.getMembershipList(channel);
   }
+
+  function getBroadcastList(uint256 channel) public view returns (uint256[] memory) {
+    return broadcastContract.getBroadcastList(channel);
+  }
   
   // 2.4
   function membershipUri(uint256 tokenId) public view returns (string memory) {
     return membershipContract.uri(tokenId);
   }
   
+  function broadcastUri(uint256 tokenId) public view returns (string memory) {
+    return broadcastContract.uri(tokenId);
+  }
+  
   // 2.5
   function membershipMint(uint256 channel, string calldata level) public payable{
     return membershipContract.membershipMint(channel, level, msg.sender);
+  }
+
+  function broadcastMint(uint256 channel, string calldata level) public payable{
+    return broadcastContract.broadcastMint(channel, level, msg.sender);
   }
 
   // 2.7
@@ -122,9 +154,9 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }
 
   // 2.10
-  function postMint(address contractAddress, uint256 tokenId) public payable{
+  function postMint(address contractAddress, uint256 membershipId, uint256 tokenId) public payable{
     Posts postContract = Posts(contractAddress);
-    return postContract.postMint(msg.sender, tokenId);
+    return postContract.postMint(msg.sender, membershipId, tokenId);
   }
 
   function getPostContracts() public view returns(Posts[] memory){
@@ -141,6 +173,11 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   function setMembershipsAddress(address _membershipsAddress) public onlyRole(ADMIN_ROLE) {
     membershipsAddress = _membershipsAddress;
     membershipContract = Memberships(_membershipsAddress);
+  }
+
+  function setBroadcastsAddress(address _broadcastsAddress) public onlyRole(ADMIN_ROLE) {
+    broadcastsAddress = _broadcastsAddress;
+    broadcastContract = Broadcasts(_broadcastsAddress);
   }
 
   function setChannelsAddress(address _channelsAddress) public onlyRole(ADMIN_ROLE) {

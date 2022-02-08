@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
-pragma experimental ABIEncoderV2;
 
 // We first import some OpenZeppelin Contracts.
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -14,11 +13,10 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "hardhat/console.sol";
 import { Base64 } from "./libraries/Base64.sol";
-import { Structs } from "./libraries/ReceptionStructs.sol";
 import { Channels } from "./Channels.sol";
 
 /// @custom:security-contact ReceptionFM
-contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PausableUpgradeable, AccessControlUpgradeable, ERC1155BurnableUpgradeable {
+contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PausableUpgradeable, AccessControlUpgradeable, ERC1155BurnableUpgradeable {
   using CountersUpgradeable for CountersUpgradeable.Counter;
   bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -33,31 +31,19 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
 
   CountersUpgradeable.Counter private _tokenIdCounter;
   
-  event NewMembershipTokenCreated(address sender, uint256 tokenId);
-  event NewMembershipMinted(address sender, uint256 tokenId);
+  event NewBroadcastTokenCreated(address sender, uint256 tokenId);
+  event NewBroadcastMinted(address sender, uint256 tokenId);
 
   // ============ Structs ============
-  /*struct Membership {
-    // The account that will receive sales revenue.
-    address membershipOwner;
-    // Index of this token
-    uint256 tokenIndex;
-    // Marks if membership level is indefinite
-    bool indefinite;
-    // Marks membership level
-    Levels level;
-    // Marks Channel for Membership
-    address channel;
-  }*/
-
-  mapping(string => Structs.Level) public levelMapping;
-  //mapping(address => Membership) public membershipOwnershipMap;
+  enum Levels{ BRONZE, SILVER, GOLD, PLATINUM }
+  
+  mapping(string => Levels) public levelMapping;
+  //mapping(address => Broadcast) public BroadcastOwnershipMap;
   mapping(uint256 => string) private _uris;
   mapping(uint256 => uint256[]) private _channelMap;
   mapping(uint256 => uint256) private _tokenCost;
-  mapping(uint256 => Structs.Level) private _tokenLevel;
+  mapping(uint256 => Levels) private _tokenLevel;
 
-  uint256 maxMemberships = 10;
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor(string memory tokenName, address _ownerContract, address _channelAddress) initializer {
   }
@@ -76,10 +62,10 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     _grantRole(ADMIN_ROLE, _ownerContract);
     _grantRole(OWNER_ROLE, _ownerContract);
 
-    levelMapping["bronze"] = Structs.Level.BRONZE;
-    levelMapping["silver"] = Structs.Level.SILVER;
-    levelMapping["gold"] = Structs.Level.GOLD;
-    levelMapping["platinum"] = Structs.Level.PLATINUM;
+    levelMapping["bronze"] = Levels.BRONZE;
+    levelMapping["silver"] = Levels.SILVER;
+    levelMapping["gold"] = Levels.GOLD;
+    levelMapping["platinum"] = Levels.PLATINUM;
 
     name = tokenName;
     channelAddress = _channelAddress;
@@ -90,15 +76,10 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     _grantRole(OWNER_ROLE, to);
   }
 
-  function setMaxMemberships(string calldata maxMember) public onlyRole(OWNER_ROLE) {
-    uint256 memberConv = parseInt(maxMember);
-    maxMemberships = memberConv;
-  }
-
-  function membershipTokenCreate(address from, uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
+  function broadcastTokenCreate(address from, uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
       // TODO : Add function to validate that the msg.sender owns channel
       address channelOwner = channelContract.getApproved(channel);
-      require(from == channelOwner, "You must be the channel owner to create memberships");
+      require(from == channelOwner, "You must be the channel owner to create Broadcasts");
 
       uint256 tokenId = _tokenIdCounter.current();
       _tokenIdCounter.increment();
@@ -106,24 +87,23 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
       _tokenCost[tokenId] = cost;
       _tokenLevel[tokenId] = levelMapping[level];
 
-      //membershipOwnershipMap[to] = newMembership;
       setTokenUriInternal(tokenId, computedUri);
       
-      emit NewMembershipTokenCreated(msg.sender, tokenId);
+      emit NewBroadcastTokenCreated(msg.sender, tokenId);
   }
 
-  function membershipMint(uint256 channel, string calldata level, address to) public payable {
-    uint256[] memory memberships = _channelMap[channel];
-    require(memberships.length > 0, 'No memberships minted for this channel');
+  function broadcastMint(uint256 channel, string calldata level, address to) public payable {
+    uint256[] memory broadcasts = _channelMap[channel];
+    require(broadcasts.length > 0, 'No Broadcasts minted for this channel');
     uint256 tokenId;
-    for (uint256 i = 0;i<memberships.length;i++) {
-      Structs.Level tokenLevel = _tokenLevel[memberships[i]];
+    for (uint256 i = 0;i<broadcasts.length;i++) {
+      Levels tokenLevel = _tokenLevel[broadcasts[i]];
       if (tokenLevel == levelMapping[level]) {
-        tokenId = memberships[i];
+        tokenId = broadcasts[i];
       }
     }
 
-    // TODO : add function to validate that this membership is not outside the membership limits ()
+    // TODO : add function to validate that this Broadcast is not outside the Broadcast limits ()
     
     // TODO : add function to require value & submit as a transaction to owner (may require getting nft owner from Channels.sol)
     //require(msg.value > cost, 'Not enough value included in transaction');
@@ -135,7 +115,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     _mint(to, tokenId, 1, "");
     _channelMap[channel].push(tokenId); 
     
-    emit NewMembershipMinted(to, tokenId);
+    emit NewBroadcastMinted(to, tokenId);
   }
   
   function withdrawBalance() public onlyRole(OWNER_ROLE) {
@@ -166,16 +146,12 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     return _tokenIdCounter.current();
   }
 
-  function getMembershipList(uint256 channel) public view returns (uint256[] memory) {
+  function getBroadcastList(uint256 channel) public view returns (uint256[] memory) {
     return _channelMap[channel];
   }
 
-  function getMembership(uint256 tokenId) public view returns (uint256) {
+  function getBroadcast(uint256 tokenId) public view returns (uint256) {
     return balanceOf(msg.sender, tokenId);
-  }
-
-  function getTokenLevel(uint256 tokenId) public view returns(Structs.Level) {
-    return _tokenLevel[tokenId];
   }
 
   // DEFAULT METHODS REQUIRED BY INTERFACES

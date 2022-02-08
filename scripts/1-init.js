@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 let nftStore = require('nft.storage');
 require('ipfs-car/pack');
@@ -150,25 +151,27 @@ const deployContracts = async () => {
   //console.log('setChannelsAddress complete');
 
   const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
-  const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address);
+  const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
   await membershipsContract.deployed();
-  //console.log(membershipsContract.address);
-  //console.log('memberships address : ' + membershipsContract.address);
   
   await worksManager.setMembershipsAddress(membershipsContract.address);
   //console.log('setMembershipsAddress complete');
 
+  const broadcastsContractFactory = await hre.ethers.getContractFactory('Broadcasts');
+  const broadcastsContract = await broadcastsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
+  await broadcastsContract.deployed();
+  
+  await worksManager.setBroadcastsAddress(broadcastsContract.address);
+  //console.log('setBroadcastsAddress complete');
   
   const postContractFactory = await hre.ethers.getContractFactory('Posts');
   const postContract = await postContractFactory.deploy("default Post", "DFLT", worksManager.address);
   await postContract.deployed();
-  //console.log(postFactoryContract.address);
-  //console.log('postFactory address : ' + postFactoryContract.address);
   
   await worksManager.setPostAddress(postContract.address);
   
   const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
-  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, postContract.address);
+  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, postContract.address, channelContract.address);
   await postFactoryContract.deployed();
   //console.log(postFactoryContract.address);
   //console.log('postFactory address : ' + postFactoryContract.address);
@@ -191,8 +194,18 @@ const sendMoney = async () => {
     to: '0x836C31094bEa1aE6b65F76D1C906b01329645a94',
     value : hre.ethers.utils.parseEther('100'),
   });
+
+  let results2 = await account1.sendTransaction({
+    to: '0xF1D3Ae318edd8dAA3Bd97B24a6CCb6c3A8b581cF',
+    value : hre.ethers.utils.parseEther('100'),
+  });
+
+
+  let results3 = await account1.sendTransaction({
+    to: '0x90096700E912D140931701d986F979b413488f5B',
+    value : hre.ethers.utils.parseEther('100'),
+  });
   
-  console.log(results);
 }
 
 const runMain = async () => {
@@ -202,7 +215,7 @@ const runMain = async () => {
     //await hre.network.provider.send("hardhat_reset");
     let worksManager = await deployContracts();
     console.log('runMain - worksManager address : ', worksManager.address);
-    //let sendMoney1 = await sendMoney();
+    let sendMoney1 = await sendMoney();
 
     //let channelId = await mainChannels(worksManager, channelName);
     //console.log(channelId);

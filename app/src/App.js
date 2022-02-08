@@ -1,3 +1,4 @@
+//import env from "react-dotenv";
 import './App.css';
 import * as React from 'react';
 import Box from '@mui/material/Box';
@@ -24,12 +25,12 @@ function App() {
           mt: 32
         }}
       >
-        <Routes>
+        <Routes >
           <Route path='/' element={<Home />} />
-          <Route path='/account' element={<Account />} />
-          <Route exact path="/manage"  element={<ChannelList />}/>
-          <Route exact path="/newChannel"  element={<ChannelCreator />}/>
-          <Route exact path="/channel/:id"  element={<ChannelDetail />}/>
+          <Route exact path='account' element={<Account />} />
+          <Route exact path="manage"  element={<ChannelList />}/>
+          <Route exact path="new"  element={<ChannelCreator />}/>
+          <Route path=':channelId' element={<ChannelDetail />} />
         </Routes>
       </Box>
     </BrowserRouter>

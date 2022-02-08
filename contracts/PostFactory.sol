@@ -12,6 +12,7 @@ import "hardhat/console.sol";
 import { CloneFactory } from "./libraries/CloneFactory.sol";
 import { Posts } from "./Posts.sol";
 import { Base64 } from "./libraries/Base64.sol";
+import { Channels } from "./Channels.sol";
 
 
 /// @custom:security-contact ReceptionFM
@@ -23,12 +24,22 @@ contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, Access
   address[] public postList;
   address contractOwner;
   address originalContract;
+  address channelsAddress;
+  address membershipsAddress;
+  address broadcastsAddress;
+  Channels channelContract;
+
+
   mapping(uint256 => uint256) channelToIndex;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-  constructor(address _contractOwner, address _originalContract){
+  constructor(address _contractOwner, address _originalContract, address _channelsAddress, address _membershipsAddress, address _broadcastsAddress){
     contractOwner = _contractOwner;
     originalContract = _originalContract;
+    channelsAddress = _channelsAddress;
+    channelContract = Channels(channelsAddress);
+    membershipsAddress = _membershipsAddress;
+    broadcastsAddress = _broadcastsAddress;
   }
   
   function initialize(address _contractOwner) initializer public{
@@ -40,12 +51,12 @@ contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, Access
   }
 
   function createPostContract(string calldata tokenName, uint256 tokenChannel, address to) public{
-    //console.log(msg.sender);
-    //console.log(contractOwner);
     // TODO : Add function for verifiying ownership
-    //require(hasRole(ADMIN_ROLE, msg.sender), 'Contract must be owned by executing user');
+    address channelOwner = channelContract.getApproved(tokenChannel);
+    require(to == channelOwner, "You must be the channel owner to create memberships");
+
     Posts child = Posts(createClone(originalContract));
-    child.initialize(tokenName, tokenChannel, to);
+    child.initialize(tokenName, tokenChannel, to, channelsAddress, membershipsAddress, broadcastsAddress);
     children.push(child);
     uint256 tokenIndex = _postContractIndex.current();
     _postContractIndex.increment();

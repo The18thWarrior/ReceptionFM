@@ -1,4 +1,4 @@
-import env from "react-dotenv";
+import {env} from './static/constants';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
@@ -8,6 +8,7 @@ import { DAppProvider, Mainnet } from '@usedapp/core';
 import { Helmet } from "react-helmet";
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 
+console.log('test');
 const config = {
   multicallAddresses: {
     //31337 : '0xa40b14bd26aa8b469182ecff4f02781a08946d83'

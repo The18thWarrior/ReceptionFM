@@ -25,7 +25,7 @@ export const AccountButton = () => {
       <div>{activateError}</div>
       {account ? (
         <>
-          <Button component={Link} to="/newChannel" variant="contained" color="primary" sx={{mx:2}}>
+          <Button component={Link} to="/new" variant="contained" color="primary" sx={{mx:2}}>
             Create Channel
           </Button>
           <Button onClick={() => deactivate()}>Disconnect</Button>
