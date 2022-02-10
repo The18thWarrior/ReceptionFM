@@ -29,6 +29,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   string public name;
   string public description;
 	string public symbol;
+  address private depositorAddress;
   address private channelAddress;
   address private membershipsAddress;
   address private broadcastsAddress;
@@ -51,6 +52,8 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   mapping(uint256 => string) private _paywallUri;
   mapping(uint256 => bool) private _paywallUriAccess;
   mapping(uint256 => bool) private _mintable;
+  mapping(uint256 => bool) private _buyable;
+  mapping(uint256 => uint256) private _cost;
   mapping(uint256 => Structs.Level[]) private _tokenLevel;
   mapping(address => uint256[]) private _redemptions;
 
@@ -69,6 +72,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(ADMIN_ROLE, msg.sender);
     _grantRole(OWNER_ROLE, to);
+    depositorAddress = to;
 
     levelMap["bronze"] = Structs.Level.BRONZE;
     levelMap["silver"] = Structs.Level.SILVER;
@@ -90,7 +94,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _grantRole(OWNER_ROLE, to);
   }
 
-  function createPostToken(address owner, bool isPublic, string calldata computedUri, string calldata paywallUri_, bool mintable, string[] calldata levels) public returns(uint256) {
+  function createPostToken(address owner, uint256 cost, bool isBuyable, bool isPublic, string calldata computedUri, string calldata paywallUri_, bool mintable, string[] calldata levels) public returns(uint256) {
       // TODO : Add function to validate that the msg.sender owns channel
       address channelOwner = channelContract.getApproved(channelToken);
       require(owner == channelOwner, "You must be the channel owner to create posts");
@@ -106,7 +110,9 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       setTokenUriInternal(tokenId, computedUri);
       setPaywallUriInternal(tokenId, paywallUri_);
       _paywallUriAccess[tokenId] = isPublic;
+      _buyable[tokenId] = isBuyable;
       _mintable[tokenId] = mintable;
+      _cost[tokenId] = cost;
       Structs.Level[] memory levelList;
       for (uint256 i = 0; i < levels.length; i++) {
         Structs.Level lmap = levelMap[levels[i]];
@@ -119,10 +125,15 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       return tokenId;
   }
 
-  function postMint(address to, uint256 membershipId, uint256 tokenId) public{
+  function postMint(address to, uint256 membershipId, uint256 tokenId) public payable{  
+    bool hasPaid = false;
+    if (msg.value > 0 && _buyable[tokenId] && msg.value >= _cost[tokenId]) {
+      hasPaid = true;
+    }
+
     // validate that the msg.sender owns membership
     uint256 membershipAmount = membershipsContract.balanceOf(to, membershipId);
-    require(membershipAmount == 1, "You must be a member of the channel to mint post NFTs");
+    require(membershipAmount == 1 || hasPaid, "You must be a member of the channel to mint post NFTs");
 
     bool membershipMatch = false;
     Structs.Level membershipLevel = membershipsContract.getTokenLevel(membershipId);
@@ -133,10 +144,13 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
         membershipMatch = true;
       } else if (tokenLevel == membershipLevel){
         membershipMatch = true;
+      } else if (hasPaid) {
+        //Override in the scenario where this msg has paid and this post is payable
+        membershipMatch = true;
       }
     }
     require(membershipMatch, "Your membership level does not give you minting access");  
-    
+
 
     bool mintable = _mintable[tokenId];
     require(mintable == true, "This post is not mintable");
@@ -149,6 +163,15 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _mint(to, tokenId, 1, "");
     _redemptions[to].push(tokenId); 
     emit NewPostMinted(to, tokenId);
+
+    if (hasPaid) {
+      address ownerPayable = payable(depositorAddress);
+      uint amount = msg.value;
+      
+      (bool success, ) = ownerPayable.call{value: amount}("");
+      require(success, "Failed to send MATIC");
+
+    }
   }
   
   function withdrawBalance() public onlyRole(OWNER_ROLE) {

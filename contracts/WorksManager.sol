@@ -86,15 +86,15 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }
 
   // 1.7
-  function createPostContract(string calldata tokenName, uint256 channel) public payable{
+  function createPostContract(string calldata tokenName, uint256 channel) public{
     return postFactoryContract.createPostContract(tokenName, channel, msg.sender);
   }
 
   // 1.8
   //address owner, bool isPublic, string calldata computedUri, string calldata paywallUri_, bool mintable, string[] calldata levels
-  function createPostToken(address contractAddress, bool isPublic, string calldata computedUri,  string calldata paywallUri, bool mintable, string[] calldata levels) public payable returns(uint256){
+  function createPostToken(address contractAddress, uint256 cost, bool isBuyable, bool isPublic, string calldata computedUri,  string calldata paywallUri, bool mintable, string[] calldata levels) public returns(uint256){
     Posts postContract = Posts(contractAddress);
-    return postContract.createPostToken(msg.sender, isPublic, computedUri, paywallUri, mintable, levels);
+    return postContract.createPostToken(msg.sender, cost, isBuyable, isPublic, computedUri, paywallUri, mintable, levels);
   }
 
   // Artist UI Interfaces
@@ -128,21 +128,21 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   
   // 2.5
   function membershipMint(uint256 channel, string calldata level) public payable{
-    return membershipContract.membershipMint(channel, level, msg.sender);
+    return membershipContract.membershipMint{ value: msg.value }(channel, level, msg.sender);
   }
 
   function broadcastMint(uint256 channel, string calldata level) public payable{
-    return broadcastContract.broadcastMint(channel, level, msg.sender);
+    return broadcastContract.broadcastMint{ value: msg.value }(channel, level, msg.sender);
   }
 
   // 2.7
-  function getPostTokenIndex(address contractAddress) public payable returns(uint256){
+  function getPostTokenIndex(address contractAddress) public view returns(uint256){
     Posts postContract = Posts(contractAddress);
     return postContract.getTokenIndex();
   }
   
   // 2.8
-  function getPostUri(address contractAddress, uint256 tokenId) public payable returns(string memory){
+  function getPostUri(address contractAddress, uint256 tokenId) public view returns(string memory){
     Posts postContract = Posts(contractAddress);
     return postContract.uri(tokenId);
   }
@@ -156,7 +156,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   // 2.10
   function postMint(address contractAddress, uint256 membershipId, uint256 tokenId) public payable{
     Posts postContract = Posts(contractAddress);
-    return postContract.postMint(msg.sender, membershipId, tokenId);
+    return postContract.postMint{ value: msg.value }(msg.sender, membershipId, tokenId);
   }
 
   function getPostContracts() public view returns(Posts[] memory){
