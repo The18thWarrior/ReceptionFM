@@ -53,3 +53,7 @@
     transform: rotate(360deg);
   }
 }
+
+.header-image {
+  max-width:10rem;
+}

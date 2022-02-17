@@ -7,13 +7,15 @@ import Container from '@mui/material/Container';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
 //import { basicSvg } from '../../../../static/constants';
 import { NFTStorage, File } from 'nft.storage';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {mintChannel} from '../../../../service/worksManager';
-import {storeMetadata} from '../../../../service/utility';
+import {storeNFTMetadata} from '../../../../service/utility';
 
 
 //Static References
@@ -33,6 +35,21 @@ function ChannelCreator() {
   const [channelName, setChannelName] = useState('');
   const handleNameChange = (event) => {
     setChannelName(event.target.value);
+  };
+
+  const [channelAuthor, setChannelAuthor] = useState('');
+  const handleAuthorChange = (event) => {
+    setChannelAuthor(event.target.value);
+  };
+  
+  const [channelCopyright, setChannelCopyright] = useState('');
+  const handleCopyrightChange = (event) => {
+    setChannelCopyright(event.target.value);
+  };
+  
+  const [channelLanguage, setChannelLanguage] = useState('');
+  const handleLanguageChange = (event) => {
+    setChannelLanguage(event.target.value);
   };
 
   const [channelDescription, setChannelDescription] = useState('');
@@ -57,11 +74,11 @@ function ChannelCreator() {
 
       if (channelName.length > 0) {
         console.log('running storage');
-        const metadata = await storeMetadata(channelName, channelDescription, channelImage, 'channel');
+        const metadata = await storeNFTMetadata(channelName, channelDescription, channelImage, 'channel');
 
         console.log(metadata);
         handleMetadataChange(metadata.ipnft);      
-        const channelChange = await mintChannel(channelName, metadata.ipnft);
+        const channelChange = await mintChannel(channelName, metadata.ipnft, channelAuthor, channelCopyright, channelLanguage);
         console.log(channelChange);
 
         setSubmissionLoading(false);
@@ -96,6 +113,48 @@ function ChannelCreator() {
             onChange={handleNameChange}
             sx={{display: 'block', mx: "auto", width:500}}
           />  
+          <TextField
+            id="author"
+            label="Channel Author"
+            helperText="The author of your channel"
+            variant="standard"
+            fullWidth
+            value={channelAuthor}
+            onChange={handleAuthorChange}
+            sx={{display: 'block', mx: "auto", width:500}}
+          />  
+          <TextField
+            id="copyright"
+            label="Channel Copyright"
+            helperText="The copyright of your channel"
+            variant="standard"
+            fullWidth
+            value={channelCopyright}
+            onChange={handleCopyrightChange}
+            sx={{display: 'block', mx: "auto", width:500}}
+          /> 
+          <Select
+            id="language"
+            fullWidth
+            variant="standard"
+            value={channelLanguage}
+            label="Channel Language"
+            onChange={handleLanguageChange}
+            sx={{display: 'block', mx: "auto", width:500}}
+          >
+            <MenuItem value={'zh-cn'}>Mandarin</MenuItem>
+            <MenuItem value={'zh-hk'}>Cantonese</MenuItem>
+            <MenuItem value={'en-us'}>English - US</MenuItem>
+            <MenuItem value={'en-gb'}>English - UK</MenuItem>
+            <MenuItem value={'es'}>Spanish</MenuItem>
+            <MenuItem value={'fr'}>French</MenuItem>
+            <MenuItem value={'pt-br'}>Portuguese</MenuItem>
+            <MenuItem value={'ja'}>Japanese</MenuItem>
+            <MenuItem value={'ar'}>Arabic</MenuItem>
+            <MenuItem value={'de'}>German</MenuItem>
+            <MenuItem value={'sw'}>Swahili</MenuItem>
+          </Select>
+
         </Box>
         <Box component="span" sx={{ display: 'block', justifyContent: 'center'}}>
           <TextField

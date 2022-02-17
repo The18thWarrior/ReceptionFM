@@ -102,7 +102,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     string calldata copyright, 
     string calldata language
   ) public returns (bool){
-    address channelOwner = getApproved(tokenId);
+    address channelOwner = ownerOf(tokenId);
     require(from == channelOwner, "You must be the channel owner to modify channel details");
 
     channelList[tokenId].channelName = channelName;
@@ -173,6 +173,10 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
       override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
   {
     super._burn(tokenId);
+  }
+
+  function _ownerOf(uint256 tokenId) public view{
+    super.ownerOf(tokenId);
   }
 
   function tokenURI(uint256 tokenId)

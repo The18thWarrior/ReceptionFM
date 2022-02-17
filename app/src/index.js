@@ -2,6 +2,8 @@ import {env} from './static/constants';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import "draft-js/dist/Draft.css"
+import "draftail/dist/draftail.css"
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { DAppProvider, Mainnet } from '@usedapp/core';

@@ -60,6 +60,11 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
   uint256 maxMemberships = 10;
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor(string memory tokenName, address _ownerContract, address _channelAddress) initializer {
+    channelAddress = _channelAddress;
+    channelContract = Channels(_channelAddress);
+    name = tokenName;
+    
+    _grantRole(OWNER_ROLE, _ownerContract);
   }
 
   function initialize(string memory tokenName, address _ownerContract, address _channelAddress) initializer public {
@@ -82,8 +87,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     levelMapping["platinum"] = Structs.Level.PLATINUM;
 
     name = tokenName;
-    channelAddress = _channelAddress;
-    channelContract = Channels(_channelAddress);
+    console.log(_channelAddress);
   }
 
   function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
@@ -97,7 +101,9 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
 
   function membershipTokenCreate(address from, uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
       // TODO : Add function to validate that the msg.sender owns channel
-      address channelOwner = channelContract.getApproved(channel);
+      console.log(channelAddress);
+      channelContract = Channels(channelAddress);
+      address channelOwner = channelContract.ownerOf(channel);
       require(from == channelOwner, "You must be the channel owner to create memberships");
 
       uint256 tokenId = _tokenIdCounter.current();
@@ -160,6 +166,11 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
   function setTokenUri(uint256 tokenId, string memory newUri) public onlyRole(OWNER_ROLE){
     require(bytes(_uris[tokenId]).length == 0, "Cannot modify existing uri");
     _uris[tokenId] = newUri;
+  }
+
+  function setChannelsAddress(address _channelAddress) public onlyRole(OWNER_ROLE){
+    channelAddress = _channelAddress;
+    channelContract = Channels(_channelAddress);
   }
 
   function getTokenIndex() public view returns (uint256) {

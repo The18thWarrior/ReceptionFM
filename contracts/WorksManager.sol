@@ -76,9 +76,9 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     return membershipContract.membershipTokenCreate(msg.sender, channel, cost, level, computedUri);
   }
 
-  function broadcastTokenCreate(uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
+  /*function broadcastTokenCreate(uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
     return broadcastContract.broadcastTokenCreate(msg.sender, channel, cost, level, computedUri);
-  }
+  }*/
 
   // 1.6
   function getChannelPostContract(uint256 channelToken) public view returns(Posts) {
@@ -113,27 +113,27 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     return membershipContract.getMembershipList(channel);
   }
 
-  function getBroadcastList(uint256 channel) public view returns (uint256[] memory) {
+  /*function getBroadcastList(uint256 channel) public view returns (uint256[] memory) {
     return broadcastContract.getBroadcastList(channel);
-  }
+  }*/
   
   // 2.4
   function membershipUri(uint256 tokenId) public view returns (string memory) {
     return membershipContract.uri(tokenId);
   }
   
-  function broadcastUri(uint256 tokenId) public view returns (string memory) {
+  /*function broadcastUri(uint256 tokenId) public view returns (string memory) {
     return broadcastContract.uri(tokenId);
-  }
+  }*/
   
   // 2.5
   function membershipMint(uint256 channel, string calldata level) public payable{
     return membershipContract.membershipMint{ value: msg.value }(channel, level, msg.sender);
   }
 
-  function broadcastMint(uint256 channel, string calldata level) public payable{
+  /*function broadcastMint(uint256 channel, string calldata level) public payable{
     return broadcastContract.broadcastMint{ value: msg.value }(channel, level, msg.sender);
-  }
+  }*/
 
   // 2.7
   function getPostTokenIndex(address contractAddress) public view returns(uint256){
@@ -175,10 +175,10 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     membershipContract = Memberships(_membershipsAddress);
   }
 
-  function setBroadcastsAddress(address _broadcastsAddress) public onlyRole(ADMIN_ROLE) {
+  /*function setBroadcastsAddress(address _broadcastsAddress) public onlyRole(ADMIN_ROLE) {
     broadcastsAddress = _broadcastsAddress;
     broadcastContract = Broadcasts(_broadcastsAddress);
-  }
+  }*/
 
   function setChannelsAddress(address _channelsAddress) public onlyRole(ADMIN_ROLE) {
     channelsAddress = _channelsAddress;

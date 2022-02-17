@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import MenuLinks from './menu';
 import {AccountButton} from './accountButton';
+import logo2 from '../../static/images/logo2.png';
 
 function Header() {
   const {account} = useEthers();
@@ -21,16 +22,10 @@ function Header() {
             <MenuLinks />
            }
             
+          <Box sx={{ flexGrow: 1, mx: 6 }}>
+            <img src={logo2} className="header-image"/>
+          </Box>
           
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            sx={{ flexGrow: 1, mx: 6 }}
-          >
-            Reception.fm
-          </Typography>
           
           <AccountButton></AccountButton>
         </Toolbar>

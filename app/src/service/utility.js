@@ -19,7 +19,7 @@ if (!String.format) {
   };
 }
 
-export const storeMetadata = async (name, description, image, type, mapping) => {
+export const storeNFTMetadata = async (name, description, image, type, mapping) => {
   let rawObj;
   if (image) {
     rawObj = {
@@ -53,6 +53,11 @@ export const storeMetadata = async (name, description, image, type, mapping) => 
   
   let metadata = await storageClient.store(rawObj);
   return metadata;
+}
+
+export const storeRawMetadata = async (metadata) => {
+  const cid = await storageClient.storeBlob(new Blob(metadata))
+  return cid;
 }
 
 export const cleanImageUrl = (uri) => {

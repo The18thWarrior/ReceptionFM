@@ -15,19 +15,43 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { storeMetadata, fetchMetadata } from '../../../../../../service/utility';
+import { storeNFTMetadata, fetchMetadata } from '../../../../../../service/utility.js';
 import LoadingButton from '@mui/lab/LoadingButton';
+import {BigNumber} from '@ethersproject/bignumber';
+import CreatePost from './components/createPost';
 
-import { getMembershipList, getMembershipUri, membershipTokenCreate } from '../../../../../../service/worksManager';
-import { membershipListColumns, levels } from '../../../../../../static/constants';
+import { 
+  getMembershipUri, 
+  createPostContract, 
+  getChannelPostContract, 
+  membershipTokenCreate, 
+  getChannelMetadata, 
+  getPostIndex,
+  getPostUri 
+} from '../../../../../../service/worksManager';
+import { membershipListColumns, levels } from '../../../../../../static/constants.js';
 
 function PostManager() {
   const { channelId } = useParams();
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const [createModalOpen, setCreateModalOpen] = React.useState(false);
+  const [postContract, setPostContract] = useState('');
+  const [postIndex, setPostIndex] = useState(null);
   const [channelPosts, setChannelPosts] = useState([]);
   const [channelPostMetadata, setChannelPostMetadata] = useState([]);
+  const [channelMetadata, setChannelMetadata] = useState([]);
  
+  useEffect(() => {
+    const _getChannelMetadata = async () => {
+      let channelUri = await getChannelMetadata(channelId);
+      if (channelUri) {
+        let metadataResponse = await fetchMetadata(BigNumber.from(channelId), channelUri);
+        (metadataResponse) ? setChannelMetadata(metadataResponse) : console.log('error channel fetchMetadata');
+      }
+    } 
+    _getChannelMetadata();
+  }, [channelId])
+  
   useEffect(() => {
     const getChannelPostMetadata = async () => {
       let metadataList = [];
@@ -45,10 +69,50 @@ function PostManager() {
     getChannelPostMetadata();
   },[channelPosts]);
 
+  useEffect(() => {
+    const _getPostIndex = async () => {
+      const pIndex = await getPostIndex(postContract);  
+      console.log(pIndex);
+      setPostIndex(pIndex);
+    } 
+    _getPostIndex();
+  },[postContract]);
+
+  useEffect(() => {
+    const _getPosts = async () => {
+      let metadataList = [];
+      if (postIndex != null) {
+        for (let i = 0; i <= postIndex; i++) {
+          let metadataUri = await getPostUri(postContract, i);
+          console.log(metadataUri);
+          if (metadataUri) {
+            let metadataResponse = await fetchMetadata(BigNumber.from(i), metadataUri);
+            (metadataResponse) ? metadataList.push(metadataResponse) : console.log('error fetchMetadata');
+          }
+        }
+        setChannelPosts(metadataList);
+      }
+    } 
+    _getPosts();
+  },[postIndex]);
+
   const getChannelPosts = async () => {
-    //const memberships = await getMembershipList(channelId);
-    //setChannelPosts(memberships);
-    //setSubmissionLoading(false);
+    try {
+      const postContractAddress = await getChannelPostContract(channelId);
+      console.log(postContractAddress);
+      setPostContract(postContractAddress);
+    } catch (e) {
+      console.log(e);
+    }
+  }; 
+
+  const mintPostContract = async () => {
+    try {
+      const postContractAddress = await createPostContract(channelMetadata.name, channelId);
+      getChannelPosts();
+    } catch (e) {
+      console.log(e);
+    }
   }; 
 
   const createChannelMembership = async (rawRow) => {
@@ -60,7 +124,7 @@ function PostManager() {
       level : row.level,
       cost : row.cost
     };
-    const metadata = await storeMetadata(row.name, row.description, null, 'membership', mapping);
+    const metadata = await storeNFTMetadata(row.name, row.description, null, 'membership', mapping);
     const membership = await membershipTokenCreate(channelId, row.cost, row.level, metadata.ipnft);
     getChannelPosts();
   };
@@ -69,62 +133,55 @@ function PostManager() {
     getChannelPosts();
   },[channelId]);
 
-  function newPost() {
-    console.log('newPost');
-    let data2 = JSON.parse(JSON.stringify(channelPostMetadata));
-    let newPost = {
-      id: uuidv4(),
-      name : 'Name',
-      isNew : true
-    };
-    data2.push(newPost);
-    setChannelPostMetadata(data2);
-    setCreateModalOpen(true);
-  }
+  useEffect(() => {
+    console.log('channelMetadata updated');
+    console.log(channelMetadata);
+  },[channelMetadata]);
 
+  
   function closeNewPostModal() {
     setCreateModalOpen(false);
   }
 
   return (
     <Box sx={{m:8}} >
-      
-      <Typography variant="h5" component="div" gutterBottom sx={{color: 'text.primary'}}>
-        Posts
-        <strong style={{ marginLeft: 'auto', float: "right"}}>
-          <IconButton aria-label="addRecord" onClick={newPost}>
-            <AddIcon />
-          </IconButton>
-        </strong>
-      </Typography>
-      <div style={{ display: 'flex', height: '20rem', width: '100%'}}>
-        <Typography variant="p" component="p" gutterBottom sx={{color: 'text.primary'}}>
-          Post List
-        </Typography>
-      </div>
+      { 
+        postContract !== '' && 
+        (
+          <div>
+            <Typography variant="h5" component="div" gutterBottom sx={{color: 'text.primary'}}>
+              Posts
+              <CreatePost contractAddress={postContract}></CreatePost>
+            </Typography>
+            <div style={{ display: 'flex', height: '20rem', width: '100%'}}>
+              <Typography variant="p" component="p" gutterBottom sx={{color: 'text.primary'}}>
+                Post List
+              </Typography>
+            </div>
 
-      <Dialog open={createModalOpen} onClose={closeNewPostModal}>
-        <DialogTitle>New Post</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To subscribe to this website, please enter your email address here. We
-            will send updates occasionally.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Email Address"
-            type="email"
-            fullWidth
-            variant="standard"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeNewPostModal}>Cancel</Button>
-          <Button onClick={closeNewPostModal}>Subscribe</Button>
-        </DialogActions>
-      </Dialog>
+            
+          </div>
+        )
+      }
+
+      {
+        !postContract && 
+        (
+          
+          <Box sx={{ display: 'flex'}}>
+            <LoadingButton
+              sx={{display: 'block', mx: "auto", width:150}}
+              onClick={() => {
+                mintPostContract();
+              }}
+              loading={submissionLoading}
+              variant="outlined"
+            >
+              Mint Post Collection
+            </LoadingButton>
+          </Box>
+        )
+      }
     </Box>
   );
 }

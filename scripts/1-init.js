@@ -140,41 +140,43 @@ const deployContracts = async () => {
   const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
   const worksManager = await worksManagerFactory.deploy();
   await worksManager.deployed();
-  //console.log('worksManager address : ',worksManager.address);
+  console.log('worksManager address : ',worksManager.address);
   
   const channelContractFactory = await hre.ethers.getContractFactory('Channels');
   const channelContract = await channelContractFactory.deploy(worksManager.address);
   await channelContract.deployed();
-  //console.log('channels address : ' + channelContract.address);
+  console.log('channels address : ' + channelContract.address);
 
   await worksManager.setChannelsAddress(channelContract.address);
-  //console.log('setChannelsAddress complete');
+  console.log('setChannelsAddress complete');
 
   const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
   const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
   await membershipsContract.deployed();
+  console.log('memberships address : ' + membershipsContract.address);
   
   await worksManager.setMembershipsAddress(membershipsContract.address);
-  //console.log('setMembershipsAddress complete');
+  //await membershipsContract.setChannelsAddress(channelContract.address);
+  console.log('setMembershipsAddress complete');
 
-  const broadcastsContractFactory = await hre.ethers.getContractFactory('Broadcasts');
-  const broadcastsContract = await broadcastsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
-  await broadcastsContract.deployed();
+  //const broadcastsContractFactory = await hre.ethers.getContractFactory('Broadcasts');
+  //const broadcastsContract = await broadcastsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
+  //await broadcastsContract.deployed();
   
-  await worksManager.setBroadcastsAddress(broadcastsContract.address);
+  //await worksManager.setBroadcastsAddress(broadcastsContract.address);
   //console.log('setBroadcastsAddress complete');
   
-  const postContractFactory = await hre.ethers.getContractFactory('Posts');
-  const postContract = await postContractFactory.deploy("default Post", "DFLT", worksManager.address);
-  await postContract.deployed();
-  
-  await worksManager.setPostAddress(postContract.address);
+  //const postContractFactory = await hre.ethers.getContractFactory('Posts');
+  //const postContract = await postContractFactory.deploy("default Post", 0, "DFLT", worksManager.address, channelContract.address, membershipsContract.address);
+  //await postContract.deployed();
+  //await worksManager.setPostAddress(postContract.address);
+  //console.log('postContract complete');
   
   const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
-  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, postContract.address, channelContract.address);
+  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address);
   await postFactoryContract.deployed();
-  //console.log(postFactoryContract.address);
-  //console.log('postFactory address : ' + postFactoryContract.address);
+  console.log(postFactoryContract.address);
+  console.log('postFactory address : ' + postFactoryContract.address);
   
   await worksManager.setPostFactoryAddress(postFactoryContract.address);
   console.log('Contract deployment complete');

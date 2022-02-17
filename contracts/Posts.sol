@@ -47,6 +47,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
 
   uint256 public channelToken;
   mapping(string => Structs.Level) public levelMap;
+  mapping(Structs.Level => uint256) public levelMap2;
   //mapping(address => Membership) public membershipOwnershipMap;
   mapping(uint256 => string) private _uris;
   mapping(uint256 => string) private _paywallUri;
@@ -54,14 +55,23 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   mapping(uint256 => bool) private _mintable;
   mapping(uint256 => bool) private _buyable;
   mapping(uint256 => uint256) private _cost;
-  mapping(uint256 => Structs.Level[]) private _tokenLevel;
+  mapping(uint256 => Structs.Level) private _tokenLevel;
+  mapping(uint256 => uint256) private _tokenLevel2;
   mapping(address => uint256[]) private _redemptions;
 
   uint256 maxMemberships = 10;
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, string memory tokenCode, address to, address _channelAddress, address _broadcastsAddress) initializer {}
+  constructor(string memory tokenName, uint256 _channelToken, address to, address _channelAddress, address _membershipsAddress) initializer {
+    name = tokenName;
+    channelToken = _channelToken;
+    depositorAddress = to;
+    channelAddress = _channelAddress;
+    channelContract = Channels(channelAddress);
+    membershipsAddress = _membershipsAddress;
+    membershipsContract = Memberships(membershipsAddress);
+  }
 
-  function initialize(string memory tokenName, uint256 _channelToken, address to, address _channelAddress, address _membershipsAddress, address _broadcastsAddress) initializer public {
+  function initialize(string memory tokenName, address to) initializer public {
     //require(msg.sender == RECEPTION_ACCOUNT, "Wrong Account Deployer");
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
@@ -72,7 +82,6 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(ADMIN_ROLE, msg.sender);
     _grantRole(OWNER_ROLE, to);
-    depositorAddress = to;
 
     levelMap["bronze"] = Structs.Level.BRONZE;
     levelMap["silver"] = Structs.Level.SILVER;
@@ -80,14 +89,11 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     levelMap["platinum"] = Structs.Level.PLATINUM;
     levelMap["all"] = Structs.Level.ALL;
 
-    name = tokenName;
-    channelToken = _channelToken;
-    channelAddress = _channelAddress;
-    channelContract = Channels(channelAddress);
-    membershipsAddress = _membershipsAddress;
-    membershipsContract = Memberships(membershipsAddress);
-    broadcastsAddress = _broadcastsAddress;
-    broadcastsContract = Broadcasts(broadcastsAddress);
+    levelMap2[Structs.Level.BRONZE] = 1;
+    levelMap2[Structs.Level.SILVER] = 2;
+    levelMap2[Structs.Level.GOLD] = 3;
+    levelMap2[Structs.Level.PLATINUM] = 4;
+    levelMap2[Structs.Level.ALL] = 0;
   }
 
   function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
@@ -96,15 +102,21 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
 
   function createPostToken(address owner, uint256 cost, bool isBuyable, bool isPublic, string calldata computedUri, string calldata paywallUri_, bool mintable, string[] calldata levels) public returns(uint256) {
       // TODO : Add function to validate that the msg.sender owns channel
-      address channelOwner = channelContract.getApproved(channelToken);
-      require(owner == channelOwner, "You must be the channel owner to create posts");
+      console.log(channelToken, channelAddress);
+      uint256[] memory channelList = channelContract.getOwnerChannelIds(owner);
+      bool isOwnerMatch = false;
+      for(uint256 i = 0; i < channelList.length; i++) {
+        if (channelToken == channelList[i]) {
+          isOwnerMatch = true;
+        }
+      }
+      require(isOwnerMatch, "You must be the channel owner to create posts");
 
       // Required inputs
       if (!isPublic) {
         require(levels.length > 0, "You must include at least 1 level to create a non-public post");
       }
       
-
       uint256 tokenId = _tokenIdCounter.current();
       _tokenIdCounter.increment();
       setTokenUriInternal(tokenId, computedUri);
@@ -113,14 +125,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       _buyable[tokenId] = isBuyable;
       _mintable[tokenId] = mintable;
       _cost[tokenId] = cost;
-      Structs.Level[] memory levelList;
-      for (uint256 i = 0; i < levels.length; i++) {
-        Structs.Level lmap = levelMap[levels[i]];
-        levelList[i] = lmap;
-      }
-      if (levelList.length > 0) {
-        setTokenLevels(tokenId, levelList);
-      }
+      setTokenLevels(tokenId, levelMap2[levelMap[levels[0]]]);
       emit NewPostTokenCreated(owner, tokenId);
       return tokenId;
   }
@@ -132,32 +137,24 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     }
 
     // validate that the msg.sender owns membership
-    uint256 membershipAmount = membershipsContract.balanceOf(to, membershipId);
-    require(membershipAmount == 1 || hasPaid, "You must be a member of the channel to mint post NFTs");
+    require(membershipsContract.balanceOf(to, membershipId) == 1 || hasPaid, "You must be a member of the channel to mint post NFTs");
 
     bool membershipMatch = false;
     Structs.Level membershipLevel = membershipsContract.getTokenLevel(membershipId);
-    Structs.Level[] storage tokenLevels = _tokenLevel[tokenId];
-    for (uint256 i = 0; i < tokenLevels.length; i++) {
-      Structs.Level tokenLevel = tokenLevels[i];
-      if (tokenLevel == Structs.Level.ALL) {
-        membershipMatch = true;
-      } else if (tokenLevel == membershipLevel){
-        membershipMatch = true;
-      } else if (hasPaid) {
-        //Override in the scenario where this msg has paid and this post is payable
-        membershipMatch = true;
-      }
+    if (_tokenLevel[tokenId] == Structs.Level.ALL) {
+      membershipMatch = true;
+    } else if (levelMap2[_tokenLevel[tokenId]] >= levelMap2[membershipLevel]){
+      membershipMatch = true;
+    } else if (hasPaid) {
+      //Override in the scenario where this msg has paid and this post is payable
+      membershipMatch = true;
     }
     require(membershipMatch, "Your membership level does not give you minting access");  
 
+    require(_mintable[tokenId] == true, "This post is not mintable");
 
-    bool mintable = _mintable[tokenId];
-    require(mintable == true, "This post is not mintable");
-
-    uint256[] storage redemptions = _redemptions[to];
-    for(uint256 i = 0; i < redemptions.length; i++) {
-      require(redemptions[i] != tokenId, 'Sorry, you have already redeemed this NFT');
+    for(uint256 i = 0; i < _redemptions[to].length; i++) {
+      require(_redemptions[to][i] != tokenId, 'Sorry, you have already redeemed this NFT');
     }
 
     _mint(to, tokenId, 1, "");
@@ -217,9 +214,9 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _uris[tokenId] = newUri;
   }
 
-  function setTokenLevels(uint256 tokenId, Structs.Level[] memory newLevels) public onlyRole(OWNER_ROLE){
-    require(_tokenLevel[tokenId].length == 0, "Cannot modify existing level allocation");
-    _tokenLevel[tokenId] = newLevels;
+  function setTokenLevels(uint256 tokenId, uint256 newLevels) public onlyRole(OWNER_ROLE){
+    //require(_tokenLevel[tokenId].length == 0, "Cannot modify existing level allocation");
+    _tokenLevel2[tokenId] = newLevels;
   }
 
   function getTokenIndex() public view returns (uint256) {

@@ -33,13 +33,11 @@ contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, Access
   mapping(uint256 => uint256) channelToIndex;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-  constructor(address _contractOwner, address _originalContract, address _channelsAddress, address _membershipsAddress, address _broadcastsAddress){
+  constructor(address _contractOwner, address _channelsAddress, address _membershipsAddress){
     contractOwner = _contractOwner;
-    originalContract = _originalContract;
     channelsAddress = _channelsAddress;
     channelContract = Channels(channelsAddress);
     membershipsAddress = _membershipsAddress;
-    broadcastsAddress = _broadcastsAddress;
   }
   
   function initialize(address _contractOwner) initializer public{
@@ -52,11 +50,11 @@ contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, Access
 
   function createPostContract(string calldata tokenName, uint256 tokenChannel, address to) public{
     // TODO : Add function for verifiying ownership
-    address channelOwner = channelContract.getApproved(tokenChannel);
+    address channelOwner = channelContract.ownerOf(tokenChannel);
     require(to == channelOwner, "You must be the channel owner to create memberships");
 
-    Posts child = Posts(createClone(originalContract));
-    child.initialize(tokenName, tokenChannel, to, channelsAddress, membershipsAddress, broadcastsAddress);
+    //Posts child = Posts(createClone(originalContract));
+    Posts child = new Posts(tokenName, tokenChannel, to, channelsAddress, membershipsAddress);
     children.push(child);
     uint256 tokenIndex = _postContractIndex.current();
     _postContractIndex.increment();
@@ -65,6 +63,7 @@ contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, Access
 
   function getChannelPostContract(uint256 tokenChannel) public view returns(Posts) {
     uint256 postIndex = channelToIndex[tokenChannel];
+    console.log(postIndex);
     return children[postIndex];
   }
 

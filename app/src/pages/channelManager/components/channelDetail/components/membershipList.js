@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
-import { storeMetadata, fetchMetadata } from '../../../../../service/utility';
+import { storeNFTMetadata, fetchMetadata } from '../../../../../service/utility';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { getMembershipList, getMembershipUri, membershipTokenCreate } from '../../../../../service/worksManager';
@@ -106,7 +106,7 @@ function MembershipList() {
       level : row.level,
       cost : row.cost
     };
-    const metadata = await storeMetadata(row.name, row.description, null, 'membership', mapping);
+    const metadata = await storeNFTMetadata(row.name, row.description, null, 'membership', mapping);
     const membership = await membershipTokenCreate(channelId, row.cost, row.level, metadata.ipnft);
     getChannelMemberships();
   };
