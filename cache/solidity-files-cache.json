@@ -894,8 +894,8 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Posts.sol": {
-      "lastModificationDate": 1645079184284,
-      "contentHash": "38df0a47d1ee2119f4760802282b1288",
+      "lastModificationDate": 1645080055485,
+      "contentHash": "4e4cd86c73d939474614b9423376cb2b",
       "sourceName": "contracts/Posts.sol",
       "solcConfig": {
         "version": "0.8.7",

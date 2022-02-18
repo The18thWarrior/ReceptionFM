@@ -13,13 +13,14 @@ import logo2 from '../../static/images/logo2.png';
 
 function Header() {
   const {account} = useEthers();
+  const [menuType, setMenuType] = useState('artist');
 
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar position="absolute">
         <Toolbar>
            {account && 
-            <MenuLinks />
+            <MenuLinks ui={menuType} />
            }
             
           <Box sx={{ flexGrow: 1, mx: 6 }}>
@@ -27,7 +28,7 @@ function Header() {
           </Box>
           
           
-          <AccountButton></AccountButton>
+          <AccountButton sx={{ flexGrow: 1, mx: 6 }} menuChange={setMenuType}></AccountButton>
         </Toolbar>
       </AppBar>
     </Box>

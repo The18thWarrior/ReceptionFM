@@ -22,7 +22,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 
-function MenuLinks () {
+function MenuLinks (data) {
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -38,7 +38,7 @@ function MenuLinks () {
     setState({ ...state, [anchor]: open });
   };
 
-  let linkList = [
+  let artistLinkList = [
     {
       name: 'Dashboard',
       link: '/'
@@ -52,6 +52,20 @@ function MenuLinks () {
       link: '/manage'
     }
   ];
+  let fanLinkList = [
+    {
+      name: 'Dashboard',
+      link: '/'
+    },
+    {
+      name: 'My Account',
+      link: '/account'
+    },
+    {
+      name: 'Channel List',
+      link: '/manage'
+    }
+  ];
 
   const list = (anchor) => (
     <Box
@@ -61,11 +75,21 @@ function MenuLinks () {
       onKeyDown={toggleMenu(anchor, false)}
     >
       <List>
-        {linkList.map((linkVal) => (
-          <ListItem button component={Link} to={linkVal.link} key={linkVal.name}>   
-            <ListItemText primary={linkVal.name}/>
-          </ListItem>
-        ))}
+        {data.ui === 'artist' && 
+          (artistLinkList.map((linkVal) => (
+            <ListItem button component={Link} to={linkVal.link} key={linkVal.name}>   
+              <ListItemText primary={linkVal.name}/>
+            </ListItem>
+          )))
+        }
+
+        {data.ui === 'fan' && 
+          (fanLinkList.map((linkVal) => (
+            <ListItem button component={Link} to={linkVal.link} key={linkVal.name}>   
+              <ListItemText primary={linkVal.name}/>
+            </ListItem>
+          )))
+        }
       </List>
     </Box>
   );
