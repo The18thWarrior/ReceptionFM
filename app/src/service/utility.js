@@ -2,7 +2,7 @@ import env from "react-dotenv";
 import { basicSvg } from "../static/constants";
 import { NFTStorage, File, Blob } from 'nft.storage';
 //Static References
-const nftStorageAddress = env.REACT_APP_NFT_STORAGE_API_KEY;
+const nftStorageAddress = process.env.REACT_APP_NFT_STORAGE_API_KEY;
 
 //const contract = new Contract(wethContractAddress, wethInterface);
 const storageClient = new NFTStorage({ token: nftStorageAddress });
@@ -19,7 +19,7 @@ if (!String.format) {
   };
 }
 
-export const storeNFTMetadata = async (name, description, image, type, mapping) => {
+export const storeNFTMetadata = async (name, description, image, mtype, mapping) => {
   let rawObj;
   if (image) {
     rawObj = {
@@ -36,7 +36,7 @@ export const storeNFTMetadata = async (name, description, image, type, mapping) 
   } else {
     
     let svgString = basicSvg.svgPartOne + basicSvg.svgPartTwo + basicSvg.svgPartThree;
-    const metadata1Image = String.format(svgString, name + ' '+ type);
+    const metadata1Image = String.format(svgString, name + ' '+ mtype);
     const metadata1Blob = new Blob([metadata1Image], {type: 'image/svg+xml'});
     rawObj = {
       name: name,
@@ -73,5 +73,6 @@ export const fetchMetadata = async (token, metadataUri) => {
     metadataResponse["id"] = token.toHexString();
     metadataResponse["parse_image"] = cleanImageUrl(metadataResponse.image);
   }
+  console.log(metadataResponse);
   return metadataResponse;
 }

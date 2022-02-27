@@ -51,7 +51,7 @@ function ChannelList() {
   
 
   return (
-    <div className="dark-background" style={{ height: '100%'}}>
+    <div className="dark-background" style={{ height: ' 100vh'}}>
       <div style={{ height: 400, width: '100%'}}>
         <DataGrid
           rows={channelMetadata}

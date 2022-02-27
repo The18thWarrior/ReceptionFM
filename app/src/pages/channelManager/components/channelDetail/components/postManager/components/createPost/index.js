@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import Dropzone, {useDropzone} from 'react-dropzone';
 import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { DataGrid } from '@mui/x-data-grid';
@@ -15,8 +16,16 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ImageIcon from '@mui/icons-material/Image';
+import AudioFileIcon from '@mui/icons-material/AudioFile';
+import VideoFileIcon from '@mui/icons-material/VideoFile';
+import Snackbar from '@mui/material/Snackbar';
+import CloseIcon from '@mui/icons-material/Close';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -43,7 +52,13 @@ import TextInput from '../../../../../../../../components/text-input';
 
 
 function CreatePost(contractAddress) {
-  
+  const [openError, setOpenError] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
+  const handleCloseError = (event, reason) => {
+    setErrorMessage('');
+    setOpenError(false);
+  };
+  const {acceptedFiles, getRootProps, getInputProps} = useDropzone();
   const [createModalOpen, setCreateModalOpen] = React.useState(false);
   const [submissionLoading, setSubmissionLoading] = React.useState(false);
   const [postName, setPostName] = useState('');
@@ -52,21 +67,6 @@ function CreatePost(contractAddress) {
   };
 
   const [postBody, setPostBody] = useState('');
-
-  const [postAuthor, setPostAuthor] = useState('');
-  const handleAuthorChange = (event) => {
-    setPostAuthor(event.target.value);
-  };
-  
-  const [postCopyright, setPostCopyright] = useState('');
-  const handleCopyrightChange = (event) => {
-    setPostCopyright(event.target.value);
-  };
-  
-  const [postLanguage, setPostLanguage] = useState('');
-  const handleLanguageChange = (event) => {
-    setPostLanguage(event.target.value);
-  };
 
   const [postDescription, setPostDescription] = useState('');
   const handleDescriptionChange = (event) => {
@@ -103,53 +103,121 @@ function CreatePost(contractAddress) {
   });
 
   function textChanged(event) {
-    console.log(event);
     if (event.inputName === 'body') {
       setPostBody(event.htmlVal);
-    } else if (event.inputName === 'header') {
+    } else if (event.inputName === 'Title') {
       setPostName(event.textVal)
-    } else if (event.inputName === 'description') {
+    } else if (event.inputName === 'Description') {
       setPostDescription(event.textVal)
     }
   }
 
   function isDataValid() {
-    if (postName.length < 2) {
+    if (!postName || postName.length < 2) {
+      setErrorMessage('Missing post name');
       return false;
     }
-    if (postBody.length < 10) {
+    if (!postImage || postImage === '') {
+      setErrorMessage('Missing post image');
       return false;
     }
-    if (postImage === '') {
-      return false;
-    }
-    if (postDescription.length < 5) {
+    if (!postDescription || postDescription.length < 5) {
+      setErrorMessage('Missing post description');
       return false;
     }
     return true;
   }
-
   
   const createPost = async function() {
     if (isDataValid()) {
       setSubmissionLoading(true);
       const metadata = await storeNFTMetadata(postName, postDescription, postImage, 'post');
-      const paywall = await storeRawMetadata([postBody]);
+      let customMapping = {properties: {
+        files: []
+      }};
+      for (let f of acceptedFiles) {
+        customMapping.properties.files.push(
+          new File(
+            [f],
+            f.path.split('.').pop(),
+            {
+              type: f.type,
+            }
+          )
+        )
+      }
+      const paywall = await storeNFTMetadata(postName, postDescription, postImage, 'post', customMapping);
       try {
         console.log(metadata.ipnft, paywall, contractAddress.contractAddress);
         handleMetadataChange(metadata.ipnft);      
-        const postToken = await createPostToken(contractAddress.contractAddress, 10, false, true, metadata.ipnft, paywall, true, ["ALL"]);
+        const postToken = await createPostToken(contractAddress.contractAddress, 10, false, true, metadata.ipnft, paywall.ipnft, true, ["ALL"]);
         console.log(postToken);
 
         setSubmissionLoading(false);
       } catch (e) {
         console.log(e);
         setSubmissionLoading(false);
+        setErrorMessage(e.data.message);
+        setOpenError(true);
       }
+    } else {
+      setOpenError(true);
     }
-  }
-
+  }  
   
+  const files = acceptedFiles.map(file => (
+    <Paper key={file.path} 
+      sx={{
+        display: 'block',
+        textAlign: 'center',
+        fontWeight: 'light',
+        p:2,
+        backgroundColor: 'transparent'
+      }}
+      elevation={0}
+    >
+      {(file.path.endsWith(".png") || file.path.endsWith(".png")) && 
+        <ImageIcon sx={{mx:'auto', display:'block', fontSize: "2.5rem"}}></ImageIcon>
+      }
+      {(file.path.endsWith(".pdf")) && 
+        <PictureAsPdfIcon sx={{mx:'auto', display:'block', fontSize: "2.5rem"}}></PictureAsPdfIcon>
+      }
+      {(file.path.endsWith(".mp3") || file.path.endsWith(".m4a")) && 
+        <AudioFileIcon sx={{mx:'auto', display:'block', fontSize: "2.5rem"}}></AudioFileIcon>
+      }
+      {(file.path.endsWith(".mp4") || file.path.endsWith(".mov")) && 
+        <VideoFileIcon sx={{mx:'auto', display:'block', fontSize: "2.5rem"}}></VideoFileIcon>
+      }
+      <Typography 
+        component="span"
+        variant="caption"
+        color="inherit"
+        sx={{
+          position: 'relative', 
+          textAlign: 'center',
+          fontWeight: 'light'
+        }}
+      >
+        {file.type}
+      </Typography>
+    </Paper>
+  ));
+
+  const errorAction = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={handleCloseError}>
+        
+      </Button>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseError}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
   return (
     <div>
       <strong style={{ marginLeft: 'auto', float: "right"}}>
@@ -164,9 +232,19 @@ function CreatePost(contractAddress) {
           <Card sx={{ maxWidth: 1200 }}>
             <CardContent>
               <UploadImage onImageChange={mainImageChanged}></UploadImage>
-              <TextInput  onTextChange={textChanged} textType="h5" inputName="header" inputType="text" defaultText="Enter Title"></TextInput>
-              <TextInput  onTextChange={textChanged} textType="body2" inputName="description" inputType="text" defaultText="Enter Description"></TextInput>
-              <TextInput  onTextChange={textChanged} textType="body2" inputName="body" inputType="rtf" defaultText="Enter Body"></TextInput>
+              <TextInput onTextChange={textChanged} textType="h5" inputName="Title" inputType="text" defaultText="Enter Title"></TextInput>
+              <TextInput onTextChange={textChanged} textType="body2" inputName="Description" inputType="textarea" defaultText="Enter Description" sx={{mb:2}}></TextInput>
+              <Card className="dropzone-container">
+                <div {...getRootProps({className: 'dropzone'})}>
+                  <input {...getInputProps()} />
+                  <Typography component="div" variant="body" color="inherit">Drop content here</Typography>
+                </div>
+                <aside className="drop-aside">
+                  <Stack direction="row" spacing={2} sx={{m:3}}>
+                    {files}
+                  </Stack>
+                </aside>
+              </Card>
             </CardContent>
           </Card>
           
@@ -183,6 +261,14 @@ function CreatePost(contractAddress) {
           </LoadingButton>
         </DialogActions>
       </Dialog>
+      
+      <Snackbar
+        open={openError}
+        autoHideDuration={6000}
+        onClose={handleCloseError}
+        message={errorMessage}
+        action={errorAction}
+      />
     </div>
     
   )

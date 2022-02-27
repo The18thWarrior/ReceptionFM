@@ -19,7 +19,7 @@ import {storeNFTMetadata} from '../../../../service/utility';
 
 
 //Static References
-const nftStorageAddress = env.REACT_APP_NFT_STORAGE_API_KEY;
+const nftStorageAddress = process.env.REACT_APP_NFT_STORAGE_API_KEY;
 
 //const contract = new Contract(wethContractAddress, wethInterface);
 const storageClient = new NFTStorage({ token: nftStorageAddress });
@@ -99,7 +99,7 @@ function ChannelCreator() {
   });
 
   return (
-    <Box maxWidth="max" sx={{pt: 4}} className="dark-background">
+    <Box maxWidth="max" sx={{pt: 4, height: ' 100vh'}} className="dark-background">
       <Box sx={{ p: 8, color: 'text.primary', fontSize: 'h6.fontSize', display: 'flex', justifyContent: 'center'}}>Mint New Channel</Box>
       <Box maxWidth="max" sx={{ flexDirection: 'row', p: 8}}> 
         <Box sx={{ justifyContent: 'center'}}>

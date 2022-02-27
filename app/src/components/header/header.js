@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate  } from 'react-router-dom';
 import { useEtherBalance, useEthers } from '@usedapp/core';
 import { formatEther } from '@ethersproject/units';
 import AppBar from '@mui/material/AppBar';
@@ -14,6 +14,17 @@ import logo2 from '../../static/images/logo2.png';
 function Header() {
   const {account} = useEthers();
   const [menuType, setMenuType] = useState('artist');
+  let navigate = useNavigate();
+
+  function menuHasChanged(menu) {
+    setMenuType(menu);
+    console.log(menu);
+    if (menu === 'artist') {
+      navigate("/");
+    } else if (menu === 'fan'){
+      navigate("/channels");
+    }
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -28,7 +39,7 @@ function Header() {
           </Box>
           
           
-          <AccountButton sx={{ flexGrow: 1, mx: 6 }} menuChange={setMenuType}></AccountButton>
+          <AccountButton sx={{ flexGrow: 1, mx: 6 }} menuChange={menuHasChanged}></AccountButton>
         </Toolbar>
       </AppBar>
     </Box>

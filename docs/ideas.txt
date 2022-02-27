@@ -1,0 +1,9 @@
+Public page to verify channel membership w/ signed transaction - camera scans QR
+  - Signed transaction page generated QR code 
+JS Plugin to paywall a page on your website based on NFT membership
+Dapp Media Player for instant syndication
+Promo post type
+  - post w/ private metadata
+  - minting unlocks promo code
+Payable post minting
+Plugin to lock part of discord access based on a NFT signature. 

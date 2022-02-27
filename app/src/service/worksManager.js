@@ -14,7 +14,7 @@ const nftContract = new ethers.Contract(
   signer
 );
 
-const CHANNEL_COST = "0.25";
+const CHANNEL_COST = "2";
 
 export const mintChannel = async function(channelName, channelMetadata, author, copyright, language) {
   const options = {value: ethers.utils.parseEther(CHANNEL_COST)}
@@ -60,6 +60,21 @@ export const getMembershipUri = async function(membershipId) {
   return nftTx;
 }
 
+export const getMembership = async function(membershipId) {
+  let nftTx = await nftContract.getMembership(membershipId);
+  return nftTx;
+}
+
+export const mintChannelMembership = async function(channel, level, cost) {
+  const options = {value: ethers.utils.parseEther(String(cost))}
+  let nftTx = await nftContract.membershipMint(channel, level, options);
+  console.log('Mining....', nftTx.hash);
+
+  let tx = await nftTx.wait();
+  console.log(tx);
+
+  return 'success';
+}
 
 export const getChannelPostContract = async function(channelToken) {
   //const options = {value: ethers.utils.parseEther(CHANNEL_COST)}
@@ -77,12 +92,14 @@ export const createPostContract = async function(tokenName, channel) {
 
 export const getPostIndex = async function(postAddress) {
   //const options = {value: ethers.utils.parseEther(CHANNEL_COST)}
+  console.log(postAddress);
   let nftTx = await nftContract.getPostTokenIndex(postAddress);
   return nftTx;
 }
 
 export const getPostUri = async function(postAddress, postId) {
   //const options = {value: ethers.utils.parseEther(CHANNEL_COST)}
+  console.log(postAddress, postId);
   let nftTx = await nftContract.getPostUri(postAddress, postId);
   return nftTx;
 }
@@ -90,5 +107,11 @@ export const getPostUri = async function(postAddress, postId) {
 export const createPostToken = async function(postAddress, cost, isBuyable, isPublic, computedUri, paywallUri, mintable, levels) {
   //const options = {value: ethers.utils.parseEther(CHANNEL_COST)}
   let nftTx = await nftContract.createPostToken(postAddress, cost, isBuyable, isPublic, computedUri, paywallUri, mintable, levels);
+  return nftTx;
+}
+
+export const getCurrentChannelIndex = async function() {
+  //const options = {value: ethers.utils.parseEther(CHANNEL_COST)}
+  let nftTx = await nftContract.getCurrentChannelIndex();
   return nftTx;
 }

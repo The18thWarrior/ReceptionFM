@@ -21,6 +21,7 @@ import Button from '@mui/material/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import logo2 from '../../static/images/logo2.png';
 
 function MenuLinks (data) {
   const [state, setState] = React.useState({
@@ -49,21 +50,21 @@ function MenuLinks (data) {
     },
     {
       name: 'Channel Manager',
-      link: '/manage'
+      link: '/manage/'
     }
   ];
   let fanLinkList = [
-    {
-      name: 'Dashboard',
-      link: '/'
-    },
     {
       name: 'My Account',
       link: '/account'
     },
     {
-      name: 'Channel List',
-      link: '/manage'
+      name: 'Timeline',
+      link: '/channels/'
+    },
+    {
+      name: 'Subscriptions',
+      link: '/channels/subscription'
     }
   ];
 
@@ -74,6 +75,9 @@ function MenuLinks (data) {
       onClick={toggleMenu(anchor, false)}
       onKeyDown={toggleMenu(anchor, false)}
     >
+      <Box sx={{ mx: 'auto' }}>
+        <img src={logo2} className="side-image"/>
+      </Box>
       <List>
         {data.ui === 'artist' && 
           (artistLinkList.map((linkVal) => (

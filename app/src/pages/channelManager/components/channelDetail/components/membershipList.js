@@ -131,7 +131,6 @@ function MembershipList() {
   }
 
   function createMembership(row) {
-    console.log(row);
     setSubmissionLoading(true);
     createChannelMembership(row);
   }

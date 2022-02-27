@@ -53,7 +53,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
   mapping(string => Structs.Level) public levelMapping;
   //mapping(address => Membership) public membershipOwnershipMap;
   mapping(uint256 => string) private _uris;
-  mapping(uint256 => uint256[]) private _channelMap;
+  mapping(uint256 => uint256[]) public _channelMap;
   mapping(uint256 => uint256) private _tokenCost;
   mapping(uint256 => Structs.Level) private _tokenLevel;
 
@@ -120,6 +120,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
 
   function membershipMint(uint256 channel, string calldata level, address to) public payable {
     uint256[] memory memberships = _channelMap[channel];
+    console.log(channel);
     require(memberships.length > 0, 'No memberships minted for this channel');
     uint256 tokenId;
     for (uint256 i = 0;i<memberships.length;i++) {
@@ -135,8 +136,14 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     //require(msg.value > cost, 'Not enough value included in transaction');
     uint256 cost = _tokenCost[tokenId];
     if (cost >= msg.value) {
-      console.log('not enough moneybags');
+      console.log('not enough moneybags', cost, msg.value);
     }
+    
+    require( msg.value >= cost, 'Not enough $$ :( ');
+
+    address ownerPayable = payable(channelContract.ownerOf(channel));
+    (bool success, ) = ownerPayable.call{value: msg.value}("");
+    require(success, "Failed to send MATIC");
     
     _mint(to, tokenId, 1, "");
     _channelMap[channel].push(tokenId); 
@@ -181,8 +188,8 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     return _channelMap[channel];
   }
 
-  function getMembership(uint256 tokenId) public view returns (uint256) {
-    return balanceOf(msg.sender, tokenId);
+  function getMembership(uint256 tokenId, address to) public view returns (uint256) {
+    return balanceOf(to, tokenId);
   }
 
   function getTokenLevel(uint256 tokenId) public view returns(Structs.Level) {

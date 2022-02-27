@@ -28,7 +28,6 @@ function ChannelDetail() {
         let metadataRequest = await fetch("https://ipfs.io/ipfs/"+channelUri+'/metadata.json');
         let metadataResponse = await metadataRequest.json();
         metadataResponse["parse_image"] = cleanImageUrl(metadataResponse.image);
-        console.log(metadataResponse);
         setChannelMetadata(metadataResponse);
       }
     } 

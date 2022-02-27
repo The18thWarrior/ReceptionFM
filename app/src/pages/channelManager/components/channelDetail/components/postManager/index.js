@@ -19,6 +19,7 @@ import { storeNFTMetadata, fetchMetadata } from '../../../../../../service/utili
 import LoadingButton from '@mui/lab/LoadingButton';
 import {BigNumber} from '@ethersproject/bignumber';
 import CreatePost from './components/createPost';
+import PostList from './components/postList';
 
 import { 
   getMembershipUri, 
@@ -69,32 +70,6 @@ function PostManager() {
     getChannelPostMetadata();
   },[channelPosts]);
 
-  useEffect(() => {
-    const _getPostIndex = async () => {
-      const pIndex = await getPostIndex(postContract);  
-      console.log(pIndex);
-      setPostIndex(pIndex);
-    } 
-    _getPostIndex();
-  },[postContract]);
-
-  useEffect(() => {
-    const _getPosts = async () => {
-      let metadataList = [];
-      if (postIndex != null) {
-        for (let i = 0; i <= postIndex; i++) {
-          let metadataUri = await getPostUri(postContract, i);
-          console.log(metadataUri);
-          if (metadataUri) {
-            let metadataResponse = await fetchMetadata(BigNumber.from(i), metadataUri);
-            (metadataResponse) ? metadataList.push(metadataResponse) : console.log('error fetchMetadata');
-          }
-        }
-        setChannelPosts(metadataList);
-      }
-    } 
-    _getPosts();
-  },[postIndex]);
 
   const getChannelPosts = async () => {
     try {
@@ -149,15 +124,16 @@ function PostManager() {
         postContract !== '' && 
         (
           <div>
-            <Typography variant="h5" component="div" gutterBottom sx={{color: 'text.primary'}}>
-              Posts
+            <Box sx={{display: 'block'}}>
               <CreatePost contractAddress={postContract}></CreatePost>
-            </Typography>
-            <div style={{ display: 'flex', height: '20rem', width: '100%'}}>
-              <Typography variant="p" component="p" gutterBottom sx={{color: 'text.primary'}}>
-                Post List
+              <Typography variant="h5" component="div" gutterBottom sx={{color: 'text.primary'}}>
+                Posts
               </Typography>
-            </div>
+            </Box>
+            
+            <Box sx={{display: 'block'}}>
+              <PostList contractAddress={postContract}></PostList>
+            </Box>
 
             
           </div>

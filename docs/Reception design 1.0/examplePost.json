@@ -1,0 +1,16 @@
+{
+  "721" : {
+    "name": "post1",
+    "description" : "my first post", 
+    "image" : "721 image",
+    "level" : "BRONZE"
+  },
+  "postDetails" : {
+    "text_details" : "longtext",
+    "media" : [],
+    "publishDate" : "2021-02-01",
+    "media_type" : ["video", "image", "audio"]
+  }
+}
+
+

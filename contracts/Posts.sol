@@ -103,6 +103,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   function createPostToken(address owner, uint256 cost, bool isBuyable, bool isPublic, string calldata computedUri, string calldata paywallUri_, bool mintable, string[] calldata levels) public returns(uint256) {
       // TODO : Add function to validate that the msg.sender owns channel
       console.log(channelToken, channelAddress);
+      console.log(owner);
       uint256[] memory channelList = channelContract.getOwnerChannelIds(owner);
       bool isOwnerMatch = false;
       for(uint256 i = 0; i < channelList.length; i++) {
@@ -125,7 +126,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       _buyable[tokenId] = isBuyable;
       _mintable[tokenId] = mintable;
       _cost[tokenId] = cost;
-      setTokenLevels(tokenId, levelMap2[levelMap[levels[0]]]);
+      setTokenLevelsInternal(tokenId, levelMap2[levelMap[levels[0]]]);
       emit NewPostTokenCreated(owner, tokenId);
       return tokenId;
   }
@@ -182,7 +183,33 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   }
   
   function uri(uint256 tokenId) override public view returns (string memory) {
-    return(_uris[tokenId]);
+    uint256[] memory membershipList = membershipsContract.getMembershipList(channelToken);
+    bool hasMembership = false;
+    for(uint256 i = 0; i < membershipList.length; i++) {
+      if (membershipsContract.balanceOf(msg.sender, membershipList[i]) == 1) {
+        hasMembership = true;
+      }
+    }
+    if (hasMembership) {
+      return _paywallUri[tokenId];
+    } else {
+      return(_uris[tokenId]);
+    }
+  }
+
+  function uri2(uint256 tokenId, address to) public view returns (string memory) {
+    uint256[] memory membershipList = membershipsContract.getMembershipList(channelToken);
+    bool hasMembership = false;
+    for(uint256 i = 0; i < membershipList.length; i++) {
+      if (membershipsContract.balanceOf(to, membershipList[i]) == 1) {
+        hasMembership = true;
+      }
+    }
+    if (hasMembership) {
+      return _paywallUri[tokenId];
+    } else {
+      return(_uris[tokenId]);
+    }
   }
 
   function paywallUri(address to, uint256 tokenId, uint256 membershipId, uint256 broadcastId) public view returns (string memory) {
@@ -207,6 +234,11 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   function setPaywallUriInternal(uint256 tokenId, string memory newUri) internal{
     require(bytes(_paywallUri[tokenId]).length == 0, "Cannot modify existing uri");
     _paywallUri[tokenId] = newUri;
+  }
+
+  function setTokenLevelsInternal(uint256 tokenId, uint256 newLevels) internal{
+    //require(_tokenLevel[tokenId].length == 0, "Cannot modify existing level allocation");
+    _tokenLevel2[tokenId] = newLevels;
   }
 
   function setTokenUri(uint256 tokenId, string memory newUri) public onlyRole(OWNER_ROLE){

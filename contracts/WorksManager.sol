@@ -113,6 +113,10 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     return membershipContract.getMembershipList(channel);
   }
 
+  function getMembership(uint256 membershipId) public view returns (uint256) {
+    return membershipContract.getMembership(membershipId, msg.sender);
+  }
+
   /*function getBroadcastList(uint256 channel) public view returns (uint256[] memory) {
     return broadcastContract.getBroadcastList(channel);
   }*/
@@ -144,7 +148,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   // 2.8
   function getPostUri(address contractAddress, uint256 tokenId) public view returns(string memory){
     Posts postContract = Posts(contractAddress);
-    return postContract.uri(tokenId);
+    return postContract.uri2(tokenId, msg.sender);
   }
 
   // 2.9

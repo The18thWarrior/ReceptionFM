@@ -39,7 +39,7 @@ export const AccountButton = (inputs) => {
         <>
           {
             menuType === 'artist' && 
-            <IconButton component={Link} to="/new" variant="contained" color="primary" sx={{}} aria-label="delete" size="large">
+            <IconButton component={Link} to="/manage/new" variant="contained" color="primary" sx={{}} aria-label="delete" size="large">
               <AddIcon fontSize="inherit" />
             </IconButton>
           }

@@ -22,7 +22,7 @@ import { exporterConfig } from './components.js';
 function TextInput({onTextChange, textType, inputType, inputName, defaultText}) {
   const defaultRTFContent = {"entityMap":{},"blocks":[{"key":"637gr","text":"Example Text","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]};
 
-  const [textVal, setTextVal] = React.useState(defaultText);
+  const [textVal, setTextVal] = React.useState();
   const [htmlVal, setHtmlVal] = React.useState("<p>"+defaultText+"</p>");
   const [createModalOpen, setCreateModalOpen] = React.useState(false);
   const [rtfValue, setRtfValue] = useState({});
@@ -68,6 +68,7 @@ function TextInput({onTextChange, textType, inputType, inputName, defaultText}) 
       variant="standard"
       fullWidth
       value={textVal}
+      placeholder={defaultText}
       onChange={updateText}
       sx={{display: 'block', mx: "auto", width:500}}/>;
   } else if (inputType === 'rtf') {
@@ -83,33 +84,50 @@ function TextInput({onTextChange, textType, inputType, inputName, defaultText}) 
     ]}
     inlineStyles={[{ type: INLINE_STYLE.BOLD }, { type: INLINE_STYLE.ITALIC }]}
   /></Box>;
+  } else if (inputType === 'textarea') {
+    field = <TextField
+      id={inputName}
+      label={inputName}
+      variant="standard"
+      fullWidth
+      multiline
+      rows={4}
+      value={textVal}
+      placeholder={defaultText}
+      onChange={updateText}
+      sx={{display: 'block', mx: "auto", width:500, mb:4}}/>;
   }
 
   let textDisplay;
   if (inputType === 'text') {
-    textDisplay = <Typography variant={textType} component="div" gutterBottom onClick={selectInput}>{textVal}</Typography>;
+    textDisplay = <Typography variant={textType} component="div" gutterBottom onClick={selectInput} sx={{mb:'2rem'}}>{textVal}</Typography>;
   } else if (inputType === 'rtf') {
     textDisplay = <div onClick={selectInput}>{htmlToReactParser.parse(htmlVal)}</div>;
+  } else if (inputType === 'textarea') {
+    textDisplay = <Typography variant={textType} component="div" gutterBottom onClick={selectInput} sx={{my:'2rem'}}>{textVal}</Typography>;
   }
   
 
   return (
     <div>
-      <strong>
-        {textDisplay}
-      </strong>
-      <Dialog open={createModalOpen} onClose={closeInputModal}>
-        <DialogContent>
-          {field}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeInputModal}>Ok</Button>
-        </DialogActions>
-      </Dialog>
+      {field}
     </div>
   )
 
 }
 export default TextInput;
 
+/*
 
+<strong>
+  {textDisplay}
+</strong>
+<Dialog open={createModalOpen} onClose={closeInputModal}>
+  <DialogContent>
+    {field}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={closeInputModal}>Ok</Button>
+  </DialogActions>
+</Dialog>
+*/
