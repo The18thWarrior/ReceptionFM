@@ -166,6 +166,21 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   function getPostContracts() public view returns(Posts[] memory){
     return postFactoryContract.getChildren();
   }
+
+  function postIsMintable(address contractAddress, uint256 tokenId) public view returns(bool){
+    Posts postContract = Posts(contractAddress);
+    return postContract.isMintable(tokenId);
+  }
+
+  function postIsBuyable(address contractAddress, uint256 tokenId) public view returns(bool){
+    Posts postContract = Posts(contractAddress);
+    return postContract.isBuyable(tokenId);
+  }
+
+  function postGetCost(address contractAddress, uint256 tokenId) public view returns(uint256 ){
+    Posts postContract = Posts(contractAddress);
+    return postContract.getCost(tokenId);
+  }
   
 
   // Functions for setting static variables

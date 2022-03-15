@@ -89,3 +89,25 @@
 .drop-aside {
   display: flex; flex-flow: row wrap; margin-top: 16px;
 }
+
+.transparent-background {
+  background-color:transparent !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.react-numeric-input {
+
+}
+
+.react-numeric-input input {
+  background-color: transparent;
+  border: 1px solid #767676;
+  box-shadow: none;
+  border-style: none;
+  color:white;
+}
+
+.react-numeric-input b, .react-numeric-input b i {
+  color:white;
+}

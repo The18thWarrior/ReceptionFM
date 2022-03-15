@@ -63,7 +63,6 @@ contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, Access
 
   function getChannelPostContract(uint256 tokenChannel) public view returns(Posts) {
     uint256 postIndex = channelToIndex[tokenChannel];
-    console.log(postIndex);
     return children[postIndex];
   }
 

@@ -12,11 +12,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import { DraftailEditor, serialiseEditorStateToRaw, BLOCK_TYPE, INLINE_STYLE } from "draftail";
-import { convertToHTML, convertFromHTML } from 'draft-convert';
-import { convertToRaw, convertFromRaw } from "draft-js";
 import {Parser} from 'html-to-react';
-import { exporterConfig } from './components.js';
 
 
 function TextInput({onTextChange, textType, inputType, inputName, defaultText}) {
@@ -36,23 +32,10 @@ function TextInput({onTextChange, textType, inputType, inputName, defaultText}) 
     setCreateModalOpen(false);
   }
   function selectInput() {
-    console.log('selectInput');
     setCreateModalOpen(true);
   }
-
-  function onEditorStateChange(editorState) {
-    console.log(editorState);
-    if (editorState) {
-      setRtfValue(editorState);
-      const html = toHTML(editorState);
-      console.log(html);
-      setHtmlVal(html);
-    }
-  };
   
-  const toHTML = (raw) => raw ? convertToHTML(exporterConfig)(convertFromRaw(raw)) : "";
-
-  useEffect(() => {
+   useEffect(() => {
     onTextChange({textVal, inputName});
   },[textVal]);
 
@@ -72,18 +55,7 @@ function TextInput({onTextChange, textType, inputType, inputName, defaultText}) 
       onChange={updateText}
       sx={{display: 'block', mx: "auto", width:500}}/>;
   } else if (inputType === 'rtf') {
-    field = <Box sx={{width: "800px"}} ><DraftailEditor
-    onSave={onEditorStateChange}
-    blockTypes={[
-      BLOCK_TYPE.HEADER_TWO,
-      BLOCK_TYPE.HEADER_THREE,
-      BLOCK_TYPE.HEADER_FOUR,
-      BLOCK_TYPE.HEADER_FIVE,
-      BLOCK_TYPE.UNORDERED_LIST_ITEM,
-      BLOCK_TYPE.ORDERED_LIST_ITEM,
-    ]}
-    inlineStyles={[{ type: INLINE_STYLE.BOLD }, { type: INLINE_STYLE.ITALIC }]}
-  /></Box>;
+    field = <Box sx={{width: "800px"}} ></Box>;
   } else if (inputType === 'textarea') {
     field = <TextField
       id={inputName}

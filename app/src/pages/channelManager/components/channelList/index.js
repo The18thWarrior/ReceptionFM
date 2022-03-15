@@ -6,6 +6,10 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import AddIcon from '@mui/icons-material/Add';
+import IconButton from '@mui/material/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Link } from 'react-router-dom';
 
 import { getOwnerChannelIds, getChannelMetadata } from '../../../../service/worksManager';
 import { channelListColumns } from '../../../../static/constants';
@@ -13,9 +17,54 @@ import { cleanImageUrl, fetchMetadata } from "../../../../service/utility";
 
 //let worksManagerAddress = env.REACT_APP_WORKSMANAGER_ADDRESS;
 
-const columns = channelListColumns;
+
 
 function ChannelList() {
+
+  const columns = [
+    {
+      field: 'name',
+      headerName: 'Channel Name',
+      flex:2,
+      editable: false,
+      sortable: true
+    },
+    {
+      field: 'description',
+      headerName: 'Channel Description',
+      flex:3,
+      editable: false,
+      sortable: false
+    },
+    {
+      field: 'parse_image',
+      headerName: 'Channel Image',
+      flex:2,
+      editable: false,
+      sortable: false,
+      renderCell: (params)=>{
+        return (
+            <img src={params.row.parse_image} alt='' style={{width: "-webkit-fill-available"}} />
+        )
+      }
+    },
+    {
+      field: 'manageButton',
+      renderHeader: () => (
+        <IconButton color="primary" aria-label="refresh list" onClick={refreshList} sx={{mx:"auto", color: "text.primary"}}>
+          <RefreshIcon />
+        </IconButton>
+      ),
+      flex:1,
+      editable: false,
+      sortable: false,
+      renderCell: (params) => {
+        let channelLink = '/manage/'+params.row.id;
+        return <Button component={Link} to={channelLink} variant="outlined" color="primary" sx={{mx:"auto"}}>Manage</Button>
+      }
+    }
+  ];
+
   const [channelMetadata, setChannelMetadata] = useState([]);
   const updateChannelMetadata = (metadata) => {
     setChannelMetadata([...channelMetadata, metadata]);
@@ -38,7 +87,6 @@ function ChannelList() {
           let channelMetadataUri = await getChannelMetadata(channel);
           if (channelMetadataUri) {
             let channelMetadataResponse = await fetchMetadata(channel, channelMetadataUri);
-            console.log(channelMetadataResponse);
             //updateChannelMap(channel, channelMedataResponse);
             channelList.push(channelMetadataResponse);
           }
@@ -48,7 +96,22 @@ function ChannelList() {
     } 
     getChannelList();
   },[]);
-  
+
+  const refreshList = async () => {
+    const channelVals = await getOwnerChannelIds();
+    let channelList = [];
+    if (channelVals) {
+      for (let channel of channelVals) {
+        let channelMetadataUri = await getChannelMetadata(channel);
+        if (channelMetadataUri) {
+          let channelMetadataResponse = await fetchMetadata(channel, channelMetadataUri);
+          //updateChannelMap(channel, channelMedataResponse);
+          channelList.push(channelMetadataResponse);
+        }
+      }
+      setChannelMetadata(channelList);
+    }
+  };
 
   return (
     <div className="dark-background" style={{ height: ' 100vh'}}>

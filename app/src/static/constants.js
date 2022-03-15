@@ -27,21 +27,21 @@ export const channelListColumns = [
   {
     field: 'name',
     headerName: 'Channel Name',
-    width: 150,
+    flex:2,
     editable: false,
     sortable: true
   },
   {
     field: 'description',
     headerName: 'Channel Description',
-    width: 250,
+    flex:3,
     editable: false,
     sortable: false
   },
   {
     field: 'parse_image',
     headerName: 'Channel Image',
-    width: 250,
+    flex:2,
     editable: false,
     sortable: false,
     renderCell: (params)=>{
@@ -53,7 +53,7 @@ export const channelListColumns = [
   {
     field: 'manageButton',
     headerName: '',
-    width: 250,
+    flex:1,
     editable: false,
     sortable: false,
     renderCell: (params) => {
@@ -67,7 +67,7 @@ export const postListColumns = [
   {
     field: 'parse_image',
     headerName: 'Post Image',
-    width: 150,
+    flex:3,
     editable: false,
     sortable: true,
     renderCell: (params)=>{
@@ -79,18 +79,17 @@ export const postListColumns = [
   {
     field: 'name',
     headerName: 'Post Title',
-    width: 250,
+    flex:3,
     editable: false,
     sortable: false
   },
   {
     field: 'manageButton',
     headerName: '',
-    width: 250,
+    flex:1,
     editable: false,
     sortable: false,
     renderCell: (params) => {
-      console.log(params.row);
       let channelLink = '/manage/'+params.row.id;
       return <Button component={Link} to={channelLink} variant="outlined" color="primary" sx={{mx:"auto"}}>Manage</Button>
     }

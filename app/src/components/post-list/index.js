@@ -4,47 +4,82 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useContractCall } from "@usedapp/core";
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import {BigNumber} from '@ethersproject/bignumber';
+import { Link } from 'react-router-dom';
 
-import { getPostIndex, getPostUri } from '../../../../service/worksManager';
-import { postListColumns } from '../../../../static/constants';
-import { cleanImageUrl, fetchMetadata } from "../../../../service/utility";
+import { getPostIndex, getPostUri } from '../../service/worksManager';
+import { postListColumns } from '../../static/constants';
+import { cleanImageUrl, fetchMetadata } from "../../service/utility";
 
-function PostList({contractAddress, selectPost}) {
+//let worksManagerAddress = env.REACT_APP_WORKSMANAGER_ADDRESS;
+
+
+
+function PostList({contractAddress, setPost}) {
   const columns = [
     {
       field: 'parse_image',
       headerName: 'Post Image',
-      width: 150,
+      flex:2,
       editable: false,
-      sortable: true,
+      sortable: false,
       renderCell: (params)=>{
+        if (!params.row) {
+          return (
+            <div></div>
+          )
+        }
         return (
-            <img src={params.row.parse_image} alt='' style={{width: "-webkit-fill-available"}} />
+          <img src={params.row.parse_image} alt='' style={{width: "-webkit-fill-available"}} />
         )
       }
     },
     {
       field: 'name',
       headerName: 'Post Title',
-      width: 250,
+      flex:3,
       editable: false,
-      sortable: false
+      sortable: true,
+      renderCell: (params) => {
+        if (!params.row) {
+          return (<CircularProgress />);
+        }
+
+        return (
+          <span>{params.row.name}</span>
+        )
+      }
     },
     {
-      field: 'selectPost',
-      headerName: '',
-      width: 250,
+      field: 'accessPost',
+      renderHeader: () => (
+        <IconButton color="primary" aria-label="refresh list" onClick={refreshList} sx={{mx:"auto", color: "text.primary"}}>
+          <RefreshIcon />
+        </IconButton>
+      ),
+      flex:1,
       editable: false,
       sortable: false,
       renderCell: (params) => {
-        return <Button onClick={selectPost(params.row)} variant="outlined" color="primary" sx={{mx:"auto"}}>View</Button>
+        if (!params.row) {
+          return (
+            <div></div>
+          )
+        }
+
+        const onClickEdit = async () => {
+          setPost(params.row);
+        };
+        //return <div>1</div>
+        return <Button onClick={onClickEdit} variant="outlined" color="primary" sx={{mx:"auto"}}>View</Button>
       }
     }
   ];
-
   const [postMetadata, setPostMetadata] = useState([]);
   const updatePostMetadata = (metadata) => {
     setPostMetadata([...postMetadata, metadata]);
@@ -60,7 +95,7 @@ function PostList({contractAddress, selectPost}) {
       setPostIndex(pI);
     } 
     getPostList();
-  },[contractAddress]);
+  },[]);
 
   useEffect(() => {
     //setPostMetadata([]);
@@ -73,7 +108,7 @@ function PostList({contractAddress, selectPost}) {
         let postMetadataUri = await getPostUri(contractAddress, indexNum);
         if (postMetadataUri && postMetadataUri.length > 0) {
           let postMetadataResponse = await fetchMetadata(indexNum, postMetadataUri);
-          //console.log(postMetadataResponse);
+          console.log(postMetadataResponse);
           postList.push(postMetadataResponse);
         }
       }
@@ -82,8 +117,18 @@ function PostList({contractAddress, selectPost}) {
     getPostList();
   },[postIndex]);
 
+  function selectPost(post) {
+    setPost(post);
+  }
+
+  const refreshList = async () => {
+    setPostIndex(BigNumber.from(0));
+    const pI = await getPostIndex(contractAddress);
+    setPostIndex(pI);
+  }
+
   return (
-    <div className="dark-background" style={{ height: ' 100vh'}}>
+    <div className="dark-background" style={{ }}>
       <div style={{ height: 400, width: '100%'}}>
         <DataGrid
           rows={postMetadata}

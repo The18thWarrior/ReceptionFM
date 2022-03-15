@@ -72,7 +72,17 @@ export const fetchMetadata = async (token, metadataUri) => {
     metadataResponse["key"] = token.toHexString();
     metadataResponse["id"] = token.toHexString();
     metadataResponse["parse_image"] = cleanImageUrl(metadataResponse.image);
+    try {
+      if (metadataResponse.properties && metadataResponse.properties.files) {
+        metadataResponse['parse_properties'] = [];
+        for (let i = 0;i<metadataResponse.properties.files.length;i++) {
+          metadataResponse['parse_properties'].push(cleanImageUrl(metadataResponse.properties.files[i]));
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    
   }
-  console.log(metadataResponse);
   return metadataResponse;
 }

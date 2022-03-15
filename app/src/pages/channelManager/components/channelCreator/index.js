@@ -73,13 +73,10 @@ function ChannelCreator() {
       setSubmissionLoading(true);
 
       if (channelName.length > 0) {
-        console.log('running storage');
         const metadata = await storeNFTMetadata(channelName, channelDescription, channelImage, 'channel');
 
-        console.log(metadata);
         handleMetadataChange(metadata.ipnft);      
         const channelChange = await mintChannel(channelName, metadata.ipnft, channelAuthor, channelCopyright, channelLanguage);
-        console.log(channelChange);
 
         setSubmissionLoading(false);
         navigate("/manage", { replace: true });

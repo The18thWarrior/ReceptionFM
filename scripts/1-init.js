@@ -10,12 +10,41 @@ let svgPartTwo = ' <filter x="0%" y="0%" width="100%" xmlns:xlink="http://www.w3
 let svgPartThree = "{0}</tspan></text></svg>";
 let svgString = svgPartOne + svgPartTwo + svgPartThree;
 // Run local node - npx hardhat node
+// local execution up 1 - npx hardhat run ../scripts/1-init.js --network localhost
 // local execution - npx hardhat run scripts/1-init.js --network localhost
 // network deploy - npx hardhat run scripts/2-deploy.js --network mumbai
 //console.log(nftStore);
 // NFT Storage
 const nftStorageApiKey = process.env.NFT_STORAGE_API_KEY;
 const nftStorageClient = new nftStore.NFTStorage({ token: nftStorageApiKey })
+
+const mainTest = async (worksManager, channelName) => {
+  let channelList = await mainChannels(worksManager, channelName);
+  let channel = channelList[0];
+
+  let txn = await worksManager.createPostContract(channelName, channel.toHexString());
+  // Wait for it to be mined.
+  await txn.wait();
+  console.log('create post contract complete', txn.value);
+
+  // 1.6
+  let postContract = await worksManager.getChannelPostContract(channel.toHexString());
+  console.log(postContract);
+
+  // Construct/Store Metadata
+  const metadata1Image = String.format(svgString, channelName + ' Post');
+  const metadata1Blob = new nftStore.Blob([metadata1Image], {type: 'image/svg+xml'});
+  const metadata1 = await nftStorageClient.store({
+    name: channelName,
+    description: 'Post',
+    image: metadata1Blob,
+    channel: channel.toHexString()
+  });
+
+  // 1.8
+  let postTokenId = await worksManager.createPostToken(postContract, 0, false, true, metadata1.url, metadata1.url, false, ['bronze']);
+  await postTokenId.wait();
+}
 
 const mainPosts = async (worksManager, channel, channelName) => {
   // 1.7
@@ -124,7 +153,8 @@ const mainChannels = async (worksManager, channelName) => {
 
   // 1.2
   // Call the function.
-  let txn = await worksManager.mintChannel(channelName, metadata1.url);
+  //channelName, channelUri, msg.sender, author, copyright, language
+  let txn = await worksManager.mintChannel(channelName, metadata1.url, 'test', 'test', 'test');
   // Wait for it to be mined.
   await txn.wait();
   console.log('mint channel complete');
@@ -222,6 +252,7 @@ const runMain = async () => {
     //await hre.network.provider.send("hardhat_reset");
     let worksManager = await deployContracts();
     console.log('runMain - worksManager address : ', worksManager.address);
+    //let testResult = await mainTest(worksManager, channelName);
     let sendMoney1 = await sendMoney();
 
     //let channelId = await mainChannels(worksManager, channelName);

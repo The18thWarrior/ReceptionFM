@@ -9,6 +9,8 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import CircularProgress from '@mui/material/CircularProgress';
 import AddIcon from '@mui/icons-material/Add';
 import { storeNFTMetadata, fetchMetadata } from '../../../../../service/utility';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -51,8 +53,10 @@ function MembershipList() {
       flex: 2,
       editable: false,
       sortable: false,
-      renderHeader: (params) => (
-        <p></p>
+      renderHeader: () => (
+        <IconButton color="primary" aria-label="refresh list" onClick={refreshList} sx={{mx:"auto", color: "text.primary"}}>
+          <RefreshIcon />
+        </IconButton>
       ),
       renderCell: (params) => {
         if (params.row.isNew) { 
@@ -77,13 +81,16 @@ function MembershipList() {
   useEffect(() => {
     const getChannelMembershipMetadata = async () => {
       let membershipList = [];
+      
       if (channelMemberships.length > 0) {
+        let index = 0;
         for (let membership of channelMemberships) {
           let membershipMetadataUri = await getMembershipUri(membership);
           if (membershipMetadataUri) {
             let metadataResponse = await fetchMetadata(membership, membershipMetadataUri);
-            (metadataResponse) ? membershipList.push(metadataResponse) : console.log('error fetchMetadata');
+            (metadataResponse) ? membershipList[index] = metadataResponse : console.log('error fetchMetadata');
           }
+          index++;
         }
         setChannelMembershipMetadata(membershipList);
       }
@@ -93,6 +100,7 @@ function MembershipList() {
 
   const getChannelMemberships = async () => {
     const memberships = await getMembershipList(channelId);
+    console.log(memberships);
     setChannelMemberships(memberships);
     setSubmissionLoading(false);
   }; 
@@ -115,8 +123,14 @@ function MembershipList() {
     getChannelMemberships();
   },[channelId]);
 
+  const refreshList = async () => {
+    setSubmissionLoading(true);
+    setChannelMemberships([]);
+    setChannelMembershipMetadata([]);
+    getChannelMemberships();
+  };
+
   function newMembership() {
-    console.log('newMembership');
     let data2 = JSON.parse(JSON.stringify(channelMembershipMetadata));
     let newMembership = {
       id: uuidv4(),

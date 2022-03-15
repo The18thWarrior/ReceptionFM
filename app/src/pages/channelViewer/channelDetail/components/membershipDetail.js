@@ -7,6 +7,10 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import Typography from '@mui/material/Typography';
 import { getMembership, getMembershipList, getMembershipUri, mintChannelMembership} from '../../../../service/worksManager';
 import { fetchMetadata } from '../../../../service/utility';
@@ -20,8 +24,14 @@ function MembershipDetail(data) {
   console.log('membershipDetail');
   
   const [submissionLoading, setSubmissionLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [channelId, setChannelId] = useState(data.channelId);
   const [userMembershipId, setUserMembershipId] = useState('');
+  const [selectedMembership, setSelectedMembership] = useState('');
+  const handleSelectedMembershipChange = (event) => {
+    setIsDisabled(false);
+    setSelectedMembership(event.target.value);
+  };
   const [userMembership, setUserMembership] = useState({});
   const [membershipList, setMembershipList] = useState([]);
   const columns = [
@@ -78,16 +88,13 @@ function MembershipDetail(data) {
   useEffect(() => {
     const getCMetadata = async () => {
       const membershipLists = await getMembershipList(channelId);
-      console.log(membershipLists);
       let finalMembershipList = [];
       for (let membership of membershipLists) {
         let membershipResult = await getMembership(membership);
         if(membershipResult.eq(1)) {
-          console.log('membership found');
           setUserMembershipId(membership);
           break;
         } else {
-          console.log('membershipNotFound');
           let membershipMetadataUri = await getMembershipUri(membership);
           if (membershipMetadataUri) {
             let metadataResponse = await fetchMetadata(membership, membershipMetadataUri);
@@ -110,7 +117,6 @@ function MembershipDetail(data) {
         let membershipMetadataUri = await getMembershipUri(userMembershipId);
         if (membershipMetadataUri) {
           let metadataResponse = await fetchMetadata(userMembershipId, membershipMetadataUri);
-          console.log(metadataResponse);
           (metadataResponse) ? setUserMembership(metadataResponse) : console.log('error fetchMetadata');
         }
       }
@@ -119,36 +125,57 @@ function MembershipDetail(data) {
     getCMetadata();
   },[userMembershipId]);
 
-  const mintMembership = async(row) => {
-    console.log(row);
-    const membershipId = BigNumber.from(row.id);
-    const membershipResponse = await mintChannelMembership(channelId, row.level, row.cost);
+  const mintMembership = async() => {
+    const membershipId = BigNumber.from(selectedMembership.id);
+    const membershipResponse = await mintChannelMembership(channelId, selectedMembership.level, selectedMembership.cost);
     if (membershipResponse === 'success') {
       setUserMembershipId(membershipId);
     }
   }
+
   return (
     <div >
       
       {userMembershipId === '' && 
-        <Box sx={{m:8, p:8}} >
-          <Typography variant="h5" component="div" gutterBottom sx={{color: 'text.primary'}}>
-            Memberships
-          </Typography>
+        <Box sx={{m:8}} >
+          <FormControl sx={{display:'inline-block'}}>
+            <Box sx={{display:'inline-block', pr:10}}>
+              <InputLabel id="demo-simple-select-label">Membership</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={selectedMembership}
+                defaultValue=""
+                label="Membership"
+                onChange={handleSelectedMembershipChange}
+                sx={{minWidth:"10vw"}}
+              >
+                {membershipList.length > 0 && 
+                  membershipList.map(
+                    (value) => {
+                      return (
+                        <MenuItem value={value} key={value.id}>{value.name}</MenuItem>
+                      )
+                    }
+                  )
+                }
+              </Select>
+            </Box>
+            <LoadingButton
+              sx={{display: 'inline-block', width:100}}
+              onClick={() => {
+                mintMembership();
+              }}
+              disabled={isDisabled}
+              loading={submissionLoading}
+              variant="outlined"
+              color="primary"
+            >
+              Mint
+            </LoadingButton>
+          </FormControl>
           
-          <div style={{ display: 'flex', height: '23.25rem', width: '100%'}}>
-            <DataGrid
-              rows={membershipList}
-              columns={columns}
-              pageSize={5}
-              rowsPerPageOptions={[5]}
-              disableSelectionOnClick
-              disableColumnMenu
-              isCellEditable={(params) => false}
-              sx={{}}
-              className="dark-background"
-            />
-          </div>
+          
         </Box>
       }
 
@@ -171,3 +198,23 @@ function MembershipDetail(data) {
 }
 
 export default MembershipDetail;
+
+/*
+<Typography variant="h5" component="div" gutterBottom sx={{color: 'text.primary'}}>
+  Memberships
+</Typography>
+
+<div style={{ display: 'flex', height: '23.25rem', width: '100%'}}>
+  <DataGrid
+    rows={membershipList}
+    columns={columns}
+    pageSize={5}
+    rowsPerPageOptions={[5]}
+    disableSelectionOnClick
+    disableColumnMenu
+    isCellEditable={(params) => false}
+    sx={{}}
+    className="dark-background"
+  />
+</div>
+*/

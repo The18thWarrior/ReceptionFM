@@ -67,7 +67,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     _grantRole(OWNER_ROLE, _ownerContract);
   }
 
-  function initialize(string memory tokenName, address _ownerContract, address _channelAddress) initializer public {
+  function initialize(string memory tokenName, address _ownerContract) initializer public {
     //require(msg.sender == RECEPTION_ACCOUNT, "Wrong Account Deployer");
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
@@ -87,7 +87,6 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     levelMapping["platinum"] = Structs.Level.PLATINUM;
 
     name = tokenName;
-    console.log(_channelAddress);
   }
 
   function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
@@ -101,7 +100,6 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
 
   function membershipTokenCreate(address from, uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
       // TODO : Add function to validate that the msg.sender owns channel
-      console.log(channelAddress);
       channelContract = Channels(channelAddress);
       address channelOwner = channelContract.ownerOf(channel);
       require(from == channelOwner, "You must be the channel owner to create memberships");
@@ -120,7 +118,6 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
 
   function membershipMint(uint256 channel, string calldata level, address to) public payable {
     uint256[] memory memberships = _channelMap[channel];
-    console.log(channel);
     require(memberships.length > 0, 'No memberships minted for this channel');
     uint256 tokenId;
     for (uint256 i = 0;i<memberships.length;i++) {
@@ -146,7 +143,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     require(success, "Failed to send MATIC");
     
     _mint(to, tokenId, 1, "");
-    _channelMap[channel].push(tokenId); 
+    //_channelMap[channel].push(tokenId); 
     
     emit NewMembershipMinted(to, tokenId);
   }

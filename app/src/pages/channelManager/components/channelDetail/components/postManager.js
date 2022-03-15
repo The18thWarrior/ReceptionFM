@@ -15,11 +15,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { storeNFTMetadata, fetchMetadata } from '../../../../../../service/utility.js';
+import { storeNFTMetadata, fetchMetadata } from '../../../../../service/utility.js';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {BigNumber} from '@ethersproject/bignumber';
-import CreatePost from './components/createPost';
-import PostList from './components/postList';
+import CreatePost from '../../../../../components/create-post';
+import PostList from '../../../../../components/post-list';
 
 import { 
   getMembershipUri, 
@@ -29,10 +29,10 @@ import {
   getChannelMetadata, 
   getPostIndex,
   getPostUri 
-} from '../../../../../../service/worksManager';
-import { membershipListColumns, levels } from '../../../../../../static/constants.js';
+} from '../../../../../service/worksManager';
+import { membershipListColumns, levels } from '../../../../../static/constants.js';
 
-function PostManager() {
+function PostManager({setPost}) {
   const { channelId } = useParams();
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const [createModalOpen, setCreateModalOpen] = React.useState(false);
@@ -74,7 +74,6 @@ function PostManager() {
   const getChannelPosts = async () => {
     try {
       const postContractAddress = await getChannelPostContract(channelId);
-      console.log(postContractAddress);
       setPostContract(postContractAddress);
     } catch (e) {
       console.log(e);
@@ -90,32 +89,21 @@ function PostManager() {
     }
   }; 
 
-  const createChannelMembership = async (rawRow) => {
-    let row = JSON.parse(JSON.stringify(rawRow));
-    delete row.isNew;
-    delete row.id;
-    row.description = row.name + ' ' + row.level;
-    const mapping = {
-      level : row.level,
-      cost : row.cost
-    };
-    const metadata = await storeNFTMetadata(row.name, row.description, null, 'membership', mapping);
-    const membership = await membershipTokenCreate(channelId, row.cost, row.level, metadata.ipnft);
-    getChannelPosts();
-  };
-
   useEffect(() => {
     getChannelPosts();
   },[channelId]);
 
   useEffect(() => {
     console.log('channelMetadata updated');
-    console.log(channelMetadata);
   },[channelMetadata]);
 
   
   function closeNewPostModal() {
     setCreateModalOpen(false);
+  }
+
+  function setPostData(_post) {
+    setPost(_post, postContract);
   }
 
   return (
@@ -132,7 +120,7 @@ function PostManager() {
             </Box>
             
             <Box sx={{display: 'block'}}>
-              <PostList contractAddress={postContract}></PostList>
+              <PostList contractAddress={postContract} setPost={setPostData}></PostList>
             </Box>
 
             

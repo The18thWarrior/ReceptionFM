@@ -9,17 +9,20 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Footer from '../../../components/footer/footer';
 
 import { getChannelMetadata, getChannelPostContract} from '../../../service/worksManager';
 import { channelListColumns } from '../../../static/constants';
 import MembershipDetail from "./components/membershipDetail.js";
-import PostList from "./components/postList.js";
+import PostList from "../../../components/post-list";
 
 function ChannelDetail() {
   const { channelId } = useParams();
 
   const [submissionLoading, setSubmissionLoading] = useState(false);
+  const [post, setPost] = useState({});
   const [postContract, setPostContract] = useState('');
+  const [postStatus, setPostStatus] = useState("");
   const [channelMetadata, setChannelMetadata] = useState({name: '', description: '', image: ''});
 
   useEffect(() => {
@@ -31,7 +34,6 @@ function ChannelDetail() {
         let metadataRequest = await fetch("https://ipfs.io/ipfs/"+channelUri+'/metadata.json');
         let metadataResponse = await metadataRequest.json();
         metadataResponse["parse_image"] = cleanImageUrl(metadataResponse.image);
-        console.log(metadataResponse);
         setChannelMetadata(metadataResponse);
       }
     } 
@@ -41,7 +43,21 @@ function ChannelDetail() {
   const cleanImageUrl = (uri) => {
     return "https://ipfs.io/ipfs/"+uri.replace('ipfs://', '');
   }
+
+  function clearPost() {
+    setPostStatus('');
+    setPost({});
+  }
   
+  function setPostValue(_post) {
+    if (post.id === _post.id) {
+      //setPostStatus('selected');
+    } else if (_post.id != null) {
+      setPostStatus('selected');
+      setPost(_post);
+    }
+  }
+
 
   useEffect(() => {
     //setChannelMetadata([]);
@@ -49,7 +65,6 @@ function ChannelDetail() {
     const getChannelPosts = async () => {
       try {
         const postContractAddress = await getChannelPostContract(channelId);
-        console.log(postContractAddress);
         setPostContract(postContractAddress);
       } catch (e) {
         console.log(e);
@@ -58,10 +73,24 @@ function ChannelDetail() {
     getChannelPosts();
   },[channelId]);
 
+  const CustomTitle = styled(TextField)({
+    '& input': {
+      fontSize : "2rem",
+      color:"white",
+      WebkitTextFillColor: "white !important"
+    },
+  });
+
+  const CustomDescription = styled(TextField)({
+    '& textarea': {
+      color:"white",
+      WebkitTextFillColor: "white !important"
+    },
+  });
 
   return (
     <Box maxWidth="max" sx={{pt: 4, my: 8}} className="dark-background">
-      <Box maxWidth="lg" sx={{mx: "auto", bgcolor: 'info.main'}}>
+      <Box maxWidth="lg" sx={{mx: "auto", bgcolor: '#3C3C3C'}}>
         <Grid container spacing={2} sx={{mb: 16}}>
           <Grid item xs={5} >
             <img src={channelMetadata.parse_image} alt='' style={{ "maxWidth": "100px", width: "-webkit-fill-available", margin:"1rem"}} />
@@ -92,13 +121,15 @@ function ChannelDetail() {
       <Box maxWidth="lg" sx={{mx: "auto", mb: 32}} className="dark-background">
         <Grid container spacing={2} sx={{mb: 16}}>
           <Grid item xs={12} >
-            <PostList contractAddress={postContract}></PostList>
+            <PostList contractAddress={postContract} setPost={setPostValue}></PostList>
           </Grid>
         </Grid>
 
       </Box>
-        
+      
+      <Footer status={postStatus} post={post} clearPost={clearPost} postId={post.id} postContract={postContract} channelId={channelId}></Footer>
     </Box>
+    
   )
 }
 

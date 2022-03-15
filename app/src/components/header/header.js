@@ -18,7 +18,6 @@ function Header() {
 
   function menuHasChanged(menu) {
     setMenuType(menu);
-    console.log(menu);
     if (menu === 'artist') {
       navigate("/");
     } else if (menu === 'fan'){

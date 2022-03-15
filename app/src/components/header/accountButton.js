@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import HeaderSwitch from './header-switch.js';
+import CreateChannel from '../create-channel';
 
 export const AccountButton = (inputs) => {
   const { account, deactivate, activateBrowserWallet } = useEthers();
@@ -39,9 +40,10 @@ export const AccountButton = (inputs) => {
         <>
           {
             menuType === 'artist' && 
-            <IconButton component={Link} to="/manage/new" variant="contained" color="primary" sx={{}} aria-label="delete" size="large">
+            /*<IconButton component={Link} to="/manage/new" variant="contained" color="primary" sx={{}} aria-label="delete" size="large">
               <AddIcon fontSize="inherit" />
-            </IconButton>
+            </IconButton>*/
+            <CreateChannel></CreateChannel>
           }
           
           <HeaderSwitch switchType="artist" sx={{display: "contents"}} valueChange={menuChange}></HeaderSwitch>
