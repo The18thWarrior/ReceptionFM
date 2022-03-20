@@ -21,7 +21,6 @@ function Footer({status, post, clearPost, postId, postContract, channelId}) {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   useEffect(() => {
-    console.log(postId, postContract);
     if (status === 'selected' && post.parse_properties) {
       let parts = post.parse_properties[0].split("/");
       let mediaResult = parts[parts.length - 1];

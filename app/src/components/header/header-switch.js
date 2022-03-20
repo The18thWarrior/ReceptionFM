@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { styled } from '@mui/material/styles';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -165,6 +165,15 @@ export default function CustomizedSwitches(inputs) {
     }
   };
 
+  const [menuType, setMenuType] = useState(true);
+  useEffect(() => {
+    if (inputs.value === 'artist') {
+      setMenuType(true);
+    }else if (inputs.value === 'fan') {
+      setMenuType(false);
+    }
+  }, [inputs.value])
+
   function valueChange(event) {
     inputs.valueChange(outputMapping[inputs.switchType][event.target.checked]);
   }
@@ -180,7 +189,7 @@ export default function CustomizedSwitches(inputs) {
       {
         inputs.switchType === 'artist' && 
         <FormControlLabel
-          control={<ArtistSwitch sx={{ m: 1 }} defaultChecked onChange={valueChange}/>}
+          control={<ArtistSwitch sx={{ m: 1 }} checked={menuType} onChange={valueChange}/>}
           label=""
         />
       }

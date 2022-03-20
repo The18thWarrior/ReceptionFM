@@ -30,7 +30,6 @@ import {
   getPostIndex,
   getPostUri 
 } from '../../../../../service/worksManager';
-import { membershipListColumns, levels } from '../../../../../static/constants.js';
 
 function PostManager({setPost}) {
   const { channelId } = useParams();

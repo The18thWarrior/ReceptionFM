@@ -12,7 +12,6 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 
 import { getChannelMetadata} from '../../../../service/worksManager';
-import { channelListColumns } from '../../../../static/constants';
 import Footer from '../../../../components/footer/footer';
 import MembershipList from "./components/membershipList.js";
 import PostManager from "./components/postManager.js";

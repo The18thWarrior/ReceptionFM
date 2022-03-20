@@ -4,25 +4,36 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { DAppProvider, Mainnet } from '@usedapp/core';
+import { DAppProvider, Mainnet, ChainId,  } from '@usedapp/core';
 import { Helmet } from "react-helmet";
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 
 console.log('test');
-const config = {
+const config_local = {
   multicallAddresses: {
     //31337 : '0xa40b14bd26aa8b469182ecff4f02781a08946d83'
-    [env.REACT_APP_CHAIN_ID] : env.REACT_APP_MULTICALL_ADDRESS
+    [env.REACT_APP_CHAIN_ID] : env.REACT_APP_MULTICALL_ADDRESS,
+    [ChainId.Mumbai]: env.REACT_APP_MULTICALL_MUMBAI,
   }
 };
-const config2 = {
-  readOnlyChainId: Mainnet.chainId,
-  readOnlyUrls: {
-    [Mainnet.chainId]: 'https://mainnet.infura.io/v3/3165a249c65f4198bf57200109b8fadf',
-  },
+const config = {
+  networks: [
+    {
+      chainId: env.REACT_APP_CHAIN_ID,
+      multicallAddresses : env.REACT_APP_MULTICALL_ADDRESS
+    },
+    {
+      chainId: 31337,
+      multicallAddresses : '0x76ee9222c8c377c5e365df1c4bd2e4495022528d'
+    },
+    {
+      chainId: ChainId.Mumbai,
+      multicallAddresses : env.REACT_APP_MULTICALL_MUMBAI
+    }
+  ]
 };
 
-console.log(config);
+const finalConfig = config_local;
 const mdTheme = createTheme({
   spacing: 2,
   palette: {
@@ -43,7 +54,7 @@ const mdTheme = createTheme({
 ReactDOM.render(
   <React.StrictMode>
     
-    <DAppProvider config={config}>
+    <DAppProvider config={finalConfig}>
       <ThemeProvider theme={mdTheme}>
         <App />
       </ThemeProvider>

@@ -5,25 +5,18 @@ import { formatEther } from '@ethersproject/units';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
-import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Drawer from '@mui/material/Drawer';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
 import Button from '@mui/material/Button';
 import MenuIcon from '@mui/icons-material/Menu';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import logo2 from '../../static/images/logo2.png';
+import { useEthers } from '@usedapp/core';
 
 function MenuLinks (data) {
+  const { account, deactivate, activateBrowserWallet } = useEthers();
   const [state, setState] = React.useState({
     top: false,
     left: false,
@@ -95,18 +88,21 @@ function MenuLinks (data) {
           )))
         }
       </List>
+      <Box sx={{position: 'absolute', bottom:"1vh", width:"100%"}}>
+        <Button onClick={() => deactivate()} style={{marginLeft:'auto', marginRight:'auto', display:'block'}} >Disconnect</Button>
+      </Box>
     </Box>
   );
 
   return (
-    <div>
-      <MenuIcon onClick={toggleMenu('left', true)}></MenuIcon>
+    <div style={{display:'inline-block'}}>
+      <MenuIcon onClick={toggleMenu('right', true)} sx={{verticalAlign: 'middle'}}></MenuIcon>
       <Drawer
-        anchor={'left'}
-        open={state['left']}
-        onClose={toggleMenu('left', false)}
+        anchor={'right'}
+        open={state['right']}
+        onClose={toggleMenu('right', false)}
       >
-        {list('left')}
+        {list('right')}
       </Drawer>
     </div>
   )

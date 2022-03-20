@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from "react-router-dom";
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
@@ -84,6 +84,12 @@ function MembershipDetail(data) {
       }
     } 
   ];
+  const componentIsMounted = useRef(true)
+  useEffect(() => {
+    return () => {
+      componentIsMounted.current = false
+    }
+  }, []);
 
   useEffect(() => {
     const getCMetadata = async () => {
@@ -92,7 +98,9 @@ function MembershipDetail(data) {
       for (let membership of membershipLists) {
         let membershipResult = await getMembership(membership);
         if(membershipResult.eq(1)) {
-          setUserMembershipId(membership);
+          if (componentIsMounted.current) {
+            setUserMembershipId(membership);
+          }
           break;
         } else {
           let membershipMetadataUri = await getMembershipUri(membership);
@@ -104,11 +112,11 @@ function MembershipDetail(data) {
       }
 
       console.log(userMembershipId);
-      if (userMembershipId === '') {
+      if (userMembershipId === '' && componentIsMounted.current) {
         setMembershipList(finalMembershipList);
       }
     } 
-    getCMetadata();
+    getCMetadata();   
   },[channelId]);
 
   useEffect(() => {

@@ -17,6 +17,7 @@ import ChannelDetail from './pages/channelManager/components/channelDetail';
 import Subscription from './pages/channelViewer/subcription';
 import Timeline from './pages/channelViewer/timeline';
 import FanChannelDetail from './pages/channelViewer/channelDetail';
+import PostView from './pages/channelViewer/postView';
 
 
 const MainBox = styled(Box)(({ theme }) => ({
@@ -46,7 +47,10 @@ function App() {
           <Route exact path="channels" >
             <Route index element={<Timeline />} />
             <Route exact path="subscription"  element={<Subscription />}/>
-            <Route path=':channelId' element={<FanChannelDetail />} />
+            <Route path=':channelId' >
+              <Route index element={<FanChannelDetail />} />
+              <Route path=':postId' element={<PostView />} />
+            </Route>
           </Route>
         </Routes>
       </MainBox>

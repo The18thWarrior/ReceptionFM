@@ -16,7 +16,7 @@ import { storeNFTMetadata, fetchMetadata } from '../../../../../service/utility'
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { getMembershipList, getMembershipUri, membershipTokenCreate } from '../../../../../service/worksManager';
-import { membershipListColumns, levels } from '../../../../../static/constants';
+import { levels } from '../../../../../static/constants';
 
 function MembershipList() {
   const { channelId } = useParams();
@@ -112,7 +112,7 @@ function MembershipList() {
     row.description = row.name + ' ' + row.level;
     const mapping = {
       level : row.level,
-      cost : row.cost
+      cost : String(row.cost)
     };
     const metadata = await storeNFTMetadata(row.name, row.description, null, 'membership', mapping);
     const membership = await membershipTokenCreate(channelId, row.cost, row.level, metadata.ipnft);

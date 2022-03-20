@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from "react-router-dom";
 import { DataGrid } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
@@ -12,7 +12,6 @@ import Typography from '@mui/material/Typography';
 import Footer from '../../../components/footer/footer';
 
 import { getChannelMetadata, getChannelPostContract} from '../../../service/worksManager';
-import { channelListColumns } from '../../../static/constants';
 import MembershipDetail from "./components/membershipDetail.js";
 import PostList from "../../../components/post-list";
 
@@ -24,6 +23,12 @@ function ChannelDetail() {
   const [postContract, setPostContract] = useState('');
   const [postStatus, setPostStatus] = useState("");
   const [channelMetadata, setChannelMetadata] = useState({name: '', description: '', image: ''});
+  const componentIsMounted = useRef(true)
+  useEffect(() => {
+    return () => {
+      componentIsMounted.current = false
+    }
+  }, []);
 
   useEffect(() => {
     //setChannelMetadata([]);
@@ -34,7 +39,9 @@ function ChannelDetail() {
         let metadataRequest = await fetch("https://ipfs.io/ipfs/"+channelUri+'/metadata.json');
         let metadataResponse = await metadataRequest.json();
         metadataResponse["parse_image"] = cleanImageUrl(metadataResponse.image);
-        setChannelMetadata(metadataResponse);
+        if (componentIsMounted.current) {
+          setChannelMetadata(metadataResponse);
+        }        
       }
     } 
     getCMetadata();
@@ -64,8 +71,11 @@ function ChannelDetail() {
     //setChannelMap({});
     const getChannelPosts = async () => {
       try {
+        console.log(channelId);
         const postContractAddress = await getChannelPostContract(channelId);
-        setPostContract(postContractAddress);
+        if (componentIsMounted.current) {
+          setPostContract(postContractAddress);
+        }
       } catch (e) {
         console.log(e);
       }

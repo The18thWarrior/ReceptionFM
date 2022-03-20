@@ -11,10 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { getCurrentChannelIndex, getChannelMetadata } from '../../../service/worksManager.js';
-import { channelListColumnsFan } from '../../../static/constants';
 import { cleanImageUrl, fetchMetadata } from "../../../service/utility";
-
-//let worksManagerAddress = env.REACT_APP_WORKSMANAGER_ADDRESS;
 
 function ChannelList() {
   const columns = [
@@ -113,7 +110,7 @@ function ChannelList() {
 
   return (
     <div className="dark-background" style={{ height: ' 100vh'}}>
-      <div style={{ height: 400, width: '100%'}}>
+      <div style={{ height: 400, width: '100%', paddingTop: '5vh'}}>
         <DataGrid
           rows={channelMetadata}
           columns={columns}
@@ -121,6 +118,7 @@ function ChannelList() {
           rowsPerPageOptions={[5]}
           disableSelectionOnClick
           disableColumnMenu
+          sx={{mx:'auto', width: '80vw'}}
         />
       </div>
     </div>

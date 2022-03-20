@@ -111,3 +111,7 @@
 .react-numeric-input b, .react-numeric-input b i {
   color:white;
 }
+
+.MuiAvatar-img {
+  border-radius: 100px;
+}

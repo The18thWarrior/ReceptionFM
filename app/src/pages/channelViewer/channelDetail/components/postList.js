@@ -9,7 +9,6 @@ import TextField from '@mui/material/TextField';
 import {BigNumber} from '@ethersproject/bignumber';
 
 import { getPostIndex, getPostUri } from '../../../../service/worksManager';
-import { postListColumns } from '../../../../static/constants';
 import { cleanImageUrl, fetchMetadata } from "../../../../service/utility";
 
 function PostList({contractAddress, selectPost}) {

@@ -12,7 +12,7 @@ let svgString = svgPartOne + svgPartTwo + svgPartThree;
 // Run local node - npx hardhat node
 // local execution up 1 - npx hardhat run ../scripts/1-init.js --network localhost
 // local execution - npx hardhat run scripts/1-init.js --network localhost
-// network deploy - npx hardhat run scripts/2-deploy.js --network mumbai
+// network deploy - npx hardhat run scripts/1-init.js --network mumbai
 //console.log(nftStore);
 // NFT Storage
 const nftStorageApiKey = process.env.NFT_STORAGE_API_KEY;
@@ -253,7 +253,7 @@ const runMain = async () => {
     let worksManager = await deployContracts();
     console.log('runMain - worksManager address : ', worksManager.address);
     //let testResult = await mainTest(worksManager, channelName);
-    let sendMoney1 = await sendMoney();
+    //let sendMoney1 = await sendMoney();
 
     //let channelId = await mainChannels(worksManager, channelName);
     //console.log(channelId);

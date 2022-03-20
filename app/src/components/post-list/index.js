@@ -10,17 +10,13 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import {BigNumber} from '@ethersproject/bignumber';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import { getPostIndex, getPostUri } from '../../service/worksManager';
-import { postListColumns } from '../../static/constants';
 import { cleanImageUrl, fetchMetadata } from "../../service/utility";
 
-//let worksManagerAddress = env.REACT_APP_WORKSMANAGER_ADDRESS;
-
-
-
 function PostList({contractAddress, setPost}) {
+  const { channelId } = useParams();
   const columns = [
     {
       field: 'parse_image',
@@ -76,7 +72,9 @@ function PostList({contractAddress, setPost}) {
           setPost(params.row);
         };
         //return <div>1</div>
-        return <Button onClick={onClickEdit} variant="outlined" color="primary" sx={{mx:"auto"}}>View</Button>
+        //return <Button onClick={onClickEdit} variant="outlined" color="primary" sx={{mx:"auto"}}>View</Button>
+        let channelLink = '/channels/'+channelId+'/'+params.row.id;
+        return <Button component={Link} to={channelLink} variant="outlined" color="primary" sx={{mx:"auto"}}>View</Button>
       }
     }
   ];
@@ -91,8 +89,10 @@ function PostList({contractAddress, setPost}) {
     //setPostMetadata([]);
     //setPostMap({});
     const getPostList = async () => {
-      const pI = await getPostIndex(contractAddress);
-      setPostIndex(pI);
+      if (contractAddress !== '') {
+        const pI = await getPostIndex(contractAddress);
+        setPostIndex(pI);
+      }      
     } 
     getPostList();
   },[]);
@@ -108,7 +108,6 @@ function PostList({contractAddress, setPost}) {
         let postMetadataUri = await getPostUri(contractAddress, indexNum);
         if (postMetadataUri && postMetadataUri.length > 0) {
           let postMetadataResponse = await fetchMetadata(indexNum, postMetadataUri);
-          console.log(postMetadataResponse);
           postList.push(postMetadataResponse);
         }
       }
