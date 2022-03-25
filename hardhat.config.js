@@ -25,7 +25,7 @@ module.exports = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
+        runs: 1
       }
     }
   },
@@ -33,6 +33,7 @@ module.exports = {
     mumbai: {
       url: process.env.NETWORK_URL,
       accounts: [process.env.DEVACCOUNTKEY],
+      timeout: 600000
     },
   },
   etherscan: {

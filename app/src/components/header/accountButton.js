@@ -38,8 +38,11 @@ export const AccountButton = (inputs) => {
   }, [menuType]);
 
   useEffect(() => {
-    setMenuType(inputs.ui);
-  }, [inputs.ui]);
+    if (menuType !== inputs.ui) {
+      //setMenuType(inputs.ui);
+    }
+    
+  }, [inputs.ui, menuType]);
 
   const activate = async () => {
     setActivateError('')

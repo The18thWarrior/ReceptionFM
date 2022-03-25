@@ -2,15 +2,15 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Channels.sol": {
-      "lastModificationDate": 1644613770670,
-      "contentHash": "8c0340d823b4b0ac2bf04a601f56efa0",
+      "lastModificationDate": 1648176281989,
+      "contentHash": "0d3275b998de6f232d2f5961dd9ef7f7",
       "sourceName": "contracts/Channels.sol",
       "solcConfig": {
         "version": "0.8.7",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -29,7 +29,6 @@
         }
       },
       "imports": [
-        "@openzeppelin/contracts/utils/Strings.sol",
         "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol",
         "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol",
         "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol",
@@ -38,7 +37,6 @@
         "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
         "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol",
         "hardhat/console.sol",
-        "./libraries/Base64.sol",
         "./libraries/ReceptionStructs.sol"
       ],
       "versionPragmas": [
@@ -57,7 +55,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -92,7 +90,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -136,7 +134,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -174,7 +172,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -212,7 +210,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -250,7 +248,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -289,7 +287,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -326,7 +324,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -361,7 +359,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -396,7 +394,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -431,7 +429,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -468,7 +466,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -503,7 +501,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -540,7 +538,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -575,7 +573,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -612,7 +610,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -647,7 +645,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -685,7 +683,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -712,15 +710,15 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\WorksManager.sol": {
-      "lastModificationDate": 1646953097234,
-      "contentHash": "f85288dc133edfcbf83cf67a99f45a3a",
+      "lastModificationDate": 1648176354566,
+      "contentHash": "4f1e4598266e5d69e2e67173e11b7058",
       "sourceName": "contracts/WorksManager.sol",
       "solcConfig": {
         "version": "0.8.7",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -768,7 +766,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -801,15 +799,15 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\PostFactory.sol": {
-      "lastModificationDate": 1646875859123,
-      "contentHash": "87c671d300c570d6c9818ed848728c6b",
+      "lastModificationDate": 1648171928930,
+      "contentHash": "e0de5e70ce0d62b1d6b84ee846810429",
       "sourceName": "contracts/PostFactory.sol",
       "solcConfig": {
         "version": "0.8.7",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -833,9 +831,7 @@
         "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol",
         "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol",
         "hardhat/console.sol",
-        "./libraries/CloneFactory.sol",
         "./Posts.sol",
-        "./libraries/Base64.sol",
         "./Channels.sol"
       ],
       "versionPragmas": [
@@ -846,15 +842,15 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Memberships.sol": {
-      "lastModificationDate": 1647304260280,
-      "contentHash": "03fc431c1fa2f68b0cd2aa72baf02b62",
+      "lastModificationDate": 1648172945331,
+      "contentHash": "ffbcb22e41d9f67ebb2a8b46ca5c1b07",
       "sourceName": "contracts/Memberships.sol",
       "solcConfig": {
         "version": "0.8.7",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -894,15 +890,15 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Posts.sol": {
-      "lastModificationDate": 1647187522673,
-      "contentHash": "2a337edd721fd2c952e767146268519a",
+      "lastModificationDate": 1648173034231,
+      "contentHash": "3a772d8674a39e8b88bb7d7375e243d8",
       "sourceName": "contracts/Posts.sol",
       "solcConfig": {
         "version": "0.8.7",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -921,7 +917,6 @@
         }
       },
       "imports": [
-        "@openzeppelin/contracts/utils/Strings.sol",
         "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol",
         "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol",
         "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol",
@@ -929,6 +924,7 @@
         "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol",
         "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol",
         "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol",
+        "./libraries/Strings.sol",
         "hardhat/console.sol",
         "./libraries/Base64.sol",
         "./libraries/ReceptionStructs.sol",
@@ -952,7 +948,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -987,7 +983,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1022,7 +1018,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1065,7 +1061,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1103,7 +1099,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1141,7 +1137,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1178,7 +1174,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1215,7 +1211,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1252,7 +1248,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1279,15 +1275,15 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\libraries\\Strings.sol": {
-      "lastModificationDate": 1642366861666,
-      "contentHash": "09e329b0889c0e3bc5cafc36f2d022b2",
+      "lastModificationDate": 1648171712418,
+      "contentHash": "3d4f3f53a61684203234653d46ba24e8",
       "sourceName": "contracts/libraries/Strings.sol",
       "solcConfig": {
         "version": "0.8.7",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1314,15 +1310,15 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Broadcasts.sol": {
-      "lastModificationDate": 1644171482717,
-      "contentHash": "29358c6b6577f9c80ff852579cfd7b92",
+      "lastModificationDate": 1647837907489,
+      "contentHash": "96dda9122c56bb103fad36fed357a12e",
       "sourceName": "contracts/Broadcasts.sol",
       "solcConfig": {
         "version": "0.8.7",
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {
@@ -1369,7 +1365,7 @@
         "settings": {
           "optimizer": {
             "enabled": true,
-            "runs": 200
+            "runs": 1
           },
           "outputSelection": {
             "*": {

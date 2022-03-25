@@ -8,22 +8,18 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "hardhat/console.sol";
 
-
-import { CloneFactory } from "./libraries/CloneFactory.sol";
 import { Posts } from "./Posts.sol";
-import { Base64 } from "./libraries/Base64.sol";
 import { Channels } from "./Channels.sol";
 
 
 /// @custom:security-contact ReceptionFM
-contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, AccessControlUpgradeable  {
+contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgradeable  {
   using CountersUpgradeable for CountersUpgradeable.Counter;
 
   CountersUpgradeable.Counter private _postContractIndex;
-  Posts[] public children;
-  address[] public postList;
+  //Posts[] public children;
+  //address[] public postList;
   address contractOwner;
-  address originalContract;
   address channelsAddress;
   address membershipsAddress;
   address broadcastsAddress;
@@ -31,9 +27,17 @@ contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, Access
 
 
   mapping(uint256 => uint256) channelToIndex;
+  mapping(uint256 => address) postToAddress;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-  constructor(address _contractOwner, address _channelsAddress, address _membershipsAddress){
+  constructor(address _contractOwner, address _channelsAddress, address _membershipsAddress) initializer{
+    
+    __AccessControl_init();
+    __Pausable_init();
+
+    _grantRole(ADMIN_ROLE, _contractOwner);
+    _grantRole(DEFAULT_ADMIN_ROLE, _contractOwner);
+
     contractOwner = _contractOwner;
     channelsAddress = _channelsAddress;
     channelContract = Channels(channelsAddress);
@@ -51,22 +55,23 @@ contract PostFactory is CloneFactory, Initializable, PausableUpgradeable, Access
   function createPostContract(string calldata tokenName, uint256 tokenChannel, address to) public{
     // TODO : Add function for verifiying ownership
     address channelOwner = channelContract.ownerOf(tokenChannel);
-    require(to == channelOwner, "You must be the channel owner to create memberships");
+    require(to == channelOwner, "Must be Owner");
 
-    //Posts child = Posts(createClone(originalContract));
     Posts child = new Posts(tokenName, tokenChannel, to, channelsAddress, membershipsAddress);
-    children.push(child);
+    //children.push(child);
+    //uint256 tokenIndex = children.length;
     uint256 tokenIndex = _postContractIndex.current();
     _postContractIndex.increment();
+    postToAddress[tokenChannel] = address(child);
     channelToIndex[tokenChannel] = tokenIndex;
   }
 
-  function getChannelPostContract(uint256 tokenChannel) public view returns(Posts) {
+  function getChannelPostContract(uint256 tokenChannel) public view returns(address) {
     uint256 postIndex = channelToIndex[tokenChannel];
-    return children[postIndex];
-  }
-
-  function getChildren() external view returns(Posts[] memory){
-    return children;
+    if (tokenChannel != 0) {
+      require(postIndex != 0, 'No contract');
+    }
+    
+    return postToAddress[postIndex];
   }
 }

@@ -129,7 +129,7 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
   }
   
   function uri(uint256 tokenId) override public view returns (string memory) {
-    return(_uris[tokenId]);
+    return(string(abi.encodePacked("ipfs://", _uris[tokenId], "/metadata.json")));
   }
 
   function setTokenUriInternal(uint256 tokenId, string memory newUri) internal{

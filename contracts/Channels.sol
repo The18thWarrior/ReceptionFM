@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 // We first import some OpenZeppelin Contracts.
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
@@ -13,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Burnab
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "hardhat/console.sol";
-import { Base64 } from "./libraries/Base64.sol";
+
 import { Structs } from "./libraries/ReceptionStructs.sol";
 
 /// @custom:security-contact ReceptionFM
@@ -22,35 +21,34 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
 
   CountersUpgradeable.Counter private _tokenIdCounter;
   mapping(uint256 => string) private _uris;
+  mapping(address => string) private _profileUris;
   uint256 public cost = 0.0000025 ether;
 
   mapping(address => Structs.ChannelOwner) channelOwnerList;
-  mapping(uint256 => Structs.Channel) channelList;
+  address private masterContract;
   event NewReceptionChannelMinted(address sender, uint256 tokenId);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(address _masterContract) initializer {}
+  constructor(address _masterContract) initializer {
+    initialize(_masterContract);
+  }
   // Backend Initialization
   function initialize(address _masterContract) initializer public {
-      __ERC721_init("TestChannel", "testCHANNEL");
-      __ERC721URIStorage_init();
-      __Pausable_init();
-      __Ownable_init();
-      __ERC721Burnable_init();
+    __ERC721_init("TestChannel", "testCHANNEL");
+    __ERC721URIStorage_init();
+    __Pausable_init();
+    __Ownable_init();
+    __ERC721Burnable_init();
 
-      transferOwnership(_masterContract);
-      console.log('owner: ', owner(), _masterContract);
+    transferOwnership(_masterContract);
+    console.log('owner: ', owner(), _masterContract);
+    masterContract = _masterContract;
   }
   // 1.2
   function safeMint(
-    string calldata channelName, 
     string calldata channelUri, 
-    address to, 
-    string calldata author,
-    string calldata copyright,
-    string calldata language
-    ) public payable {
-    console.log('channel mint', owner(), msg.sender);
+    address to
+    ) public onlyOwner payable {
     //require(msg.value > cost, "Not enough MATIC to complete transaction");
     uint256 tokenId = _tokenIdCounter.current();
     _tokenIdCounter.increment();
@@ -59,23 +57,14 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     // Get all the JSON metadata in place and base64 encode it.
 
     Structs.ChannelOwner storage owner = channelOwnerList[to];
-    Structs.Channel memory channel = Structs.Channel({
-      tokenIndex : tokenId,
-      channelName : channelName,
-      membershipToken : address(0),
-      author: author,
-      copyright: copyright,      
-      language: language
-    });
-    // global channel map
-    channelList[tokenId] = channel;
+    
     // owner channelId to index map
     owner.channelMap[tokenId] = owner.channels.length;
     // owner channel array
     //owner.channels.push(tokenId);
 
     _safeMint(to, tokenId);
-    emit NewReceptionChannelMinted(msg.sender, tokenId);
+    emit NewReceptionChannelMinted(to, tokenId);
     setTokenUriInternal(tokenId, channelUri);
     _setTokenURI(tokenId, channelUri);
   }
@@ -84,33 +73,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     Structs.ChannelOwner storage owner = channelOwnerList[ownerId];
     return owner.channels;
   }
-  // App Load Step #2
-  function getOwnerChannelList(uint256[] calldata channelIds) public view returns(Structs.Channel[] memory) {
-    Structs.Channel[] memory channelL;
-    for (uint256 i = 0; i < channelIds.length; i++) {
-      channelL[i]= channelList[channelIds[i]];
-    }
-
-    return channelL;
-  } 
-  // User Action 
-  function updateChannelDetails(
-    address from, 
-    uint256 tokenId, 
-    string calldata channelName,
-    string calldata author, 
-    string calldata copyright, 
-    string calldata language
-  ) public returns (bool){
-    address channelOwner = ownerOf(tokenId);
-    require(from == channelOwner, "You must be the channel owner to modify channel details");
-
-    channelList[tokenId].channelName = channelName;
-    channelList[tokenId].author = author;
-    channelList[tokenId].copyright = copyright;
-    channelList[tokenId].language = language;
-    return true;
-  }
+  
   // User Action
   function _beforeTokenTransfer(address from, address to, uint256 tokenId)
       internal
@@ -146,13 +109,21 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     return _tokenIdCounter.current()-1;
   }
 
-  function uri(uint256 tokenId) public view returns (string memory) {
-    return(_uris[tokenId]);
+  function uri(uint256 tokenId) public view returns (string memory) { 
+    return(string(abi.encodePacked("ipfs://", _uris[tokenId], "/metadata.json")));
   }
 
   function setTokenUriInternal(uint256 tokenId, string memory newUri) internal{
     require(bytes(_uris[tokenId]).length == 0, "Cannot modify existing uri");
     _uris[tokenId] = newUri;
+  }
+
+  function setProfileUri(address to, string memory newUri) public onlyOwner {
+    _profileUris[to] = newUri;
+  }
+
+  function getProfileUri(address to) public view returns (string memory) { 
+    return(string(abi.encodePacked("ipfs://", _profileUris[to], "/metadata.json")));
   }
 
   // DEFAULT METHODS REQUIRED BY INTERFACES
@@ -185,6 +156,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
       override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
       returns (string memory)
   {
-      return super.tokenURI(tokenId);
+    return(string(abi.encodePacked("ipfs://", _uris[tokenId], "/metadata.json")));
+    //return super.tokenURI(tokenId);
   }
 }

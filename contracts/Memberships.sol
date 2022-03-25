@@ -50,25 +50,20 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     address channel;
   }*/
 
-  mapping(string => Structs.Level) public levelMapping;
   //mapping(address => Membership) public membershipOwnershipMap;
   mapping(uint256 => string) private _uris;
   mapping(uint256 => uint256[]) public _channelMap;
+  mapping(uint256 => address[]) public _ownershipMap;
   mapping(uint256 => uint256) private _tokenCost;
-  mapping(uint256 => Structs.Level) private _tokenLevel;
+  mapping(uint256 => uint256) private _membershipToChannel;
 
   uint256 maxMemberships = 10;
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor(string memory tokenName, address _ownerContract, address _channelAddress) initializer {
-    channelAddress = _channelAddress;
-    channelContract = Channels(_channelAddress);
-    name = tokenName;
-    
-    _grantRole(OWNER_ROLE, _ownerContract);
+    initialize(tokenName, _ownerContract, _channelAddress);
   }
 
-  function initialize(string memory tokenName, address _ownerContract) initializer public {
-    //require(msg.sender == RECEPTION_ACCOUNT, "Wrong Account Deployer");
+  function initialize(string memory tokenName, address _ownerContract, address _channelAddress) initializer public {
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
     __ERC1155Supply_init();
@@ -81,12 +76,9 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     _grantRole(ADMIN_ROLE, _ownerContract);
     _grantRole(OWNER_ROLE, _ownerContract);
 
-    levelMapping["bronze"] = Structs.Level.BRONZE;
-    levelMapping["silver"] = Structs.Level.SILVER;
-    levelMapping["gold"] = Structs.Level.GOLD;
-    levelMapping["platinum"] = Structs.Level.PLATINUM;
-
     name = tokenName;
+    channelAddress = _channelAddress;
+    channelContract = Channels(channelAddress);
   }
 
   function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
@@ -98,7 +90,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     maxMemberships = memberConv;
   }
 
-  function membershipTokenCreate(address from, uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
+  function membershipTokenCreate(address from, uint256 channel, uint256 cost, string calldata computedUri) public onlyRole(OWNER_ROLE){
       // TODO : Add function to validate that the msg.sender owns channel
       channelContract = Channels(channelAddress);
       address channelOwner = channelContract.ownerOf(channel);
@@ -108,7 +100,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
       _tokenIdCounter.increment();
       _channelMap[channel].push(tokenId); 
       _tokenCost[tokenId] = cost;
-      _tokenLevel[tokenId] = levelMapping[level];
+      _membershipToChannel[tokenId] = channel;
 
       //membershipOwnershipMap[to] = newMembership;
       setTokenUriInternal(tokenId, computedUri);
@@ -116,36 +108,25 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
       emit NewMembershipTokenCreated(msg.sender, tokenId);
   }
 
-  function membershipMint(uint256 channel, string calldata level, address to) public payable {
-    uint256[] memory memberships = _channelMap[channel];
-    require(memberships.length > 0, 'No memberships minted for this channel');
-    uint256 tokenId;
-    for (uint256 i = 0;i<memberships.length;i++) {
-      Structs.Level tokenLevel = _tokenLevel[memberships[i]];
-      if (tokenLevel == levelMapping[level]) {
-        tokenId = memberships[i];
-      }
-    }
-
+  function membershipMint(uint256 membership, address to) public payable {
     // TODO : add function to validate that this membership is not outside the membership limits ()
     
     // TODO : add function to require value & submit as a transaction to owner (may require getting nft owner from Channels.sol)
     //require(msg.value > cost, 'Not enough value included in transaction');
-    uint256 cost = _tokenCost[tokenId];
+    uint256 cost = _tokenCost[membership];
     if (cost >= msg.value) {
       console.log('not enough moneybags', cost, msg.value);
     }
     
     require( msg.value >= cost, 'Not enough $$ :( ');
 
-    address ownerPayable = payable(channelContract.ownerOf(channel));
+    address ownerPayable = payable(channelContract.ownerOf(_membershipToChannel[membership]));
     (bool success, ) = ownerPayable.call{value: msg.value}("");
     require(success, "Failed to send MATIC");
     
-    _mint(to, tokenId, 1, "");
-    //_channelMap[channel].push(tokenId); 
+    _mint(to, membership, 1, "");
     
-    emit NewMembershipMinted(to, tokenId);
+    emit NewMembershipMinted(to, membership);
   }
   
   function withdrawBalance() public onlyRole(OWNER_ROLE) {
@@ -159,7 +140,7 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
   }
   
   function uri(uint256 tokenId) override public view returns (string memory) {
-    return(_uris[tokenId]);
+    return(string(abi.encodePacked("ipfs://", _uris[tokenId], "/metadata.json")));
   }
 
   function setTokenUriInternal(uint256 tokenId, string memory newUri) internal{
@@ -189,9 +170,9 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     return balanceOf(to, tokenId);
   }
 
-  function getTokenLevel(uint256 tokenId) public view returns(Structs.Level) {
-    return _tokenLevel[tokenId];
-  }
+  function getOwnershipMap(uint256 tokenId) public view returns(address[] memory) {
+    return _ownershipMap[tokenId];
+  }    
 
   // DEFAULT METHODS REQUIRED BY INTERFACES
   function pause() public onlyRole(OWNER_ROLE) {
@@ -207,7 +188,18 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
       whenNotPaused
       override(ERC1155Upgradeable, ERC1155SupplyUpgradeable)
   {
-      super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+    for (uint i = 0; i < ids.length; i++) {
+      for (uint j = 0; j < _ownershipMap[ids[i]].length; j++) {
+        if (_ownershipMap[ids[i]][j] == from) {
+          _ownershipMap[ids[i]][j] = _ownershipMap[ids[i]][_ownershipMap[ids[i]].length - 1];
+          _ownershipMap[ids[i]].pop();
+          break;
+        }
+      }
+      _ownershipMap[i].push(to);
+    }
+    
+    super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
   }
 
   function setURI(string memory newuri) public onlyRole(ADMIN_ROLE) {

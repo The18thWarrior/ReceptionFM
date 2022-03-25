@@ -35,7 +35,10 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   mapping(uint256 => address) private channelPostAddressMap;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-  constructor(){
+  constructor() initializer {
+    __Pausable_init();
+    __AccessControl_init();
+
     _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _setupRole(ADMIN_ROLE, msg.sender);
   }
@@ -51,29 +54,21 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   // Artist UI Interfaces
   // 1.2
   function mintChannel(
-    string calldata channelName, 
-    string calldata channelUri, 
-    string calldata author,
-    string calldata copyright,
-    string calldata language
+    string calldata channelUri
   ) public payable{
-    return channelContract.safeMint(channelName, channelUri, msg.sender, author, copyright, language);
+    return channelContract.safeMint(channelUri, msg.sender);
   }
 
   // 1.3
   function getOwnerChannelIds() public view returns(uint256[] memory) {
     return channelContract.getOwnerChannelIds(msg.sender);
   }
-  
-  function getOwnerChannelList(uint256[] calldata channelIds) public view returns(Structs.Channel[] memory) {
-    return channelContract.getOwnerChannelList(channelIds);
-  }
 
   // 1.4 (UI Only) - mint IPFS URI
 
   // 1.5 / 2.6
-  function membershipTokenCreate(uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
-    return membershipContract.membershipTokenCreate(msg.sender, channel, cost, level, computedUri);
+  function membershipTokenCreate(uint256 channel, uint256 cost, string calldata computedUri) public {
+    return membershipContract.membershipTokenCreate(msg.sender, channel, cost, computedUri);
   }
 
   /*function broadcastTokenCreate(uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
@@ -81,7 +76,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }*/
 
   // 1.6
-  function getChannelPostContract(uint256 channelToken) public view returns(Posts) {
+  function getChannelPostContract(uint256 channelToken) public view returns(address) {
     return postFactoryContract.getChannelPostContract(channelToken);
   }
 
@@ -92,9 +87,9 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
 
   // 1.8
   //address owner, bool isPublic, string calldata computedUri, string calldata paywallUri_, bool mintable, string[] calldata levels
-  function createPostToken(address contractAddress, uint256 cost, bool isBuyable, bool isPublic, string calldata computedUri,  string calldata paywallUri, bool mintable, string[] calldata levels) public returns(uint256){
+  function createPostToken(address contractAddress, uint256 cost, bool isBuyable, bool isPublic, bool airdrop, string calldata computedUri,  string calldata paywallUri, bool mintable, uint256[] calldata levels) public returns(uint256){
     Posts postContract = Posts(contractAddress);
-    return postContract.createPostToken(msg.sender, cost, isBuyable, isPublic, computedUri, paywallUri, mintable, levels);
+    return postContract.createPostToken(msg.sender, cost, isBuyable, isPublic, airdrop, computedUri, paywallUri, mintable, levels);
   }
 
   // Artist UI Interfaces
@@ -131,8 +126,8 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }*/
   
   // 2.5
-  function membershipMint(uint256 channel, string calldata level) public payable{
-    return membershipContract.membershipMint{ value: msg.value }(channel, level, msg.sender);
+  function membershipMint(uint256 membership) public payable{
+    return membershipContract.membershipMint{ value: msg.value }(membership, msg.sender);
   }
 
   /*function broadcastMint(uint256 channel, string calldata level) public payable{
@@ -158,13 +153,9 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }
 
   // 2.10
-  function postMint(address contractAddress, uint256 membershipId, uint256 tokenId) public payable{
+  function postMint(address contractAddress, uint256 tokenId) public payable{
     Posts postContract = Posts(contractAddress);
-    return postContract.postMint{ value: msg.value }(msg.sender, membershipId, tokenId);
-  }
-
-  function getPostContracts() public view returns(Posts[] memory){
-    return postFactoryContract.getChildren();
+    return postContract.postMint{ value: msg.value }(msg.sender, tokenId);
   }
 
   function postIsMintable(address contractAddress, uint256 tokenId) public view returns(bool){
@@ -180,6 +171,10 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   function postGetCost(address contractAddress, uint256 tokenId) public view returns(uint256 ){
     Posts postContract = Posts(contractAddress);
     return postContract.getCost(tokenId);
+  }
+
+  function membershipGetOwnershipMap(uint256 tokenId) public view returns(address[] memory){
+    return membershipContract.getOwnershipMap(tokenId);
   }
   
 
@@ -207,4 +202,13 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   function setPostAddress(address _postAddress) public onlyRole(ADMIN_ROLE) {
     postsAddress = _postAddress;
   }
+
+  function setProfileUri(string calldata computedUri) public  {
+    return channelContract.setProfileUri(msg.sender, computedUri);
+  }
+
+  function getProfileUri(address to) public view returns(string memory) {
+    return channelContract.getProfileUri(to);
+  }
+
 }

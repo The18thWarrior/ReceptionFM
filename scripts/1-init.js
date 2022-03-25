@@ -176,7 +176,7 @@ const deployContracts = async () => {
   const channelContract = await channelContractFactory.deploy(worksManager.address);
   await channelContract.deployed();
   console.log('channels address : ' + channelContract.address);
-
+  
   await worksManager.setChannelsAddress(channelContract.address);
   console.log('setChannelsAddress complete');
 
@@ -247,13 +247,12 @@ const sendMoney = async () => {
 
 const runMain = async () => {
   try {
-    //let channelName = 'Our House Channel';
-    //let channel_base = 'Our House - {0} Membership';
-    //await hre.network.provider.send("hardhat_reset");
+    await hre.network.provider.send("hardhat_reset");
     let worksManager = await deployContracts();
     console.log('runMain - worksManager address : ', worksManager.address);
+
     //let testResult = await mainTest(worksManager, channelName);
-    //let sendMoney1 = await sendMoney();
+    let sendMoney1 = await sendMoney();
 
     //let channelId = await mainChannels(worksManager, channelName);
     //console.log(channelId);
