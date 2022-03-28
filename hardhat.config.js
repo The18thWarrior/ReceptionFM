@@ -34,7 +34,7 @@ module.exports = {
       url: process.env.NETWORK_URL,
       accounts: [process.env.DEVACCOUNTKEY],
       timeout: 600000
-    },
+    }
   },
   etherscan: {
     // Your API key for Etherscan

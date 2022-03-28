@@ -57,7 +57,7 @@ contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgrade
     address channelOwner = channelContract.ownerOf(tokenChannel);
     require(to == channelOwner, "Must be Owner");
 
-    Posts child = new Posts(tokenName, tokenChannel, to, channelsAddress, membershipsAddress);
+    Posts child = new Posts(tokenName, tokenChannel, to, contractOwner, channelsAddress, membershipsAddress);
     //children.push(child);
     //uint256 tokenIndex = children.length;
     uint256 tokenIndex = _postContractIndex.current();

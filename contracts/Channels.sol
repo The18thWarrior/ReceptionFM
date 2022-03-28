@@ -27,6 +27,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
   mapping(address => Structs.ChannelOwner) channelOwnerList;
   address private masterContract;
   event NewReceptionChannelMinted(address sender, uint256 tokenId);
+  event ReceptionProfileSet(address sender);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor(address _masterContract) initializer {

@@ -35,6 +35,11 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   mapping(uint256 => address) private channelPostAddressMap;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
+  
+  event NewPost(uint256 postId, uint256 channelId, address postContractAddress);
+  event NewPostMessage(uint256 channelId, string msg);
+  event ReceptionProfileSet(address sender);
+
   constructor() initializer {
     __Pausable_init();
     __AccessControl_init();
@@ -55,19 +60,19 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   // 1.2
   function mintChannel(
     string calldata channelUri
-  ) public payable{
+  ) external payable{
     return channelContract.safeMint(channelUri, msg.sender);
   }
 
   // 1.3
-  function getOwnerChannelIds() public view returns(uint256[] memory) {
+  function getOwnerChannelIds() external view returns(uint256[] memory) {
     return channelContract.getOwnerChannelIds(msg.sender);
   }
 
   // 1.4 (UI Only) - mint IPFS URI
 
   // 1.5 / 2.6
-  function membershipTokenCreate(uint256 channel, uint256 cost, string calldata computedUri) public {
+  function membershipTokenCreate(uint256 channel, uint256 cost, string calldata computedUri) external {
     return membershipContract.membershipTokenCreate(msg.sender, channel, cost, computedUri);
   }
 
@@ -76,39 +81,56 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }*/
 
   // 1.6
-  function getChannelPostContract(uint256 channelToken) public view returns(address) {
+  function getChannelPostContract(uint256 channelToken) external view returns(address) {
     return postFactoryContract.getChannelPostContract(channelToken);
   }
 
   // 1.7
-  function createPostContract(string calldata tokenName, uint256 channel) public{
+  function createPostContract(string calldata tokenName, uint256 channel) external{
     return postFactoryContract.createPostContract(tokenName, channel, msg.sender);
   }
 
   // 1.8
   //address owner, bool isPublic, string calldata computedUri, string calldata paywallUri_, bool mintable, string[] calldata levels
-  function createPostToken(address contractAddress, uint256 cost, bool isBuyable, bool isPublic, bool airdrop, string calldata computedUri,  string calldata paywallUri, bool mintable, uint256[] calldata levels) public returns(uint256){
-    Posts postContract = Posts(contractAddress);
-    return postContract.createPostToken(msg.sender, cost, isBuyable, isPublic, airdrop, computedUri, paywallUri, mintable, levels);
+  struct CreatePost {
+      address contractAddress;
+      uint256 cost;
+      bool isBuyable;
+      bool isPublic;
+      bool airdrop;
+      string computedUri;
+      uint256 channelId;
+      string paywallUri; 
+      bool mintable;
+      uint256[] levels;
+  }
+  function createPostToken(CreatePost calldata post) external returns(uint256){
+    Posts postContract = Posts(post.contractAddress);
+    uint256 result = 0;
+    { 
+      result = postContract.createPostToken(Posts.CreatePost(msg.sender, post.cost, post.isBuyable, post.isPublic, post.airdrop, post.computedUri, post.paywallUri, post.mintable, post.levels)); 
+    }
+    emit NewPost(result, post.channelId, post.contractAddress);
+    return result;
   }
 
   // Artist UI Interfaces
   // 2.1
-  function getCurrentChannelIndex() public view returns(uint256){
+  function getCurrentChannelIndex() external view returns(uint256){
     return channelContract.getCurrentIndex();
   }
 
   // 2.2
-  function getChannelMetadata(uint256 tokenId) public view returns(string memory) {
+  function getChannelMetadata(uint256 tokenId) external view returns(string memory) {
     return channelContract.uri(tokenId);
   }
   
   // 2.3
-  function getMembershipList(uint256 channel) public view returns (uint256[] memory) {
+  function getMembershipList(uint256 channel) external view returns (uint256[] memory) {
     return membershipContract.getMembershipList(channel);
   }
 
-  function getMembership(uint256 membershipId) public view returns (uint256) {
+  function getMembership(uint256 membershipId) external view returns (uint256) {
     return membershipContract.getMembership(membershipId, msg.sender);
   }
 
@@ -117,7 +139,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }*/
   
   // 2.4
-  function membershipUri(uint256 tokenId) public view returns (string memory) {
+  function membershipUri(uint256 tokenId) external view returns (string memory) {
     return membershipContract.uri(tokenId);
   }
   
@@ -126,7 +148,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }*/
   
   // 2.5
-  function membershipMint(uint256 membership) public payable{
+  function membershipMint(uint256 membership) external payable{
     return membershipContract.membershipMint{ value: msg.value }(membership, msg.sender);
   }
 
@@ -135,56 +157,56 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }*/
 
   // 2.7
-  function getPostTokenIndex(address contractAddress) public view returns(uint256){
+  function getPostTokenIndex(address contractAddress) external view returns(uint256){
     Posts postContract = Posts(contractAddress);
     return postContract.getTokenIndex();
   }
   
   // 2.8
-  function getPostUri(address contractAddress, uint256 tokenId) public view returns(string memory){
+  function getPostUri(address contractAddress, uint256 tokenId) external view returns(string memory){
     Posts postContract = Posts(contractAddress);
     return postContract.uri2(tokenId, msg.sender);
   }
 
   // 2.9
-  function getPostTokenBalance(address contractAddress, uint256 tokenId) public view returns(uint256){
+  function getPostTokenBalance(address contractAddress, uint256 tokenId) external view returns(uint256){
     Posts postContract = Posts(contractAddress);
-    return postContract.getPostTokenBalance(tokenId, msg.sender);
+    return postContract.balanceOf(msg.sender, tokenId);
   }
 
   // 2.10
-  function postMint(address contractAddress, uint256 tokenId) public payable{
+  function postMint(address contractAddress, uint256 tokenId) external payable{
     Posts postContract = Posts(contractAddress);
     return postContract.postMint{ value: msg.value }(msg.sender, tokenId);
   }
 
-  function postIsMintable(address contractAddress, uint256 tokenId) public view returns(bool){
+  function postIsMintable(address contractAddress, uint256 tokenId) external view returns(bool){
     Posts postContract = Posts(contractAddress);
     return postContract.isMintable(tokenId);
   }
 
-  function postIsBuyable(address contractAddress, uint256 tokenId) public view returns(bool){
+  function postIsBuyable(address contractAddress, uint256 tokenId) external view returns(bool){
     Posts postContract = Posts(contractAddress);
     return postContract.isBuyable(tokenId);
   }
 
-  function postGetCost(address contractAddress, uint256 tokenId) public view returns(uint256 ){
+  function postGetCost(address contractAddress, uint256 tokenId) external view returns(uint256 ){
     Posts postContract = Posts(contractAddress);
     return postContract.getCost(tokenId);
   }
 
-  function membershipGetOwnershipMap(uint256 tokenId) public view returns(address[] memory){
+  function membershipGetOwnershipMap(uint256 tokenId) external view returns(address[] memory){
     return membershipContract.getOwnershipMap(tokenId);
   }
   
 
   // Functions for setting static variables
-  function setPostFactoryAddress(address _postFactoryAddress) public onlyRole(ADMIN_ROLE) {
+  function setPostFactoryAddress(address _postFactoryAddress) external onlyRole(ADMIN_ROLE) {
     postFactoryAddress = _postFactoryAddress;
     postFactoryContract = PostFactory(_postFactoryAddress);
   }
 
-  function setMembershipsAddress(address _membershipsAddress) public onlyRole(ADMIN_ROLE) {
+  function setMembershipsAddress(address _membershipsAddress) external onlyRole(ADMIN_ROLE) {
     membershipsAddress = _membershipsAddress;
     membershipContract = Memberships(_membershipsAddress);
   }
@@ -194,21 +216,36 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     broadcastContract = Broadcasts(_broadcastsAddress);
   }*/
 
-  function setChannelsAddress(address _channelsAddress) public onlyRole(ADMIN_ROLE) {
+  function setChannelsAddress(address _channelsAddress) external onlyRole(ADMIN_ROLE) {
     channelsAddress = _channelsAddress;
     channelContract = Channels(_channelsAddress);
   }
   
-  function setPostAddress(address _postAddress) public onlyRole(ADMIN_ROLE) {
+  function setPostAddress(address _postAddress) external onlyRole(ADMIN_ROLE) {
     postsAddress = _postAddress;
   }
 
-  function setProfileUri(string calldata computedUri) public  {
-    return channelContract.setProfileUri(msg.sender, computedUri);
+  function setProfileUri(string calldata computedUri) external  {
+    channelContract.setProfileUri(msg.sender, computedUri);
+    emit ReceptionProfileSet(msg.sender);
   }
 
-  function getProfileUri(address to) public view returns(string memory) {
+  function getProfileUri(address to) external view returns(string memory) {
     return channelContract.getProfileUri(to);
+  }
+
+  function getChannelsAddress() external view returns(address) {
+    return channelsAddress;
+  }
+
+  function getMembershipsAddress() external view returns(address) {
+    return membershipsAddress;
+  }
+
+  function createPostMessage(address contractAddress, uint256 channelId, string calldata message) external {
+      Posts postContract = Posts(contractAddress);
+      require(postContract.channelOwnershipMatch(msg.sender), "Not owner");
+      emit NewPostMessage(channelId, message);
   }
 
 }

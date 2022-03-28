@@ -58,7 +58,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   mapping(address => uint256[]) private _redemptions;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, uint256 _channelToken, address to, address _channelAddress, address _membershipsAddress) initializer {
+  constructor(string memory tokenName, uint256 _channelToken, address to, address _ownerAddress, address _channelAddress, address _membershipsAddress) initializer {
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
     __ERC1155Supply_init();
@@ -73,9 +73,10 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     membershipsAddress = _membershipsAddress;
     membershipsContract = Memberships(membershipsAddress);
 
-    _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    _grantRole(ADMIN_ROLE, msg.sender);
+    _grantRole(DEFAULT_ADMIN_ROLE, _ownerAddress);
+    _grantRole(ADMIN_ROLE, _ownerAddress);
     _grantRole(OWNER_ROLE, to);
+    _grantRole(OWNER_ROLE, _ownerAddress);  
   }
 
   function initialize(string memory tokenName, address to) initializer public {
@@ -89,40 +90,51 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(ADMIN_ROLE, msg.sender);
     _grantRole(OWNER_ROLE, to);    
+    _grantRole(OWNER_ROLE, msg.sender);    
   }
 
   function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
     _grantRole(OWNER_ROLE, to);
   }
 
-  function createPostToken(address owner, uint256 cost, bool buyable, bool isPublic, bool airdrop, string calldata computedUri, string calldata paywallUri_, bool mintable, uint256[] calldata levels) public onlyRole(OWNER_ROLE) returns(uint256) {
+  struct CreatePost {
+      address owner;
+      uint256 cost;
+      bool isBuyable;
+      bool isPublic;
+      bool airdrop;
+      string computedUri;
+      string paywallUri; 
+      bool mintable;
+      uint256[] levels;
+  }
+  function createPostToken(CreatePost calldata post) public onlyRole(OWNER_ROLE) returns(uint256) {
       // TODO : Add function to validate that the msg.sender owns channel
       
-      require(channelOwnershipMatch(owner), "You must be the channel owner to create posts");
+      require(channelOwnershipMatch(post.owner), "You must be the channel owner to create posts");
       // Required inputs
-      if (!isPublic) {
-        require(levels.length > 0, "You must include at least 1 level to create a non-public post");
+      if (!post.isPublic) {
+        require(post.levels.length > 0, "You must include at least 1 level to create a non-public post");
       }
       
       uint256 tokenId = _tokenIdCounter.current();
       _tokenIdCounter.increment();
-      setTokenUriInternal(tokenId, computedUri);
-      setPaywallUriInternal(tokenId, paywallUri_);
-      _paywallUriAccess[tokenId] = isPublic;
-      _buyable[tokenId] = buyable;
-      _mintable[tokenId] = mintable;
-      _cost[tokenId] = cost;
+      setTokenUrisInternal(tokenId, post.computedUri, post.paywallUri);
+      _paywallUriAccess[tokenId] = post.isPublic;
+      _buyable[tokenId] = post.isBuyable;
+      _mintable[tokenId] = post.mintable;
+      _cost[tokenId] = post.cost;
       
-      if (!isPublic && levels.length > 0) {
-        setTokenLevelsInternal(tokenId, levels);
+      if (!post.isPublic && post.levels.length > 0) {
+        setTokenLevelsInternal(tokenId, post.levels);
       }
       
-      emit NewPostTokenCreated(owner, tokenId);
+      emit NewPostTokenCreated(post.owner, tokenId);
       
-      if (airdrop && levels.length > 0) {
+      if (post.airdrop && post.levels.length > 0) {
         string memory mintedOwners;
-        for (uint256 i = 0; i < levels.length; i++) {
-          address[] memory owners = membershipsContract.getOwnershipMap(levels[i]);
+        for (uint256 i = 0; i < post.levels.length; i++) {
+          address[] memory owners = membershipsContract.getOwnershipMap(post.levels[i]);
           for (uint256 j = 0; j < owners.length; j++) {
             Strings.slice memory substring = mintedOwners.toSlice().copy().rfind(string(abi.encodePacked(owners[j])).toSlice());
             if (substring.empty()) {
@@ -175,6 +187,14 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     // Owner can receive Ether since the address of owner is payable
     (bool success, ) = ownerPayable.call{value: address(this).balance}("");
     require(success, "Failed to send MATIC");
+  }
+
+  function getChannelToken() external view returns(uint256) {
+    return channelToken;
+  }
+
+  function getCurrentCount() external view returns(uint256) {
+    return _tokenIdCounter.current();
   }
 
   function isMintable(uint256 tokenId) public view returns (bool) {
@@ -246,7 +266,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   }
 
   function ownershipMatch(address to, uint256 tokenId) public view returns (bool) {
-    if (getPostTokenBalance(tokenId, to) > 0) {
+    if (balanceOf(to, tokenId) > 0) {
       return true;
     }
 
@@ -263,14 +283,9 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     return(_paywallUri[tokenId]);
   }
 
-  function setTokenUriInternal(uint256 tokenId, string memory newUri) internal{
-    require(bytes(_uris[tokenId]).length == 0, "Cannot modify existing uri");
+  function setTokenUrisInternal(uint256 tokenId, string memory newUri, string memory newPaywallUri) internal{
     _uris[tokenId] = newUri;
-  }
-
-  function setPaywallUriInternal(uint256 tokenId, string memory newUri) internal{
-    require(bytes(_paywallUri[tokenId]).length == 0, "Cannot modify existing uri");
-    _paywallUri[tokenId] = newUri;
+    _paywallUri[tokenId] = newPaywallUri;
   }
 
   function setTokenLevelsInternal(uint256 tokenId, uint256[] memory newLevels) internal{
@@ -286,11 +301,6 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   function getTokenIndex() public view returns (uint256) {
     return _tokenIdCounter.current();
   }
-
-  function getPostTokenBalance(uint256 tokenId, address to) public view returns (uint256) {
-    return balanceOf(to, tokenId);
-  }
-
 
   // DEFAULT METHODS REQUIRED BY INTERFACES
   function pause() public onlyRole(OWNER_ROLE) {

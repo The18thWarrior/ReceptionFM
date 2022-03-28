@@ -18,9 +18,11 @@ let svgString = svgPartOne + svgPartTwo + svgPartThree;
 const nftStorageApiKey = process.env.NFT_STORAGE_API_KEY;
 const nftStorageClient = new nftStore.NFTStorage({ token: nftStorageApiKey })
 
-const mainTest = async (worksManager, channelName) => {
+const mainTest = async (worksManager, channelName, channelContract) => {
   let channelList = await mainChannels(worksManager, channelName);
   let channel = channelList[0];
+  console.log(channel);
+  let memberships = await mainMemberships(worksManager,channel, channelName);
 
   let txn = await worksManager.createPostContract(channelName, channel.toHexString());
   // Wait for it to be mined.
@@ -30,6 +32,11 @@ const mainTest = async (worksManager, channelName) => {
   // 1.6
   let postContract = await worksManager.getChannelPostContract(channel.toHexString());
   console.log(postContract);
+
+  //let channelOwner = await channelContract._ownerOf(channel);
+  const accounts = await hre.ethers.getSigners();
+  const toAddress = await hre.ethers.utils.getAddress("0x836C31094bEa1aE6b65F76D1C906b01329645a94");
+  let txn2 = await channelContract.transferFrom(accounts[0].address,toAddress,channel)
 
   // Construct/Store Metadata
   const metadata1Image = String.format(svgString, channelName + ' Post');
@@ -42,7 +49,19 @@ const mainTest = async (worksManager, channelName) => {
   });
 
   // 1.8
-  let postTokenId = await worksManager.createPostToken(postContract, 0, false, true, metadata1.url, metadata1.url, false, ['bronze']);
+  let postData = {
+    contractAddress: postContract,
+    cost:  1,
+    isBuyable: false,
+    isPublic: true,
+    airdrop: false,
+    channelId: channel.toHexString(),
+    computedUri: metadata1.ipnft,
+    paywallUri: metadata1.ipnft,
+    mintable: false,
+    levels: ['0x00']
+  }
+  let postTokenId = await worksManager.createPostToken(postData);
   await postTokenId.wait();
 }
 
@@ -87,56 +106,27 @@ const mainPosts = async (worksManager, channel, channelName) => {
 const mainMemberships = async (worksManager, channel, name_base) => {
   // 1.4a
   // Construct/Store Metadata
-  const metadata1Image = String.format(svgString, String.format(name_base, 'Bronze'));
+  const metadata1Image = String.format(svgString, 'VIP');
   const metadata1Blob = new nftStore.Blob([metadata1Image], {type: 'image/svg+xml'});
   const metadata1 = await nftStorageClient.store({
-    name: String.format(name_base, 'Bronze'),
+    name: 'VIP',
     description: 'Membership token',
     image: metadata1Blob,
     channel: channel.toHexString(),
+    cost: 1,
     level: 'bronze'
   });
 
   // 1.5a
   // Call the function.
-  let txn = await worksManager.membershipTokenCreate(channel.toHexString(), 0, 'bronze', metadata1.url);
+  let txn = await worksManager.membershipTokenCreate(channel.toHexString(), 1, metadata1.ipnft);
   // Wait for it to be mined.
   await txn.wait();
   console.log('create membership 1 complete', txn.value);
 
-  // 1.4b
-  // Construct Metadata
-  const metadata2Image = String.format(svgString, String.format(name_base, 'Silver'));
-  const metadata2Blob = new nftStore.Blob([metadata2Image], {type: 'image/svg+xml'});
-  const metadata2 = await nftStorageClient.store({
-    name: String.format(name_base, 'Silver'),
-    description: 'Membership token',
-    image:  metadata2Blob,
-    channel: channel.toHexString(),
-    level: 'silver'
-  });
-  
-  // 1.5b
-  let txn2 = await worksManager.membershipTokenCreate(channel.toHexString(), 0, 'silver', metadata2.url);
-  // Wait for it to be mined.
-  await txn2.wait();
-  console.log('create membership 2 complete', txn2.value);
-  
-  // 2.4a
-  let txn3 = await worksManager.membershipUri(0);
-  console.log(txn3);
-  
-  // 2.4b
-  let txn4 = await worksManager.membershipUri(1);
-  console.log(txn4);
-
-  // 2.3
-  let txn5 = await worksManager.getMembershipList(channel.toHexString());
-  console.log(txn5);
-
   // 2.5
-  await worksManager.membershipMint(channel.toHexString(), 'silver');
-  console.log('membershipMint complete');
+  //await worksManager.membershipMint(channel.toHexString());
+  //console.log('membershipMint complete');
   
 };
 
@@ -150,11 +140,11 @@ const mainChannels = async (worksManager, channelName) => {
     description: 'Reception.fm channel NFT for channel: ' + channelName,
     image: metadata1Blob
   });
-
+  console.log(metadata1);
   // 1.2
   // Call the function.
   //channelName, channelUri, msg.sender, author, copyright, language
-  let txn = await worksManager.mintChannel(channelName, metadata1.url, 'test', 'test', 'test');
+  let txn = await worksManager.mintChannel(metadata1.ipnft);
   // Wait for it to be mined.
   await txn.wait();
   console.log('mint channel complete');
@@ -211,7 +201,7 @@ const deployContracts = async () => {
   await worksManager.setPostFactoryAddress(postFactoryContract.address);
   console.log('Contract deployment complete');
 
-  return worksManager;
+  return [worksManager,channelContract];
 }
 
 const sendMoney = async () => {
@@ -248,11 +238,11 @@ const sendMoney = async () => {
 const runMain = async () => {
   try {
     await hre.network.provider.send("hardhat_reset");
-    let worksManager = await deployContracts();
+    let [worksManager, channelContract] = await deployContracts();
     console.log('runMain - worksManager address : ', worksManager.address);
-
-    //let testResult = await mainTest(worksManager, channelName);
+    
     let sendMoney1 = await sendMoney();
+    let testResult = await mainTest(worksManager, 'TestChannel1', channelContract);
 
     //let channelId = await mainChannels(worksManager, channelName);
     //console.log(channelId);
