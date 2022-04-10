@@ -49,7 +49,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
   function safeMint(
     string calldata channelUri, 
     address to
-    ) public onlyOwner payable {
+    ) public onlyOwner payable returns(uint256) {
     //require(msg.value > cost, "Not enough MATIC to complete transaction");
     uint256 tokenId = _tokenIdCounter.current();
     _tokenIdCounter.increment();
@@ -68,6 +68,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     emit NewReceptionChannelMinted(to, tokenId);
     setTokenUriInternal(tokenId, channelUri);
     _setTokenURI(tokenId, channelUri);
+    return tokenId;
   }
   // 1.3
   function getOwnerChannelIds(address ownerId) public view returns(uint256[] memory){

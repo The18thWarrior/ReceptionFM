@@ -36,9 +36,10 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   
-  event NewPost(uint256 postId, uint256 channelId, address postContractAddress);
-  event NewPostMessage(uint256 channelId, string msg);
-  event ReceptionProfileSet(address sender);
+  event NewPost(uint256 postId, uint256 indexed channelId, address postContractAddress);
+  event NewPostMessage(uint256 indexed channelId, string msg);
+  event NewChannel(uint256 indexed channelId, string keywords);
+  event ProfileSet(address indexed sender, string keywords);
 
   constructor() initializer {
     __Pausable_init();
@@ -59,15 +60,22 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   // Artist UI Interfaces
   // 1.2
   function mintChannel(
-    string calldata channelUri
+    string calldata channelUri,
+    string calldata keywords
   ) external payable{
-    return channelContract.safeMint(channelUri, msg.sender);
+    emit NewChannel(channelContract.safeMint(channelUri, msg.sender), keywords);
   }
 
   // 1.3
   function getOwnerChannelIds() external view returns(uint256[] memory) {
     return channelContract.getOwnerChannelIds(msg.sender);
   }
+
+  
+  function getArtistChannelIds(address sender) external view returns(uint256[] memory) {
+    return channelContract.getOwnerChannelIds(sender);
+  }
+
 
   // 1.4 (UI Only) - mint IPFS URI
 
@@ -225,9 +233,9 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     postsAddress = _postAddress;
   }
 
-  function setProfileUri(string calldata computedUri) external  {
+  function setProfileUri(string calldata computedUri, string calldata keywords) external  {
     channelContract.setProfileUri(msg.sender, computedUri);
-    emit ReceptionProfileSet(msg.sender);
+    emit ProfileSet(msg.sender, keywords);
   }
 
   function getProfileUri(address to) external view returns(string memory) {
@@ -242,7 +250,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     return membershipsAddress;
   }
 
-  function createPostMessage(address contractAddress, uint256 channelId, string calldata message) external {
+  function createPostMessage(address contractAddress, uint256 channelId, string calldata message) public {
       Posts postContract = Posts(contractAddress);
       require(postContract.channelOwnershipMatch(msg.sender), "Not owner");
       emit NewPostMessage(channelId, message);

@@ -1,0 +1,22 @@
+{
+  "name": "reception-lambda",
+  "version": "1.0.0",
+  "description": "Lambda jobs for reception",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1104.0",
+    "ipfs-http-client": "^56.0.2",
+    "moralis": "^1.5.7",
+    "nft.storage": "^6.1.0",
+    "parse": "^3.4.1",
+    "web3": "^1.7.1"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.0"
+  }
+}

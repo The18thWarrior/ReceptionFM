@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\Channels.sol": {
-      "lastModificationDate": 1648338302946,
-      "contentHash": "c58fea5ef6d92119ccdf0a5ed427cce0",
+      "lastModificationDate": 1649534769571,
+      "contentHash": "10b9d9a855ca69d792d163798cd93645",
       "sourceName": "contracts/Channels.sol",
       "solcConfig": {
         "version": "0.8.7",
@@ -710,8 +710,8 @@
       ]
     },
     "C:\\Users\\jorda\\Desktop\\Repos\\reception\\webapp\\reception-app\\contracts\\WorksManager.sol": {
-      "lastModificationDate": 1648422799870,
-      "contentHash": "f9be1117fc41378918aea57677d85216",
+      "lastModificationDate": 1649625805601,
+      "contentHash": "5141e425fe07aa6907a6e6a801752a9e",
       "sourceName": "contracts/WorksManager.sol",
       "solcConfig": {
         "version": "0.8.7",

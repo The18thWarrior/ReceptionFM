@@ -144,7 +144,7 @@ const mainChannels = async (worksManager, channelName) => {
   // 1.2
   // Call the function.
   //channelName, channelUri, msg.sender, author, copyright, language
-  let txn = await worksManager.mintChannel(metadata1.ipnft);
+  let txn = await worksManager.mintChannel(metadata1.ipnft, channelName + ' r&b');
   // Wait for it to be mined.
   await txn.wait();
   console.log('mint channel complete');
