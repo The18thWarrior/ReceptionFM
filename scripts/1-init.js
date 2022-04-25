@@ -49,6 +49,7 @@ const mainTest = async (worksManager, channelName, channelContract) => {
   });
 
   // 1.8
+  let today = new Date();
   let postData = {
     contractAddress: postContract,
     cost:  1,
@@ -59,7 +60,11 @@ const mainTest = async (worksManager, channelName, channelContract) => {
     computedUri: metadata1.ipnft,
     paywallUri: metadata1.ipnft,
     mintable: false,
-    levels: ['0x00']
+    levels: ['0x00'],
+    properties : {
+      createdDate: today.toUTCString(),
+      key: '353634-213213-j34b5324h-3445b325'
+    }
   }
   let postTokenId = await worksManager.createPostToken(postData);
   await postTokenId.wait();
