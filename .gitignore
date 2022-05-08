@@ -6,12 +6,15 @@
 /.pnp
 .pnp.js
 
+
 # testing
 /coverage
 
 # production
 /build
 /artifacts
+/bin
+/cache
 
 # misc
 .DS_Store
