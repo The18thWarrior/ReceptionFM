@@ -7,15 +7,13 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "hardhat/console.sol";
 
 
 import { PostFactory } from "./PostFactory.sol";
 import { Memberships } from "./Memberships.sol";
 import { Channels } from "./Channels.sol";
-import { Broadcasts } from "./Broadcasts.sol";
+//import { Broadcasts } from "./Broadcasts.sol";
 import { Posts } from "./Posts.sol";
-import { Base64 } from "./libraries/Base64.sol";
 import { Structs } from "./libraries/ReceptionStructs.sol";
 
 
@@ -23,16 +21,17 @@ import { Structs } from "./libraries/ReceptionStructs.sol";
 contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgradeable  {
   address private postFactoryAddress;
   address private membershipsAddress;
-  address private broadcastsAddress;
+  //address private broadcastsAddress;
   address private channelsAddress;
   address private postsAddress;
+  address private depositorAddress;
 
   PostFactory postFactoryContract;
   Memberships membershipContract;
   Channels channelContract;
-  Broadcasts broadcastContract;
+  //Broadcasts broadcastContract;
 
-  mapping(uint256 => address) private channelPostAddressMap;
+  //mapping(uint256 => address) private channelPostAddressMap;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   
@@ -47,14 +46,28 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
 
     _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _setupRole(ADMIN_ROLE, msg.sender);
+    depositorAddress = msg.sender;
   }
   
-  function initialize() initializer public{
+  function initialize() initializer external{
     __Pausable_init();
     __AccessControl_init();
 
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(ADMIN_ROLE, msg.sender);
+    depositorAddress = msg.sender;
+  }
+
+  // Admin Action
+  function withdrawBalance() external onlyRole(ADMIN_ROLE) {
+    address payable ownerPayable = payable(depositorAddress);
+    // send all Ether to owner
+    // Owner can receive Ether since the address of owner is payable
+    ownerPayable.transfer(address(this).balance);
+  }
+
+  function withdrawChannelBalance(uint256 channel) external {
+    return membershipContract.withdrawChannelBalance(msg.sender, channel);
   }
 
   // Artist UI Interfaces
@@ -64,6 +77,10 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     string calldata keywords
   ) external payable{
     emit NewChannel(channelContract.safeMint(channelUri, msg.sender), keywords);
+  }
+
+  function getChannelBalance(uint256 channel) view external returns(uint256) {
+    return membershipContract.getChannelBalance(channel);
   }
 
   // 1.3
@@ -114,11 +131,11 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }
   function createPostToken(CreatePost calldata post) external returns(uint256){
     Posts postContract = Posts(post.contractAddress);
-    uint256 result = 0;
-    { 
-      result = postContract.createPostToken(Posts.CreatePost(msg.sender, post.cost, post.isBuyable, post.isPublic, post.airdrop, post.computedUri, post.paywallUri, post.mintable, post.levels)); 
-    }
+    uint256 result = postContract.getCurrentCount();
     emit NewPost(result, post.channelId, post.contractAddress);
+    { 
+      postContract.createPostToken(Posts.CreatePost(msg.sender, post.cost, post.isBuyable, post.isPublic, post.airdrop, post.computedUri, post.paywallUri, post.mintable, post.levels)); 
+    }
     return result;
   }
 
@@ -169,6 +186,11 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     Posts postContract = Posts(contractAddress);
     return postContract.getTokenIndex();
   }
+
+  function getPostContractBalance(address contractAddress) external view returns(uint256){
+    Posts postContract = Posts(contractAddress);
+    return postContract.getBalance();
+  }
   
   // 2.8
   function getPostUri(address contractAddress, uint256 tokenId) external view returns(string memory){
@@ -209,14 +231,16 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   
 
   // Functions for setting static variables
-  function setPostFactoryAddress(address _postFactoryAddress) external onlyRole(ADMIN_ROLE) {
-    postFactoryAddress = _postFactoryAddress;
-    postFactoryContract = PostFactory(_postFactoryAddress);
+  function setPostFactoryAddress(address tempPostFactoryAddress) external onlyRole(ADMIN_ROLE) {
+    require(tempPostFactoryAddress != address(0), "postFactory required");
+    postFactoryAddress = tempPostFactoryAddress;
+    postFactoryContract = PostFactory(tempPostFactoryAddress);
   }
 
-  function setMembershipsAddress(address _membershipsAddress) external onlyRole(ADMIN_ROLE) {
-    membershipsAddress = _membershipsAddress;
-    membershipContract = Memberships(_membershipsAddress);
+  function setMembershipsAddress(address tempMembershipAddress) external onlyRole(ADMIN_ROLE) {
+    require(tempMembershipAddress != address(0), "memberships required");
+    membershipsAddress = tempMembershipAddress;
+    membershipContract = Memberships(tempMembershipAddress);
   }
 
   /*function setBroadcastsAddress(address _broadcastsAddress) public onlyRole(ADMIN_ROLE) {
@@ -224,18 +248,21 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     broadcastContract = Broadcasts(_broadcastsAddress);
   }*/
 
-  function setChannelsAddress(address _channelsAddress) external onlyRole(ADMIN_ROLE) {
-    channelsAddress = _channelsAddress;
-    channelContract = Channels(_channelsAddress);
+  function setChannelsAddress(address tempChannelsAddress) external onlyRole(ADMIN_ROLE) {
+    require(tempChannelsAddress != address(0), "channelAddress required");
+    channelsAddress = tempChannelsAddress;
+    channelContract = Channels(tempChannelsAddress);
   }
   
-  function setPostAddress(address _postAddress) external onlyRole(ADMIN_ROLE) {
-    postsAddress = _postAddress;
+  function setPostAddress(address tempPostAddress) external onlyRole(ADMIN_ROLE) {
+    
+    require(tempPostAddress != address(0), "postAddress required");
+    postsAddress = tempPostAddress;
   }
 
   function setProfileUri(string calldata computedUri, string calldata keywords) external  {
-    channelContract.setProfileUri(msg.sender, computedUri);
     emit ProfileSet(msg.sender, keywords);
+    channelContract.setProfileUri(msg.sender, computedUri);
   }
 
   function getProfileUri(address to) external view returns(string memory) {
@@ -250,10 +277,14 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     return membershipsAddress;
   }
 
-  function createPostMessage(address contractAddress, uint256 channelId, string calldata message) public {
+  function createPostMessage(address contractAddress, uint256 channelId, string calldata message) external {
       Posts postContract = Posts(contractAddress);
-      require(postContract.channelOwnershipMatch(msg.sender), "Not owner");
       emit NewPostMessage(channelId, message);
+      require(postContract.channelOwnershipMatch(msg.sender), "Not owner");
+  }
+
+  function setChannelCost(uint256 cost) external onlyRole(ADMIN_ROLE) {
+    channelContract.setCost(cost);
   }
 
 }

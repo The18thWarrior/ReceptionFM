@@ -10,9 +10,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "./libraries/Strings.sol";
-import "hardhat/console.sol";
-import { Base64 } from "./libraries/Base64.sol";
+//import "./libraries/Strings.sol";
 import { Structs } from "./libraries/ReceptionStructs.sol";
 import { Channels } from "./Channels.sol";
 import { Memberships } from "./Memberships.sol";
@@ -23,20 +21,20 @@ import { Broadcasts } from "./Broadcasts.sol";
 /// @custom:security-contact ReceptionFM
 contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, PausableUpgradeable, AccessControlUpgradeable, ERC1155BurnableUpgradeable {
   using CountersUpgradeable for CountersUpgradeable.Counter;
-  using Strings for *;
+  //using Strings2 for *;
   bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   string public name;
-  string public description;
-	string public symbol;
+  //string public description;
+	//string public symbol;
   address private depositorAddress;
   address private channelAddress;
   address private membershipsAddress;
-  address private broadcastsAddress;
+  //address private broadcastsAddress;
   Channels channelContract;
   Memberships membershipsContract;
-  Broadcasts broadcastsContract;
+  //Broadcasts broadcastsContract;
 
   CountersUpgradeable.Counter private _tokenIdCounter;
   
@@ -54,11 +52,11 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   mapping(uint256 => bool) private _mintable;
   mapping(uint256 => bool) private _buyable;
   mapping(uint256 => uint256) private _cost;
-  mapping(uint256 => uint256[]) private _tokenLevel;
+  mapping(uint256 => uint256[]) private _tokenLevelList;
   mapping(address => uint256[]) private _redemptions;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, uint256 _channelToken, address to, address _ownerAddress, address _channelAddress, address _membershipsAddress) initializer {
+  constructor(string memory tokenName, uint256 tempChannelToken, address to, address tempOwnerAddress, address tempChannelAddress, address tempMembershipsAddress) initializer {
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
     __ERC1155Supply_init();
@@ -66,20 +64,25 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     __AccessControl_init();
     
     name = tokenName;
-    channelToken = _channelToken;
+    channelToken = tempChannelToken;
+    
+    require(to != address(0), "to required");
     depositorAddress = to;
-    channelAddress = _channelAddress;
+    require(tempChannelAddress != address(0), "channelAddress required");
+    channelAddress = tempChannelAddress;
     channelContract = Channels(channelAddress);
-    membershipsAddress = _membershipsAddress;
+    require(tempMembershipsAddress != address(0), "membershipAddress required");
+    membershipsAddress = tempMembershipsAddress;
     membershipsContract = Memberships(membershipsAddress);
 
-    _grantRole(DEFAULT_ADMIN_ROLE, _ownerAddress);
-    _grantRole(ADMIN_ROLE, _ownerAddress);
+    require(tempOwnerAddress != address(0), "owner required");
+    _grantRole(DEFAULT_ADMIN_ROLE, tempOwnerAddress);
+    _grantRole(ADMIN_ROLE, tempOwnerAddress);
     _grantRole(OWNER_ROLE, to);
-    _grantRole(OWNER_ROLE, _ownerAddress);  
+    _grantRole(OWNER_ROLE, tempOwnerAddress);  
   }
 
-  function initialize(string memory tokenName, address to) initializer public {
+  function initialize(string memory tokenName, address to) initializer external {
     //require(msg.sender == RECEPTION_ACCOUNT, "Wrong Account Deployer");
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
@@ -93,7 +96,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _grantRole(OWNER_ROLE, msg.sender);    
   }
 
-  function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
+  function transferOwnership(address to) external onlyRole(ADMIN_ROLE) {
     _grantRole(OWNER_ROLE, to);
   }
 
@@ -108,7 +111,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       bool mintable;
       uint256[] levels;
   }
-  function createPostToken(CreatePost calldata post) public onlyRole(OWNER_ROLE) returns(uint256) {
+  function createPostToken(CreatePost calldata post) external onlyRole(OWNER_ROLE) returns(uint256) {
       // TODO : Add function to validate that the msg.sender owns channel
       
       require(channelOwnershipMatch(post.owner), "You must be the channel owner to create posts");
@@ -131,12 +134,12 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       
       emit NewPostTokenCreated(post.owner, tokenId);
       
-      if (post.airdrop && post.levels.length > 0) {
-        string memory mintedOwners;
+      /*if (post.airdrop && post.levels.length > 0) {
+        string memory mintedOwners = '';
         for (uint256 i = 0; i < post.levels.length; i++) {
           address[] memory owners = membershipsContract.getOwnershipMap(post.levels[i]);
           for (uint256 j = 0; j < owners.length; j++) {
-            Strings.slice memory substring = mintedOwners.toSlice().copy().rfind(string(abi.encodePacked(owners[j])).toSlice());
+            Strings2.slice memory substring = mintedOwners.toSlice().copy().rfind(string(abi.encodePacked(owners[j])).toSlice());
             if (substring.empty()) {
               postMint(owners[j], tokenId);
               mintedOwners = mintedOwners.toSlice().concat(string(abi.encodePacked(owners[j])).toSlice()); 
@@ -144,14 +147,12 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
             
           }
         }
-
-      }
+      }*/
       
       return tokenId;
   }
 
-  function postMint(address to, uint256 tokenId) public payable{  
-    console.log('calling post mint', tokenId, to);
+  function postMint(address to, uint256 tokenId) external payable{  
     bool hasPaid = false;
     if (msg.value > 0 && _buyable[tokenId] && msg.value >= _cost[tokenId]) {
       hasPaid = true;
@@ -162,31 +163,25 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
 
     require(membershipMatch(tokenId, to) || hasPaid, "You do not have minting access");  
 
-    require(_mintable[tokenId] == true, "This post is not mintable");
+    require(_mintable[tokenId], "This post is not mintable");
 
     for(uint256 i = 0; i < _redemptions[to].length; i++) {
       require(_redemptions[to][i] != tokenId, 'Sorry, you have already redeemed this NFT');
     }
-
-    _mint(to, tokenId, 1, "");
     _redemptions[to].push(tokenId); 
     emit NewPostMinted(to, tokenId);
-
-    if (hasPaid) {
-      address ownerPayable = payable(depositorAddress);
-      
-      (bool success, ) = ownerPayable.call{value: msg.value}("");
-      require(success, "Failed to send MATIC");
-
-    }
+    _mint(to, tokenId, 1, "");
   }
-  
-  function withdrawBalance() public onlyRole(OWNER_ROLE) {
-    address ownerPayable = payable(msg.sender);
+
+  function getBalance() view external returns(uint256){
+    return address(this).balance;
+  }
+
+  function withdrawBalance() external onlyRole(OWNER_ROLE) {
+    address payable ownerPayable = payable(depositorAddress);
     // send all Ether to owner
     // Owner can receive Ether since the address of owner is payable
-    (bool success, ) = ownerPayable.call{value: address(this).balance}("");
-    require(success, "Failed to send MATIC");
+    ownerPayable.transfer(address(this).balance);
   }
 
   function getChannelToken() external view returns(uint256) {
@@ -197,15 +192,15 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     return _tokenIdCounter.current();
   }
 
-  function isMintable(uint256 tokenId) public view returns (bool) {
+  function isMintable(uint256 tokenId) external view returns (bool) {
     return _mintable[tokenId];
   }
 
-  function isBuyable(uint256 tokenId) public view returns (bool) {
+  function isBuyable(uint256 tokenId) external view returns (bool) {
     return _buyable[tokenId];
   }
 
-  function getCost(uint256 tokenId) public view returns (uint256) {
+  function getCost(uint256 tokenId) external view returns (uint256) {
     return _cost[tokenId];
   }
   
@@ -217,7 +212,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     }
   }
 
-  function uri2(uint256 tokenId, address to) public view returns (string memory) {    
+  function uri2(uint256 tokenId, address to) external view returns (string memory) {    
     if (membershipMatch(tokenId, to) || channelOwnershipMatch(to) || ownershipMatch(to, tokenId) || _paywallUriAccess[tokenId]) {
       return (string(abi.encodePacked("ipfs://", _paywallUri[tokenId], "/metadata.json")));
     } else {
@@ -228,7 +223,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   function membershipMatch(uint256 tokenId, address to) public view returns (bool) {
     uint256[] memory membershipList = membershipsContract.getMembershipList(channelToken);
     bool isMembershipMatch = false;
-    uint256 membershipId;
+    uint256 membershipId = 0;
     for(uint256 i = 0; i < membershipList.length; i++) {
       if (membershipsContract.balanceOf(to, membershipList[i]) == 1) {
         membershipId = membershipList[i];
@@ -237,7 +232,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     }
     if (isMembershipMatch) {
       isMembershipMatch = false;
-      uint256[] memory tokenLevels = _tokenLevel[tokenId];
+      uint256[] memory tokenLevels = _tokenLevelList[tokenId];
       for (uint256 i = 0; i < tokenLevels.length; i++) {
         if (membershipId == tokenLevels[i]){
           isMembershipMatch = true;
@@ -273,8 +268,8 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     return false;
   }
 
-  function paywallUri(address to, uint256 tokenId, uint256 membershipId, uint256 broadcastId) public view returns (string memory) {
-    require(broadcastsContract.balanceOf(msg.sender, broadcastId) == 1, "You must be a member of the syndicate to retrieve paywallUris.");
+  function paywallUri(address to, uint256 tokenId, uint256 membershipId) external view returns (string memory) {
+    //require(broadcastsContract.balanceOf(msg.sender, broadcastId) == 1, "You must be a member of the syndicate to retrieve paywallUris.");
     
     if (!_paywallUriAccess[tokenId]) {
       require(membershipsContract.balanceOf(to, membershipId) == 1, "You must be a member of the channel to retrieve paywallUris.");
@@ -289,25 +284,25 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   }
 
   function setTokenLevelsInternal(uint256 tokenId, uint256[] memory newLevels) internal{
-    //require(_tokenLevel[tokenId].length == 0, "Cannot modify existing level allocation");
-    _tokenLevel[tokenId] = newLevels;
+    //require(_tokenLevelList[tokenId].length == 0, "Cannot modify existing level allocation");
+    _tokenLevelList[tokenId] = newLevels;
   }
 
-  function setTokenUri(uint256 tokenId, string memory newUri) public onlyRole(OWNER_ROLE){
+  function setTokenUri(uint256 tokenId, string memory newUri) external onlyRole(OWNER_ROLE){
     require(bytes(_uris[tokenId]).length == 0, "Cannot modify existing uri");
     _uris[tokenId] = newUri;
   }
 
-  function getTokenIndex() public view returns (uint256) {
+  function getTokenIndex() external view returns (uint256) {
     return _tokenIdCounter.current();
   }
 
   // DEFAULT METHODS REQUIRED BY INTERFACES
-  function pause() public onlyRole(OWNER_ROLE) {
+  function pause() external onlyRole(OWNER_ROLE) {
     _pause();
   }
 
-  function unpause() public onlyRole(OWNER_ROLE) {
+  function unpause() external onlyRole(OWNER_ROLE) {
       _unpause();
   }
 
@@ -319,7 +314,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
   }
 
-  function setURI(string memory newuri) public onlyRole(ADMIN_ROLE) {
+  function setURI(string memory newuri) external onlyRole(ADMIN_ROLE) {
     _setURI(newuri);
   }
 

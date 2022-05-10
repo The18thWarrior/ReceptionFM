@@ -11,7 +11,6 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "hardhat/console.sol";
 
 import { Structs } from "./libraries/ReceptionStructs.sol";
 
@@ -22,34 +21,44 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
   CountersUpgradeable.Counter private _tokenIdCounter;
   mapping(uint256 => string) private _uris;
   mapping(address => string) private _profileUris;
-  uint256 public cost = 0.0000025 ether;
+  uint256 public cost;
 
   mapping(address => Structs.ChannelOwner) channelOwnerList;
   address private masterContract;
   event NewReceptionChannelMinted(address sender, uint256 tokenId);
   event ReceptionProfileSet(address sender);
+  event CostChange(uint256 cost);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(address _masterContract) initializer {
-    initialize(_masterContract);
+  constructor(address tempMasterContract) initializer {
+    initialize(tempMasterContract);
   }
   // Backend Initialization
-  function initialize(address _masterContract) initializer public {
+  function initialize(address tempMasterContract) initializer public {
     __ERC721_init("TestChannel", "testCHANNEL");
     __ERC721URIStorage_init();
     __Pausable_init();
     __Ownable_init();
     __ERC721Burnable_init();
-
-    transferOwnership(_masterContract);
-    console.log('owner: ', owner(), _masterContract);
-    masterContract = _masterContract;
+    require(tempMasterContract != address(0), "master contract required");
+    transferOwnership(tempMasterContract);
+    masterContract = tempMasterContract;
   }
+
+  function setCost(uint256 tempCost) external onlyOwner {
+    cost = tempCost;
+    emit CostChange(cost);
+  }
+
+  function getCost() view external returns(uint256) {
+    return cost;
+  }
+
   // 1.2
   function safeMint(
     string calldata channelUri, 
     address to
-    ) public onlyOwner payable returns(uint256) {
+    ) external onlyOwner payable returns(uint256) {
     //require(msg.value > cost, "Not enough MATIC to complete transaction");
     uint256 tokenId = _tokenIdCounter.current();
     _tokenIdCounter.increment();
@@ -57,23 +66,22 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     //require(newItemId >= NFT_LIMIT, "Maximum number of NFTs minted");
     // Get all the JSON metadata in place and base64 encode it.
 
-    Structs.ChannelOwner storage owner = channelOwnerList[to];
+    Structs.ChannelOwner storage owner2 = channelOwnerList[to];
     
     // owner channelId to index map
-    owner.channelMap[tokenId] = owner.channels.length;
+    owner2.channelMap[tokenId] = owner2.channels.length;
     // owner channel array
     //owner.channels.push(tokenId);
 
-    _safeMint(to, tokenId);
     emit NewReceptionChannelMinted(to, tokenId);
     setTokenUriInternal(tokenId, channelUri);
-    _setTokenURI(tokenId, channelUri);
+    _safeMint(to, tokenId);
     return tokenId;
   }
   // 1.3
-  function getOwnerChannelIds(address ownerId) public view returns(uint256[] memory){
-    Structs.ChannelOwner storage owner = channelOwnerList[ownerId];
-    return owner.channels;
+  function getOwnerChannelIds(address ownerId) external view returns(uint256[] memory){
+    Structs.ChannelOwner storage owner2 = channelOwnerList[ownerId];
+    return owner2.channels;
   }
   
   // User Action
@@ -97,21 +105,20 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     super._beforeTokenTransfer(from, to, tokenId);
   }
   // Admin Action
-  function withdrawBalance() public onlyOwner {
-    address ownerPayable = payable(msg.sender);
-    uint amount = address(this).balance;
-
-    // send all Ether to owner
-    // Owner can receive Ether since the address of owner is payable
-    (bool success, ) = ownerPayable.call{value: amount}("");
-    require(success, "Failed to send MATIC");
+  function withdrawBalance() external onlyOwner {
+    if (owner() != address(0)) {
+      address payable ownerPayable = payable(owner());
+      // send all Ether to owner
+      // Owner can receive Ether since the address of owner is payable
+      ownerPayable.transfer(address(this).balance);
+    }    
   }
 
-  function getCurrentIndex() public view returns(uint256) {
+  function getCurrentIndex() external view returns(uint256) {
     return _tokenIdCounter.current()-1;
   }
 
-  function uri(uint256 tokenId) public view returns (string memory) { 
+  function uri(uint256 tokenId) external view returns (string memory) { 
     return(string(abi.encodePacked("ipfs://", _uris[tokenId], "/metadata.json")));
   }
 
@@ -120,24 +127,21 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     _uris[tokenId] = newUri;
   }
 
-  function setProfileUri(address to, string memory newUri) public onlyOwner {
+  function setProfileUri(address to, string memory newUri) external onlyOwner {
     _profileUris[to] = newUri;
   }
 
-  function getProfileUri(address to) public view returns (string memory) { 
+  function getProfileUri(address to) external view returns (string memory) { 
     return(string(abi.encodePacked("ipfs://", _profileUris[to], "/metadata.json")));
   }
 
   // DEFAULT METHODS REQUIRED BY INTERFACES
-  function _baseURI() internal pure override returns (string memory) {
-      return "asdfsd";
-  }
 
-  function pause() public onlyOwner {
+  function pause() external onlyOwner {
       _pause();
   }
 
-  function unpause() public onlyOwner {
+  function unpause() external onlyOwner {
       _unpause();
   }
 
@@ -146,10 +150,6 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
       override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
   {
     super._burn(tokenId);
-  }
-
-  function _ownerOf(uint256 tokenId) public view{
-    super.ownerOf(tokenId);
   }
 
   function tokenURI(uint256 tokenId)

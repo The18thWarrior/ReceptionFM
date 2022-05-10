@@ -12,8 +12,6 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "hardhat/console.sol";
-import { Base64 } from "./libraries/Base64.sol";
 import { Structs } from "./libraries/ReceptionStructs.sol";
 import { Channels } from "./Channels.sol";
 
@@ -24,8 +22,8 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   string public name;
-	string public symbol;
   address private channelAddress;
+  address private payableAddress;
 
   Channels channelContract;
 
@@ -52,18 +50,18 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
 
   //mapping(address => Membership) public membershipOwnershipMap;
   mapping(uint256 => string) private _uris;
-  mapping(uint256 => uint256[]) public _channelMap;
-  mapping(uint256 => address[]) public _ownershipMap;
+  mapping(uint256 => uint256[]) private _channelMap;
+  mapping(uint256 => address[]) private _ownershipMap;
   mapping(uint256 => uint256) private _tokenCost;
   mapping(uint256 => uint256) private _membershipToChannel;
+  mapping(uint256 => uint256) private _channelBalance;
 
-  uint256 maxMemberships = 10;
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, address _ownerContract, address _channelAddress) initializer {
-    initialize(tokenName, _ownerContract, _channelAddress);
+  constructor(string memory tokenName, address tempOwnerContract, address tempChannelAddress) initializer {
+    initialize(tokenName, tempOwnerContract, tempChannelAddress);
   }
 
-  function initialize(string memory tokenName, address _ownerContract, address _channelAddress) initializer public {
+  function initialize(string memory tokenName, address tempOwnerContract, address tempChannelAddress) initializer public {
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
     __ERC1155Supply_init();
@@ -73,24 +71,29 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(ADMIN_ROLE, msg.sender);
     _grantRole(OWNER_ROLE, msg.sender);
-    _grantRole(ADMIN_ROLE, _ownerContract);
-    _grantRole(OWNER_ROLE, _ownerContract);
+    
+    require(tempOwnerContract != address(0), "ownerCon required");
+    _grantRole(ADMIN_ROLE, tempOwnerContract);
+    _grantRole(OWNER_ROLE, tempOwnerContract);
+    
+    
+    payableAddress = msg.sender;
 
     name = tokenName;
-    channelAddress = _channelAddress;
+    require(tempChannelAddress != address(0), "channelAddress required");
+    channelAddress = tempChannelAddress;
     channelContract = Channels(channelAddress);
+  
+    
   }
 
-  function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
+  function transferOwnership(address to) external onlyRole(ADMIN_ROLE) {
+    require(to != address(0), "to required");
     _grantRole(OWNER_ROLE, to);
+    payableAddress = to;    
   }
 
-  function setMaxMemberships(string calldata maxMember) public onlyRole(OWNER_ROLE) {
-    uint256 memberConv = parseInt(maxMember);
-    maxMemberships = memberConv;
-  }
-
-  function membershipTokenCreate(address from, uint256 channel, uint256 cost, string calldata computedUri) public onlyRole(OWNER_ROLE){
+  function membershipTokenCreate(address from, uint256 channel, uint256 cost, string calldata computedUri) external onlyRole(OWNER_ROLE){
       // TODO : Add function to validate that the msg.sender owns channel
       channelContract = Channels(channelAddress);
       address channelOwner = channelContract.ownerOf(channel);
@@ -108,35 +111,39 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
       emit NewMembershipTokenCreated(msg.sender, tokenId);
   }
 
-  function membershipMint(uint256 membership, address to) public payable {
+  function getChannelBalance(uint256 channel) view external onlyRole(OWNER_ROLE) returns(uint256){
+    return _channelBalance[channel];
+  }
+
+  function withdrawChannelBalance(address from, uint256 channel) external onlyRole(OWNER_ROLE) {
+    channelContract = Channels(channelAddress);
+    address channelOwner = channelContract.ownerOf(channel);
+    require(from == channelOwner, "You must be the channel owner to withdraw");
+    address payable ownerPayable = payable(channelContract.ownerOf(channel));
+    require(ownerPayable != address(0), "owner must not be 0");
+    uint256 oldChannelBalance = _channelBalance[channel] + 0;
+    _channelBalance[channel] = 0;
+    ownerPayable.transfer(oldChannelBalance);
+  }
+
+  function membershipMint(uint256 membership, address to) external payable {
     // TODO : add function to validate that this membership is not outside the membership limits ()
     
     // TODO : add function to require value & submit as a transaction to owner (may require getting nft owner from Channels.sol)
     //require(msg.value > cost, 'Not enough value included in transaction');
     uint256 cost = _tokenCost[membership];
-    if (cost >= msg.value) {
-      console.log('not enough moneybags', cost, msg.value);
-    }
-    
     require( msg.value >= cost, 'Not enough $$ :( ');
-
-    address ownerPayable = payable(channelContract.ownerOf(_membershipToChannel[membership]));
-    (bool success, ) = ownerPayable.call{value: msg.value}("");
-    require(success, "Failed to send MATIC");
-    
-    _mint(to, membership, 1, "");
-    
     emit NewMembershipMinted(to, membership);
+    _channelBalance[_membershipToChannel[membership]] = _channelBalance[_membershipToChannel[membership]] + msg.value;
+        
+    _mint(to, membership, 1, "");    
   }
   
-  function withdrawBalance() public onlyRole(OWNER_ROLE) {
-    address ownerPayable = payable(msg.sender);
-    uint amount = address(this).balance;
-
+  function withdrawBalance() external onlyRole(OWNER_ROLE) {
+    address payable ownerPayable = payable(payableAddress);
     // send all Ether to owner
     // Owner can receive Ether since the address of owner is payable
-    (bool success, ) = ownerPayable.call{value: amount}("");
-    require(success, "Failed to send MATIC");
+    ownerPayable.transfer(address(this).balance);
   }
   
   function uri(uint256 tokenId) override public view returns (string memory) {
@@ -148,38 +155,41 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     _uris[tokenId] = newUri;
   }
 
-  function setTokenUri(uint256 tokenId, string memory newUri) public onlyRole(OWNER_ROLE){
+  function setTokenUri(uint256 tokenId, string memory newUri) external onlyRole(OWNER_ROLE){
     require(bytes(_uris[tokenId]).length == 0, "Cannot modify existing uri");
     _uris[tokenId] = newUri;
   }
 
-  function setChannelsAddress(address _channelAddress) public onlyRole(OWNER_ROLE){
-    channelAddress = _channelAddress;
-    channelContract = Channels(_channelAddress);
+  function setChannelsAddress(address tempChannelAddress) external onlyRole(OWNER_ROLE){
+    
+    require(tempChannelAddress != address(0), "channelAddress required");
+    channelAddress = tempChannelAddress;
+    channelContract = Channels(tempChannelAddress);
+    
   }
 
-  function getTokenIndex() public view returns (uint256) {
+  function getTokenIndex() external view returns (uint256) {
     return _tokenIdCounter.current();
   }
 
-  function getMembershipList(uint256 channel) public view returns (uint256[] memory) {
+  function getMembershipList(uint256 channel) external view returns (uint256[] memory) {
     return _channelMap[channel];
   }
 
-  function getMembership(uint256 tokenId, address to) public view returns (uint256) {
+  function getMembership(uint256 tokenId, address to) external view returns (uint256) {
     return balanceOf(to, tokenId);
   }
 
-  function getOwnershipMap(uint256 tokenId) public view returns(address[] memory) {
+  function getOwnershipMap(uint256 tokenId) external view returns(address[] memory) {
     return _ownershipMap[tokenId];
   }    
 
   // DEFAULT METHODS REQUIRED BY INTERFACES
-  function pause() public onlyRole(OWNER_ROLE) {
+  function pause() external onlyRole(OWNER_ROLE) {
     _pause();
   }
 
-  function unpause() public onlyRole(OWNER_ROLE) {
+  function unpause() external onlyRole(OWNER_ROLE) {
       _unpause();
   }
 
@@ -202,18 +212,8 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
   }
 
-  function setURI(string memory newuri) public onlyRole(ADMIN_ROLE) {
+  function setURI(string memory newuri) external onlyRole(ADMIN_ROLE) {
     _setURI(newuri);
-  }
-
-  function parseInt(string memory _value) internal pure returns (uint _ret) {
-    bytes memory _bytesValue = bytes(_value);
-    uint j = 1;
-    for(uint i = _bytesValue.length-1; i >= 0 && i < _bytesValue.length; i--) {
-        assert(uint8(_bytesValue[i]) >= 48 && uint8(_bytesValue[i]) <= 57);
-        _ret += (uint8(_bytesValue[i]) - 48)*j;
-        j*=10;
-    }
   }
 
   function supportsInterface(bytes4 interfaceId)

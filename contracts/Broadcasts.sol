@@ -11,8 +11,6 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "hardhat/console.sol";
-import { Base64 } from "./libraries/Base64.sol";
 import { Channels } from "./Channels.sol";
 
 /// @custom:security-contact ReceptionFM
@@ -22,8 +20,8 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
   string public name;
-	string public symbol;
   address private channelAddress;
+  address private payableAddress;
 
   Channels channelContract;
 
@@ -45,10 +43,10 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
   mapping(uint256 => Levels) private _tokenLevel;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, address _ownerContract, address _channelAddress) initializer {
+  constructor(string memory tokenName, address tempOwnerContract, address tempChannelAddress) initializer {
   }
 
-  function initialize(string memory tokenName, address _ownerContract, address _channelAddress) initializer public {
+  function initialize(string memory tokenName, address tempOwnerContract, address tempChannelAddress) initializer external {
     //require(msg.sender == RECEPTION_ACCOUNT, "Wrong Account Deployer");
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
@@ -59,8 +57,14 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(ADMIN_ROLE, msg.sender);
     _grantRole(OWNER_ROLE, msg.sender);
-    _grantRole(ADMIN_ROLE, _ownerContract);
-    _grantRole(OWNER_ROLE, _ownerContract);
+    
+    require(tempOwnerContract != address(0), "owner required");
+    _grantRole(ADMIN_ROLE, tempOwnerContract);
+    _grantRole(OWNER_ROLE, tempOwnerContract);
+    
+    
+
+    payableAddress = msg.sender;
 
     levelMapping["bronze"] = Levels.BRONZE;
     levelMapping["silver"] = Levels.SILVER;
@@ -68,15 +72,25 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
     levelMapping["platinum"] = Levels.PLATINUM;
 
     name = tokenName;
-    channelAddress = _channelAddress;
-    channelContract = Channels(_channelAddress);
+    
+    require(tempChannelAddress != address(0), "channelAddress required");
+    channelAddress = tempChannelAddress;
+    channelContract = Channels(tempChannelAddress);
+    
+    
   }
 
-  function transferOwnership(address to) public onlyRole(ADMIN_ROLE) {
+  function transferOwnership(address to) external onlyRole(ADMIN_ROLE) {
     _grantRole(OWNER_ROLE, to);
   }
 
-  function broadcastTokenCreate(address from, uint256 channel, uint256 cost, string calldata level, string calldata computedUri) public {
+  function transferPayablility(address to) external onlyRole(ADMIN_ROLE) {
+    require(to != address(0), "to required");
+    payableAddress = to;
+    
+  }
+
+  function broadcastTokenCreate(address from, uint256 channel, uint256 cost, string calldata level, string calldata computedUri) external {
       // TODO : Add function to validate that the msg.sender owns channel
       address channelOwner = channelContract.getApproved(channel);
       require(from == channelOwner, "You must be the channel owner to create Broadcasts");
@@ -92,10 +106,10 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
       emit NewBroadcastTokenCreated(msg.sender, tokenId);
   }
 
-  function broadcastMint(uint256 channel, string calldata level, address to) public payable {
+  function broadcastMint(uint256 channel, string calldata level, address to) external payable {
     uint256[] memory broadcasts = _channelMap[channel];
     require(broadcasts.length > 0, 'No Broadcasts minted for this channel');
-    uint256 tokenId;
+    uint256 tokenId = 0;
     for (uint256 i = 0;i<broadcasts.length;i++) {
       Levels tokenLevel = _tokenLevel[broadcasts[i]];
       if (tokenLevel == levelMapping[level]) {
@@ -107,25 +121,19 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
     
     // TODO : add function to require value & submit as a transaction to owner (may require getting nft owner from Channels.sol)
     //require(msg.value > cost, 'Not enough value included in transaction');
-    uint256 cost = _tokenCost[tokenId];
-    if (cost >= msg.value) {
-      console.log('not enough moneybags');
-    }
-    
-    _mint(to, tokenId, 1, "");
+    uint256 cost = _tokenCost[tokenId];    
+    require( msg.value >= cost, 'Not enough $$ :( ');
     _channelMap[channel].push(tokenId); 
     
     emit NewBroadcastMinted(to, tokenId);
+    _mint(to, tokenId, 1, "");
   }
   
-  function withdrawBalance() public onlyRole(OWNER_ROLE) {
-    address ownerPayable = payable(msg.sender);
-    uint amount = address(this).balance;
-
+  function withdrawBalance() external onlyRole(OWNER_ROLE) {
+    address payable ownerPayable = payable(payableAddress);
     // send all Ether to owner
     // Owner can receive Ether since the address of owner is payable
-    (bool success, ) = ownerPayable.call{value: amount}("");
-    require(success, "Failed to send MATIC");
+    ownerPayable.transfer(address(this).balance);
   }
   
   function uri(uint256 tokenId) override public view returns (string memory) {
@@ -137,29 +145,29 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
     _uris[tokenId] = newUri;
   }
 
-  function setTokenUri(uint256 tokenId, string memory newUri) public onlyRole(OWNER_ROLE){
+  function setTokenUri(uint256 tokenId, string memory newUri) external onlyRole(OWNER_ROLE){
     require(bytes(_uris[tokenId]).length == 0, "Cannot modify existing uri");
     _uris[tokenId] = newUri;
   }
 
-  function getTokenIndex() public view returns (uint256) {
+  function getTokenIndex() external view returns (uint256) {
     return _tokenIdCounter.current();
   }
 
-  function getBroadcastList(uint256 channel) public view returns (uint256[] memory) {
+  function getBroadcastList(uint256 channel) external view returns (uint256[] memory) {
     return _channelMap[channel];
   }
 
-  function getBroadcast(uint256 tokenId) public view returns (uint256) {
+  function getBroadcast(uint256 tokenId) external view returns (uint256) {
     return balanceOf(msg.sender, tokenId);
   }
 
   // DEFAULT METHODS REQUIRED BY INTERFACES
-  function pause() public onlyRole(OWNER_ROLE) {
+  function pause() external onlyRole(OWNER_ROLE) {
     _pause();
   }
 
-  function unpause() public onlyRole(OWNER_ROLE) {
+  function unpause() external onlyRole(OWNER_ROLE) {
       _unpause();
   }
 
@@ -171,18 +179,8 @@ contract Broadcasts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeab
       super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
   }
 
-  function setURI(string memory newuri) public onlyRole(ADMIN_ROLE) {
+  function setURI(string memory newuri) external onlyRole(ADMIN_ROLE) {
     _setURI(newuri);
-  }
-
-  function parseInt(string memory _value) internal pure returns (uint _ret) {
-    bytes memory _bytesValue = bytes(_value);
-    uint j = 1;
-    for(uint i = _bytesValue.length-1; i >= 0 && i < _bytesValue.length; i--) {
-        assert(uint8(_bytesValue[i]) >= 48 && uint8(_bytesValue[i]) <= 57);
-        _ret += (uint8(_bytesValue[i]) - 48)*j;
-        j*=10;
-    }
   }
 
   function supportsInterface(bytes4 interfaceId)

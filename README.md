@@ -68,3 +68,15 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+
+
+
+//Static Code Analysis
+Install slither in project root
+open powershell as admin/sudo in terminal
+sudo slither . --exclude calls-loop,unused-return,uninitialized-locl,variable-scope,assembly,solc-version,naming-convention
+
+

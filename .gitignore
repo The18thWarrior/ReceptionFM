@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /lambda/node_modules
+/slither
 /.pnp
 .pnp.js
 

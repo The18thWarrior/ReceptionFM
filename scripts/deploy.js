@@ -179,6 +179,7 @@ const deployContracts = async () => {
 
   await worksManager.setChannelsAddress(channelContract.address);
   console.log('setChannelsAddress complete');
+  await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
 
   const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
   const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);

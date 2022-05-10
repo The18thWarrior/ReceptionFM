@@ -31,10 +31,14 @@ describe("All contracts deployment", function () {
     const channelContract = await channelContractFactory.deploy(worksManager.address);
     await channelContract.deployed();
     assert(channelContract.address != null, 'channelContract should be deployed');
-    
+
     await worksManager.setChannelsAddress(channelContract.address);
     const _channelAddress = await worksManager.getChannelsAddress();
     assert(channelContract.address === _channelAddress, 'channel address should match works manager');
+    
+    const channelCostUpdate = await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
+    const newChannelCost = await channelContract.getCost();
+    assert(newChannelCost > 0, 'channel cost should be greater than 0: '+newChannelCost);
 
     const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
     const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
@@ -72,6 +76,8 @@ describe('Minting checks', function() {
     
     await worksManager.setChannelsAddress(channelContract.address);
     const _channelAddress = await worksManager.getChannelsAddress();
+
+    const channelCostUpdate = await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
     
     const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
     const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
@@ -93,7 +99,8 @@ describe('Minting checks', function() {
     // 1.2
     // Call the function.
     //channelName, channelUri, msg.sender, author, copyright, language
-    let txn = await _worksManager.mintChannel('test', channelName + ' r&b');
+    const generalOptions = {value: hre.ethers.utils.parseEther("1")};
+    let txn = await _worksManager.mintChannel('test', channelName + ' r&b', generalOptions);
     // Wait for it to be mined.
     await txn.wait();
 
@@ -179,6 +186,7 @@ describe('GET Request Checks', function() {
     
     await worksManager.setChannelsAddress(channelContract.address);
     const _channelAddress = await worksManager.getChannelsAddress();
+    const channelCostUpdate = await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
     
     const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
     const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
@@ -199,7 +207,9 @@ describe('GET Request Checks', function() {
     // 1.2
     // Call the function.
     //channelName, channelUri, msg.sender, author, copyright, language
-    let txn = await _worksManager.mintChannel('test', channelName + ' r&b');
+    
+    const generalOptions = {value: hre.ethers.utils.parseEther("1")};
+    let txn = await _worksManager.mintChannel('test', channelName + ' r&b', generalOptions);
     // Wait for it to be mined.
     await txn.wait();
 

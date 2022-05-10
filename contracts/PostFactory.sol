@@ -6,7 +6,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "hardhat/console.sol";
 
 import { Posts } from "./Posts.sol";
 import { Channels } from "./Channels.sol";
@@ -22,7 +21,7 @@ contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgrade
   address contractOwner;
   address channelsAddress;
   address membershipsAddress;
-  address broadcastsAddress;
+  //address broadcastsAddress;
   Channels channelContract;
 
 
@@ -30,29 +29,39 @@ contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgrade
   mapping(uint256 => address) postToAddress;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-  constructor(address _contractOwner, address _channelsAddress, address _membershipsAddress) initializer{
+  constructor(address tempContractOwner, address tempChannelsAddress, address tempMembershipsAddress) initializer{
     
     __AccessControl_init();
     __Pausable_init();
 
-    _grantRole(ADMIN_ROLE, _contractOwner);
-    _grantRole(DEFAULT_ADMIN_ROLE, _contractOwner);
+    require(tempContractOwner != address(0), "owner required");
+    _grantRole(ADMIN_ROLE, tempContractOwner);
+    _grantRole(DEFAULT_ADMIN_ROLE, tempContractOwner);
 
-    contractOwner = _contractOwner;
-    channelsAddress = _channelsAddress;
+    contractOwner = tempContractOwner;
+    require(tempChannelsAddress != address(0), "channel required");
+    channelsAddress = tempChannelsAddress;
     channelContract = Channels(channelsAddress);
-    membershipsAddress = _membershipsAddress;
+    require(tempMembershipsAddress != address(0), "membership required");
+    membershipsAddress = tempMembershipsAddress;
   }
   
-  function initialize(address _contractOwner) initializer public{
+  function initialize(address tempContractOwner) initializer external {
     __AccessControl_init();
     __Pausable_init();
 
-    _grantRole(ADMIN_ROLE, _contractOwner);
-    _grantRole(DEFAULT_ADMIN_ROLE, _contractOwner);
+    _grantRole(ADMIN_ROLE, tempContractOwner);
+    _grantRole(DEFAULT_ADMIN_ROLE, tempContractOwner);
   }
 
-  function createPostContract(string calldata tokenName, uint256 tokenChannel, address to) public{
+  function withdrawBalance() external onlyRole(ADMIN_ROLE) {
+    address payable ownerPayable = payable(contractOwner);
+    // send all Ether to owner
+    // Owner can receive Ether since the address of owner is payable
+    ownerPayable.transfer(address(this).balance);
+  }
+
+  function createPostContract(string calldata tokenName, uint256 tokenChannel, address to) external {
     // TODO : Add function for verifiying ownership
     address channelOwner = channelContract.ownerOf(tokenChannel);
     require(to == channelOwner, "Must be Owner");
@@ -66,7 +75,7 @@ contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgrade
     channelToIndex[tokenChannel] = tokenIndex;
   }
 
-  function getChannelPostContract(uint256 tokenChannel) public view returns(address) {
+  function getChannelPostContract(uint256 tokenChannel) external view returns(address) {
     uint256 postIndex = channelToIndex[tokenChannel];
     if (tokenChannel != 0) {
       require(postIndex != 0, 'No contract');

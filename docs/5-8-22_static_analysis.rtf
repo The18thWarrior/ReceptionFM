@@ -1,0 +1,724 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red255\green0\blue0;\red0\green0\blue255;\red255\green192\blue0;\red0\green176\blue80;}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\cf1\f0\fs22\lang9 Missing function Type not found struct Strings.slice\par
+\par
+Broadcasts.withdrawBalance() (contracts/Broadcasts.sol#121-129) sends eth to arbitrary user\par
+        Dangerous calls:\par
+        - (success) = ownerPayable.call\{value: amount\}() (contracts/Broadcasts.sol#127)\par
+Memberships.withdrawBalance() (contracts/Memberships.sol#132-140) sends eth to arbitrary user\par
+        Dangerous calls:\par
+        - (success) = ownerPayable.call\{value: amount\}() (contracts/Memberships.sol#138)\par
+WorksManager.withdrawBalance() (contracts/WorksManager.sol#61-69) sends eth to arbitrary user\par
+        Dangerous calls:\par
+        - (success) = ownerPayable.call\{value: amount\}() (contracts/WorksManager.sol#67)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations\ul0\cf0}}}}\f0\fs22\par
+\par
+Strings is re-used:\par
+        - Strings (node_modules/@openzeppelin/contracts/utils/Strings.sol#9-67)\par
+        - Strings (contracts/libraries/Strings.sol#40-729)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#name-reused }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#name-reused\ul0\cf0}}}}\f0\fs22\par
+\par
+Base64.encode(bytes) (contracts/libraries/Base64.sol#18-77) contains an incorrect shift operation: mstore(uint256,uint256)(resultPtr_encode_asm_0 - 2,0x3d3d << 240) (contracts/libraries/Base64.sol#67)\par
+Base64.encode(bytes) (contracts/libraries/Base64.sol#18-77) contains an incorrect shift operation: mstore(uint256,uint256)(resultPtr_encode_asm_0 - 1,0x3d << 248) (contracts/libraries/Base64.sol#70)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#shift-parameter-mixup }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#shift-parameter-mixup\ul0\cf0}}}}\cf0\f0\fs22\par
+\par
+\cf3 Base64.encode(bytes) (contracts/libraries/Base64.sol#18-77) performs a multiplication on the result of a division:\par
+        -encodedLen = 4 * ((len + 2) / 3) (contracts/libraries/Base64.sol#23)\par
+Strings.ord(Strings.slice) (contracts/libraries/Strings.sol#302-344) performs a multiplication on the result of a division:\par
+        -b = word / divisor (contracts/libraries/Strings.sol#313)\par
+        -ret = b (contracts/libraries/Strings.sol#315)\par
+        -ret = (ret * 64) | (b & 0x3F) (contracts/libraries/Strings.sol#340)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply\ul0\cf0}}}}\f0\fs22\par
+\par
+Contract locking ether found:\par
+        Contract Posts (contracts/Posts.sol#24-336) has payable functions:\par
+         - Posts.postMint(address,uint256) (contracts/Posts.sol#153-182)\par
+        But does not have a function to withdraw the ether\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether\ul0\cf0}}}}\f0\fs22\par
+\par
+Reentrancy in Broadcasts.broadcastMint(uint256,string,address) (contracts/Broadcasts.sol#95-119):\par
+        External calls:\par
+        - _mint(to,tokenId,1,) (contracts/Broadcasts.sol#115)\par
+                - IERC1155ReceiverUpgradeable(to).onERC1155Received(operator,from,id,amount,data) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#430-438)\par
+        State variables written after the call(s):\par
+        - _channelMap[channel].push(tokenId) (contracts/Broadcasts.sol#116)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1 }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-1\ul0\cf0}}}}\f0\fs22\par
+\par
+Broadcasts.parseInt(string) (contracts/Broadcasts.sol#178-186) contains a tautology or contradiction:\par
+        - i >= 0 && i < _bytesValue.length (contracts/Broadcasts.sol#181)\par
+Memberships.parseInt(string) (contracts/Memberships.sol#209-217) contains a tautology or contradiction:\par
+        - i >= 0 && i < _bytesValue.length (contracts/Memberships.sol#212)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#tautology-or-contradiction }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#tautology-or-contradiction\ul0\cf0}}}}\f0\fs22\par
+\par
+Strings.len(bytes32).ret (contracts/libraries/Strings.sol#87) is a local variable never initialized\par
+ERC1155Upgradeable._doSafeTransferAcceptanceCheck(address,address,address,uint256,uint256,bytes).response (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#430) is a local variable never initialized\par
+ERC1155Upgradeable._doSafeBatchTransferAcceptanceCheck(address,address,address,uint256[],uint256[],bytes).response (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#452) is a local variable never initialized\par
+Broadcasts.broadcastMint(uint256,string,address).tokenId (contracts/Broadcasts.sol#98) is a local variable never initialized\par
+ERC1155Upgradeable._doSafeBatchTransferAcceptanceCheck(address,address,address,uint256[],uint256[],bytes).reason (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#457) is a local variable never initialized\par
+ERC1155Upgradeable._doSafeTransferAcceptanceCheck(address,address,address,uint256,uint256,bytes).reason (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#434) is a local variable never initialized\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables\ul0\cf0}}}}\f0\fs22\par
+\par
+ERC1155Upgradeable._doSafeTransferAcceptanceCheck(address,address,address,uint256,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#421-440) ignores return value by IERC1155ReceiverUpgradeable(to).onERC1155Received(operator,from,id,amount,data) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#430-438)\par
+ERC1155Upgradeable._doSafeBatchTransferAcceptanceCheck(address,address,address,uint256[],uint256[],bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#442-463) ignores return value by IERC1155ReceiverUpgradeable(to).onERC1155BatchReceived(operator,from,ids,amounts,data) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#451-461)\par
+ERC721Upgradeable._checkOnERC721Received(address,address,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#389-410) ignores return value by IERC721ReceiverUpgradeable(to).onERC721Received(_msgSender(),from,tokenId,_data) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#396-406)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return\ul0\cf0}}}}\f0\fs22\par
+\cf0\par
+\cf4 Channels.safeMint(string,address).owner (contracts/Channels.sol#60) shadows:\par
+        - OwnableUpgradeable.owner() (node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol#41-43) (function)\par
+Channels.getOwnerChannelIds(address).owner (contracts/Channels.sol#75) shadows:\par
+        - OwnableUpgradeable.owner() (node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol#41-43) (function)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing\ul0\cf0}}}}\f0\fs22\par
+\par
+Broadcasts.initialize(string,address,address)._channelAddress (contracts/Broadcasts.sol#51) lacks a zero-check on :\par
+                - channelAddress = _channelAddress (contracts/Broadcasts.sol#71)\par
+Broadcasts.withdrawBalance().ownerPayable (contracts/Broadcasts.sol#122) lacks a zero-check on :\par
+                - (success) = ownerPayable.call\{value: amount\}() (contracts/Broadcasts.sol#127)\par
+Channels.initialize(address)._masterContract (contracts/Channels.sol#37) lacks a zero-check on :\par
+                - masterContract = _masterContract (contracts/Channels.sol#46)\par
+Channels.withdrawBalance().ownerPayable (contracts/Channels.sol#101) lacks a zero-check on :\par
+                - (success) = ownerPayable.call\{value: amount\}() (contracts/Channels.sol#106)\par
+Memberships.initialize(string,address,address)._channelAddress (contracts/Memberships.sol#66) lacks a zero-check on :\par
+                - channelAddress = _channelAddress (contracts/Memberships.sol#80)\par
+Memberships.withdrawBalance().ownerPayable (contracts/Memberships.sol#133) lacks a zero-check on :\par
+                - (success) = ownerPayable.call\{value: amount\}() (contracts/Memberships.sol#138)\par
+Memberships.setChannelsAddress(address)._channelAddress (contracts/Memberships.sol#156) lacks a zero-check on :\par
+                - channelAddress = _channelAddress (contracts/Memberships.sol#157)\par
+PostFactory.constructor(address,address,address)._contractOwner (contracts/PostFactory.sol#33) lacks a zero-check on :\par
+                - contractOwner = _contractOwner (contracts/PostFactory.sol#41)\par
+PostFactory.constructor(address,address,address)._channelsAddress (contracts/PostFactory.sol#33) lacks a zero-check on :\par
+                - channelsAddress = _channelsAddress (contracts/PostFactory.sol#42)\par
+PostFactory.constructor(address,address,address)._membershipsAddress (contracts/PostFactory.sol#33) lacks a zero-check on :\par
+                - membershipsAddress = _membershipsAddress (contracts/PostFactory.sol#44)\par
+Posts.constructor(string,uint256,address,address,address,address).to (contracts/Posts.sol#61) lacks a zero-check on :\par
+                - depositorAddress = to (contracts/Posts.sol#70)\par
+Posts.constructor(string,uint256,address,address,address,address)._channelAddress (contracts/Posts.sol#61) lacks a zero-check on :\par
+                - channelAddress = _channelAddress (contracts/Posts.sol#71)\par
+Posts.constructor(string,uint256,address,address,address,address)._membershipsAddress (contracts/Posts.sol#61) lacks a zero-check on :\par
+                - membershipsAddress = _membershipsAddress (contracts/Posts.sol#73)\par
+WorksManager.withdrawBalance().ownerPayable (contracts/WorksManager.sol#62) lacks a zero-check on :\par
+                - (success) = ownerPayable.call\{value: amount\}() (contracts/WorksManager.sol#67)\par
+WorksManager.setPostFactoryAddress(address)._postFactoryAddress (contracts/WorksManager.sol#223) lacks a zero-check on :\par
+                - postFactoryAddress = _postFactoryAddress (contracts/WorksManager.sol#224)\par
+WorksManager.setMembershipsAddress(address)._membershipsAddress (contracts/WorksManager.sol#228) lacks a zero-check on :\par
+                - membershipsAddress = _membershipsAddress (contracts/WorksManager.sol#229)\par
+WorksManager.setChannelsAddress(address)._channelsAddress (contracts/WorksManager.sol#238) lacks a zero-check on :\par
+                - channelsAddress = _channelsAddress (contracts/WorksManager.sol#239)\par
+WorksManager.setPostAddress(address)._postAddress (contracts/WorksManager.sol#243) lacks a zero-check on :\par
+                - postsAddress = _postAddress (contracts/WorksManager.sol#244)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#missing-zero-address-validation }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#missing-zero-address-validation\ul0\cf0}}}}\f0\fs22\par
+\par
+Variable 'ERC1155Upgradeable._doSafeTransferAcceptanceCheck(address,address,address,uint256,uint256,bytes).response (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#430)' in ERC1155Upgradeable._doSafeTransferAcceptanceCheck(address,address,address,uint256,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#421-440) potentially used before declaration: response != IERC1155ReceiverUpgradeable.onERC1155Received.selector (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#431)\par
+Variable 'ERC1155Upgradeable._doSafeTransferAcceptanceCheck(address,address,address,uint256,uint256,bytes).reason (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#434)' in ERC1155Upgradeable._doSafeTransferAcceptanceCheck(address,address,address,uint256,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#421-440) potentially used before declaration: revert(string)(reason) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#435)\par
+Variable 'ERC1155Upgradeable._doSafeBatchTransferAcceptanceCheck(address,address,address,uint256[],uint256[],bytes).response (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#452)' in ERC1155Upgradeable._doSafeBatchTransferAcceptanceCheck(address,address,address,uint256[],uint256[],bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#442-463) potentially used before declaration: response != IERC1155ReceiverUpgradeable.onERC1155BatchReceived.selector (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#454)\par
+Variable 'ERC1155Upgradeable._doSafeBatchTransferAcceptanceCheck(address,address,address,uint256[],uint256[],bytes).reason (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#457)' in ERC1155Upgradeable._doSafeBatchTransferAcceptanceCheck(address,address,address,uint256[],uint256[],bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#442-463) potentially used before declaration: revert(string)(reason) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#458)\par
+Variable 'ERC721Upgradeable._checkOnERC721Received(address,address,uint256,bytes).retval (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#396)' in ERC721Upgradeable._checkOnERC721Received(address,address,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#389-410) potentially used before declaration: retval == IERC721ReceiverUpgradeable.onERC721Received.selector (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#397)\par
+Variable 'ERC721Upgradeable._checkOnERC721Received(address,address,uint256,bytes).reason (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#398)' in ERC721Upgradeable._checkOnERC721Received(address,address,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#389-410) potentially used before declaration: reason.length == 0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#399)\par
+Variable 'ERC721Upgradeable._checkOnERC721Received(address,address,uint256,bytes).reason (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#398)' in ERC721Upgradeable._checkOnERC721Received(address,address,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#389-410) potentially used before declaration: revert(uint256,uint256)(32 + reason,mload(uint256)(reason)) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#403)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#pre-declaration-usage-of-local-variables }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#pre-declaration-usage-of-local-variables\ul0\cf0}}}}\f0\fs22\par
+\par
+Reentrancy in Channels.safeMint(string,address) (contracts/Channels.sol#49-72):\par
+        External calls:\par
+        - _safeMint(to,tokenId) (contracts/Channels.sol#67)\par
+                - IERC721ReceiverUpgradeable(to).onERC721Received(_msgSender(),from,tokenId,_data) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#396-406)\par
+        State variables written after the call(s):\par
+        - _setTokenURI(tokenId,channelUri) (contracts/Channels.sol#70)\par
+                - _tokenURIs[tokenId] = _tokenURI (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol#56)\par
+        - setTokenUriInternal(tokenId,channelUri) (contracts/Channels.sol#69)\par
+                - _uris[tokenId] = newUri (contracts/Channels.sol#120)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2 }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2\ul0\cf0}}}}\f0\fs22\par
+\par
+Reentrancy in Broadcasts.broadcastMint(uint256,string,address) (contracts/Broadcasts.sol#95-119):\par
+        External calls:\par
+        - _mint(to,tokenId,1,) (contracts/Broadcasts.sol#115)\par
+                - IERC1155ReceiverUpgradeable(to).onERC1155Received(operator,from,id,amount,data) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#430-438)\par
+        Event emitted after the call(s):\par
+        - NewBroadcastMinted(to,tokenId) (contracts/Broadcasts.sol#118)\par
+Reentrancy in WorksManager.createPostToken(WorksManager.CreatePost) (contracts/WorksManager.sol#126-134):\par
+        External calls:\par
+        - result = postContract.createPostToken(Posts.CreatePost(msg.sender,post.cost,post.isBuyable,post.isPublic,post.airdrop,post.computedUri,post.paywallUri,post.mintable,post.levels)) (contracts/WorksManager.sol#130)\par
+        Event emitted after the call(s):\par
+        - NewPost(result,post.channelId,post.contractAddress) (contracts/WorksManager.sol#132)\par
+Reentrancy in Memberships.membershipMint(uint256,address) (contracts/Memberships.sol#111-130):\par
+        External calls:\par
+        - (success) = ownerPayable.call\{value: msg.value\}() (contracts/Memberships.sol#124)\par
+        - _mint(to,membership,1,) (contracts/Memberships.sol#127)\par
+                - IERC1155ReceiverUpgradeable(to).onERC1155Received(operator,from,id,amount,data) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#430-438)\par
+        External calls sending eth:\par
+        - (success) = ownerPayable.call\{value: msg.value\}() (contracts/Memberships.sol#124)\par
+        Event emitted after the call(s):\par
+        - NewMembershipMinted(to,membership) (contracts/Memberships.sol#129)\par
+        - TransferSingle(operator,address(0),to,id,amount) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#280)\par
+                - _mint(to,membership,1,) (contracts/Memberships.sol#127)\par
+Reentrancy in Channels.safeMint(string,address) (contracts/Channels.sol#49-72):\par
+        External calls:\par
+        - _safeMint(to,tokenId) (contracts/Channels.sol#67)\par
+                - IERC721ReceiverUpgradeable(to).onERC721Received(_msgSender(),from,tokenId,_data) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#396-406)\par
+        Event emitted after the call(s):\par
+        - NewReceptionChannelMinted(to,tokenId) (contracts/Channels.sol#68)\par
+Reentrancy in WorksManager.setProfileUri(string,string) (contracts/WorksManager.sol#247-250):\par
+        External calls:\par
+        - channelContract.setProfileUri(msg.sender,computedUri) (contracts/WorksManager.sol#248)\par
+        Event emitted after the call(s):\par
+        - ProfileSet(msg.sender,keywords) (contracts/WorksManager.sol#249)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3 }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3\ul0\cf0}}}}\f0\fs22\par
+\par
+ERC721Upgradeable._checkOnERC721Received(address,address,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#389-410) uses assembly\par
+        - INLINE ASM (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#402-404)\par
+AddressUpgradeable.isContract(address) (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#27-37) uses assembly\par
+        - INLINE ASM (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#33-35)\par
+AddressUpgradeable.verifyCallResult(bool,bytes,string) (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#169-189) uses assembly\par
+        - INLINE ASM (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#181-184)\par
+Base64.encode(bytes) (contracts/libraries/Base64.sol#18-77) uses assembly\par
+        - INLINE ASM (contracts/libraries/Base64.sol#30-74)\par
+Strings.memcpy(uint256,uint256,uint256) (contracts/libraries/Strings.sol#46-66) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#49-51)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#61-65)\par
+Strings.toSlice(string) (contracts/libraries/Strings.sol#73-79) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#75-77)\par
+Strings.toSliceB32(bytes32) (contracts/libraries/Strings.sol#119-128) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#121-126)\par
+Strings.toString(Strings.slice) (contracts/libraries/Strings.sol#144-151) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#147)\par
+Strings.len(Strings.slice) (contracts/libraries/Strings.sol#161-182) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#167)\par
+Strings.compare(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#202-232) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#212-215)\par
+Strings.nextRune(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#251-285) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#262)\par
+Strings.ord(Strings.slice) (contracts/libraries/Strings.sol#302-344) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#312)\par
+Strings.keccak(Strings.slice) (contracts/libraries/Strings.sol#351-355) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#352-354)\par
+Strings.startsWith(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#363-380) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#373-378)\par
+Strings.beyond(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#389-410) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#396-401)\par
+Strings.endsWith(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#418-437) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#430-434)\par
+Strings.until(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#446-466) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#454-458)\par
+Strings.findPtr(uint256,uint256,uint256,uint256) (contracts/libraries/Strings.sol#470-510) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#482)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#486)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#492)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#498)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#502)\par
+Strings.rfindPtr(uint256,uint256,uint256,uint256) (contracts/libraries/Strings.sol#514-553) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#525)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#529)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#535)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#541)\par
+        - INLINE ASM (contracts/libraries/Strings.sol#545)\par
+Strings.concat(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#688-695) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#691)\par
+Strings.join(Strings.slice,Strings.slice[]) (contracts/libraries/Strings.sol#705-727) uses assembly\par
+        - INLINE ASM (contracts/libraries/Strings.sol#715)\par
+console._sendLogPayload(bytes) (node_modules/hardhat/console.sol#7-14) uses assembly\par
+        - INLINE ASM (node_modules/hardhat/console.sol#10-13)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage\ul0\cf0}}}}\f0\fs22\par
+\par
+CloneFactory.createClone(address) (contracts/libraries/CloneFactory.sol#29-38) uses assembly\par
+        - INLINE ASM (contracts/libraries/CloneFactory.sol#31-37)\par
+CloneFactory.isClone(address,address) (contracts/libraries/CloneFactory.sol#40-55) uses assembly\par
+        - INLINE ASM (contracts/libraries/CloneFactory.sol#42-54)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage\ul0\cf0}}}}\f0\fs22\par
+\par
+Different versions of Solidity are used:\par
+        - Version used: ['>=0.4.22<0.9.0', '^0.8.0']\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155ReceiverUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol#4)\par
+        - ^0.8.0 (node_modules/@openzeppelin/contracts/utils/Strings.sol#4)\par
+        - ^0.8.0 (contracts/Broadcasts.sol#3)\par
+        - ^0.8.0 (contracts/Channels.sol#3)\par
+        - ABIEncoderV2 (contracts/Channels.sol#4)\par
+        - ^0.8.0 (contracts/Memberships.sol#3)\par
+        - ABIEncoderV2 (contracts/Memberships.sol#4)\par
+        - ^0.8.0 (contracts/PostFactory.sol#3)\par
+        - ^0.8.0 (contracts/Posts.sol#3)\par
+        - ^0.8.0 (contracts/WorksManager.sol#3)\par
+        - ABIEncoderV2 (contracts/WorksManager.sol#4)\par
+        - ^0.8.0 (contracts/libraries/Base64.sol#7)\par
+        - ^0.8.0 (contracts/libraries/ReceptionStructs.sol#2)\par
+        - ^0.8.0 (contracts/libraries/Strings.sol#38)\par
+        - >=0.4.22<0.9.0 (node_modules/hardhat/console.sol#2)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used\ul0\cf0}}}}\f0\fs22\par
+\par
+Base64.encode(bytes) (contracts/libraries/Base64.sol#18-77) is never used and should be removed\par
+Broadcasts.parseInt(string) (contracts/Broadcasts.sol#178-186) is never used and should be removed\par
+Channels._baseURI() (contracts/Channels.sol#132-134) is never used and should be removed\par
+Strings.beyond(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#389-410) is never used and should be removed\par
+Strings.compare(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#202-232) is never used and should be removed\par
+Strings.concat(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#688-695) is never used and should be removed\par
+Strings.contains(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#677-679) is never used and should be removed\par
+Strings.copy(Strings.slice) (contracts/libraries/Strings.sol#135-137) is never used and should be removed\par
+Strings.count(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#663-669) is never used and should be removed\par
+Strings.empty(Strings.slice) (contracts/libraries/Strings.sol#189-191) is never used and should be removed\par
+Strings.endsWith(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#418-437) is never used and should be removed\par
+Strings.equals(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#240-242) is never used and should be removed\par
+Strings.find(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#563-568) is never used and should be removed\par
+Strings.findPtr(uint256,uint256,uint256,uint256) (contracts/libraries/Strings.sol#470-510) is never used and should be removed\par
+Strings.join(Strings.slice,Strings.slice[]) (contracts/libraries/Strings.sol#705-727) is never used and should be removed\par
+Strings.keccak(Strings.slice) (contracts/libraries/Strings.sol#351-355) is never used and should be removed\par
+Strings.len(Strings.slice) (contracts/libraries/Strings.sol#161-182) is never used and should be removed\par
+Strings.len(bytes32) (contracts/libraries/Strings.sol#86-110) is never used and should be removed\par
+Strings.memcpy(uint256,uint256,uint256) (contracts/libraries/Strings.sol#46-66) is never used and should be removed\par
+Strings.nextRune(Strings.slice) (contracts/libraries/Strings.sol#293-295) is never used and should be removed\par
+Strings.nextRune(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#251-285) is never used and should be removed\par
+Strings.ord(Strings.slice) (contracts/libraries/Strings.sol#302-344) is never used and should be removed\par
+Strings.rfind(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#578-582) is never used and should be removed\par
+Strings.rfindPtr(uint256,uint256,uint256,uint256) (contracts/libraries/Strings.sol#514-553) is never used and should be removed\par
+Strings.rsplit(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#653-655) is never used and should be removed\par
+Strings.rsplit(Strings.slice,Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#631-642) is never used and should be removed\par
+Strings.split(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#617-619) is never used and should be removed\par
+Strings.split(Strings.slice,Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#594-606) is never used and should be removed\par
+Strings.startsWith(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#363-380) is never used and should be removed\par
+Strings.toSlice(string) (contracts/libraries/Strings.sol#73-79) is never used and should be removed\par
+Strings.toSliceB32(bytes32) (contracts/libraries/Strings.sol#119-128) is never used and should be removed\par
+Strings.toString(Strings.slice) (contracts/libraries/Strings.sol#144-151) is never used and should be removed\par
+Strings.until(Strings.slice,Strings.slice) (contracts/libraries/Strings.sol#446-466) is never used and should be removed\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code\ul0\cf0}}}}\f0\fs22\par
+\par
+CloneFactory.createClone(address) (contracts/libraries/CloneFactory.sol#29-38) is never used and should be removed\par
+CloneFactory.isClone(address,address) (contracts/libraries/CloneFactory.sol#40-55) is never used and should be removed\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code\ul0\cf0}}}}\f0\fs22\par
+\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155ReceiverUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol#4) allows old versions\par
+Pragma version^0.8.0 (node_modules/@openzeppelin/contracts/utils/Strings.sol#4) allows old versions\par
+Pragma version^0.8.0 (contracts/Broadcasts.sol#3) allows old versions\par
+Pragma version^0.8.0 (contracts/Channels.sol#3) allows old versions\par
+Pragma version^0.8.0 (contracts/Memberships.sol#3) allows old versions\par
+Pragma version^0.8.0 (contracts/PostFactory.sol#3) allows old versions\par
+Pragma version^0.8.0 (contracts/Posts.sol#3) allows old versions\par
+Pragma version^0.8.0 (contracts/WorksManager.sol#3) allows old versions\par
+Pragma version^0.8.0 (contracts/libraries/Base64.sol#7) allows old versions\par
+Pragma version^0.8.0 (contracts/libraries/ReceptionStructs.sol#2) allows old versions\par
+Pragma version^0.8.0 (contracts/libraries/Strings.sol#38) allows old versions\par
+Pragma version>=0.4.22<0.9.0 (node_modules/hardhat/console.sol#2) is too complex\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity\ul0\cf0}}}}\f0\fs22\par
+\par
+Pragma version^0.8.0 (contracts/libraries/CloneFactory.sol#2) allows old versions\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity\ul0\cf0}}}}\f0\fs22\par
+\par
+Low level call in AddressUpgradeable.sendValue(address,uint256) (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#55-60):\par
+        - (success) = recipient.call\{value: amount\}() (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#58)\par
+Low level call in AddressUpgradeable.functionCallWithValue(address,bytes,uint256,string) (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#123-134):\par
+        - (success,returndata) = target.call\{value: value\}(data) (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#132)\par
+Low level call in AddressUpgradeable.functionStaticCall(address,bytes,string) (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#152-161):\par
+        - (success,returndata) = target.staticcall(data) (node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol#159)\par
+Low level call in Broadcasts.withdrawBalance() (contracts/Broadcasts.sol#121-129):\par
+        - (success) = ownerPayable.call\{value: amount\}() (contracts/Broadcasts.sol#127)\par
+Low level call in Channels.withdrawBalance() (contracts/Channels.sol#100-108):\par
+        - (success) = ownerPayable.call\{value: amount\}() (contracts/Channels.sol#106)\par
+Low level call in Memberships.membershipMint(uint256,address) (contracts/Memberships.sol#111-130):\par
+        - (success) = ownerPayable.call\{value: msg.value\}() (contracts/Memberships.sol#124)\par
+Low level call in Memberships.withdrawBalance() (contracts/Memberships.sol#132-140):\par
+        - (success) = ownerPayable.call\{value: amount\}() (contracts/Memberships.sol#138)\par
+Low level call in WorksManager.withdrawBalance() (contracts/WorksManager.sol#61-69):\par
+        - (success) = ownerPayable.call\{value: amount\}() (contracts/WorksManager.sol#67)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls\ul0\cf0}}}}\f0\fs22\par
+\par
+Function AccessControlUpgradeable.__AccessControl_init() (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#51-55) is not in mixedCase\par
+Function AccessControlUpgradeable.__AccessControl_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#57-58) is not in mixedCase\par
+Variable AccessControlUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#232) is not in mixedCase\par
+Function OwnableUpgradeable.__Ownable_init() (node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol#29-32) is not in mixedCase\par
+Function OwnableUpgradeable.__Ownable_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol#34-36) is not in mixedCase\par
+Variable OwnableUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol#82) is not in mixedCase\par
+Function PausableUpgradeable.__Pausable_init() (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#34-37) is not in mixedCase\par
+Function PausableUpgradeable.__Pausable_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#39-41) is not in mixedCase\par
+Variable PausableUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#97) is not in mixedCase\par
+Function ERC1155Upgradeable.__ERC1155_init(string) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#36-40) is not in mixedCase\par
+Function ERC1155Upgradeable.__ERC1155_init_unchained(string) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#42-44) is not in mixedCase\par
+Variable ERC1155Upgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#471) is not in mixedCase\par
+Function ERC1155BurnableUpgradeable.__ERC1155Burnable_init() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#16-20) is not in mixedCase\par
+Function ERC1155BurnableUpgradeable.__ERC1155Burnable_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#22-23) is not in mixedCase\par
+Variable ERC1155BurnableUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#49) is not in mixedCase\par
+Function ERC1155SupplyUpgradeable.__ERC1155Supply_init() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#18-22) is not in mixedCase\par
+Function ERC1155SupplyUpgradeable.__ERC1155Supply_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#24-25) is not in mixedCase\par
+Variable ERC1155SupplyUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#67) is not in mixedCase\par
+Function ERC721Upgradeable.__ERC721_init(string,string) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#45-49) is not in mixedCase\par
+Function ERC721Upgradeable.__ERC721_init_unchained(string,string) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#51-54) is not in mixedCase\par
+Parameter ERC721Upgradeable.safeTransferFrom(address,address,uint256,bytes)._data (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#186) is not in mixedCase\par
+Variable ERC721Upgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#431) is not in mixedCase\par
+Function ERC721BurnableUpgradeable.__ERC721Burnable_init() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol#15-19) is not in mixedCase\par
+Function ERC721BurnableUpgradeable.__ERC721Burnable_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol#21-22) is not in mixedCase\par
+Variable ERC721BurnableUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol#35) is not in mixedCase\par
+Function ERC721URIStorageUpgradeable.__ERC721URIStorage_init() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol#13-17) is not in mixedCase\par
+Function ERC721URIStorageUpgradeable.__ERC721URIStorage_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol#19-20) is not in mixedCase\par
+Variable ERC721URIStorageUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol#76) is not in mixedCase\par
+Function ContextUpgradeable.__Context_init() (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#18-20) is not in mixedCase\par
+Function ContextUpgradeable.__Context_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#22-23) is not in mixedCase\par
+Variable ContextUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#31) is not in mixedCase\par
+Function ERC165Upgradeable.__ERC165_init() (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol#24-26) is not in mixedCase\par
+Function ERC165Upgradeable.__ERC165_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol#28-29) is not in mixedCase\par
+Variable ERC165Upgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol#36) is not in mixedCase\par
+Parameter Broadcasts.initialize(string,address,address)._ownerContract (contracts/Broadcasts.sol#51) is not in mixedCase\par
+Parameter Broadcasts.initialize(string,address,address)._channelAddress (contracts/Broadcasts.sol#51) is not in mixedCase\par
+Parameter Broadcasts.parseInt(string)._value (contracts/Broadcasts.sol#178) is not in mixedCase\par
+Parameter Channels.initialize(address)._masterContract (contracts/Channels.sol#37) is not in mixedCase\par
+Function Channels._ownerOf(uint256) (contracts/Channels.sol#151-153) is not in mixedCase\par
+Parameter Memberships.initialize(string,address,address)._ownerContract (contracts/Memberships.sol#66) is not in mixedCase\par
+Parameter Memberships.initialize(string,address,address)._channelAddress (contracts/Memberships.sol#66) is not in mixedCase\par
+Parameter Memberships.setChannelsAddress(address)._channelAddress (contracts/Memberships.sol#156) is not in mixedCase\par
+Parameter Memberships.parseInt(string)._value (contracts/Memberships.sol#209) is not in mixedCase\par
+Variable Memberships._channelMap (contracts/Memberships.sol#55) is not in mixedCase\par
+Variable Memberships._ownershipMap (contracts/Memberships.sol#56) is not in mixedCase\par
+Parameter PostFactory.initialize(address)._contractOwner (contracts/PostFactory.sol#47) is not in mixedCase\par
+Parameter WorksManager.setPostFactoryAddress(address)._postFactoryAddress (contracts/WorksManager.sol#223) is not in mixedCase\par
+Parameter WorksManager.setMembershipsAddress(address)._membershipsAddress (contracts/WorksManager.sol#228) is not in mixedCase\par
+Parameter WorksManager.setChannelsAddress(address)._channelsAddress (contracts/WorksManager.sol#238) is not in mixedCase\par
+Parameter WorksManager.setPostAddress(address)._postAddress (contracts/WorksManager.sol#243) is not in mixedCase\par
+Struct Strings.slice (contracts/libraries/Strings.sol#41-44) is not in CapWords\par
+Contract console (node_modules/hardhat/console.sol#4-1532) is not in CapWords\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions\ul0\cf0}}}}\f0\fs22\par
+\par
+Variable WorksManager.setPostAddress(address)._postAddress (contracts/WorksManager.sol#243) is too similar to WorksManager.postsAddress (contracts/WorksManager.sol#28)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-are-too-similar }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-are-too-similar\ul0\cf0}}}}\f0\fs22\par
+\par
+Channels.slitherConstructorVariables() (contracts/Channels.sol#19-165) uses literals with too many digits:\par
+        - cost = 2500000000000 (contracts/Channels.sol#25)\par
+Strings.len(bytes32) (contracts/libraries/Strings.sol#86-110) uses literals with too many digits:\par
+        - self = bytes32(uint256(self) / 0x100000000000000000000000000000000) (contracts/libraries/Strings.sol#92)\par
+Strings.len(bytes32) (contracts/libraries/Strings.sol#86-110) uses literals with too many digits:\par
+        - self = bytes32(uint256(self) / 0x10000000000000000) (contracts/libraries/Strings.sol#96)\par
+Strings.len(bytes32) (contracts/libraries/Strings.sol#86-110) uses literals with too many digits:\par
+        - self = bytes32(uint256(self) / 0x100000000) (contracts/libraries/Strings.sol#100)\par
+console.slitherConstructorConstantVariables() (node_modules/hardhat/console.sol#4-1532) uses literals with too many digits:\par
+        - CONSOLE_ADDRESS = address(0x000000000000000000636F6e736F6c652e6c6f67) (node_modules/hardhat/console.sol#5)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits\ul0\cf0}}}}\f0\fs22\par
+\par
+CloneFactory.createClone(address) (contracts/libraries/CloneFactory.sol#29-38) uses literals with too many digits:\par
+        - mstore(uint256,uint256)(clone_createClone_asm_0,0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000) (contracts/libraries/CloneFactory.sol#33)\par
+CloneFactory.createClone(address) (contracts/libraries/CloneFactory.sol#29-38) uses literals with too many digits:\par
+        - mstore(uint256,uint256)(clone_createClone_asm_0 + 0x28,0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000) (contracts/libraries/CloneFactory.sol#35)\par
+CloneFactory.isClone(address,address) (contracts/libraries/CloneFactory.sol#40-55) uses literals with too many digits:\par
+        - mstore(uint256,uint256)(clone_isClone_asm_0,0x363d3d373d3d3d363d7300000000000000000000000000000000000000000000) (contracts/libraries/CloneFactory.sol#44)\par
+CloneFactory.isClone(address,address) (contracts/libraries/CloneFactory.sol#40-55) uses literals with too many digits:\par
+        - mstore(uint256,uint256)(clone_isClone_asm_0 + 0x1e,0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000) (contracts/libraries/CloneFactory.sol#46)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits\ul0\cf0}}}}\f0\fs22\par
+\par
+Posts (contracts/Posts.sol#24-336) does not implement functions:\par
+        - AccessControlUpgradeable.__AccessControl_init() (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#51-55)\par
+        - AccessControlUpgradeable.__AccessControl_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#57-58)\par
+        - ContextUpgradeable.__Context_init() (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#18-20)\par
+        - ContextUpgradeable.__Context_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#22-23)\par
+        - ERC1155BurnableUpgradeable.__ERC1155Burnable_init() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#16-20)\par
+        - ERC1155BurnableUpgradeable.__ERC1155Burnable_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#22-23)\par
+        - ERC1155SupplyUpgradeable.__ERC1155Supply_init() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#18-22)\par
+        - ERC1155SupplyUpgradeable.__ERC1155Supply_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#24-25)\par
+        - ERC1155Upgradeable.__ERC1155_init(string) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#36-40)\par
+        - ERC1155Upgradeable.__ERC1155_init_unchained(string) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#42-44)\par
+        - ERC165Upgradeable.__ERC165_init() (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol#24-26)\par
+        - ERC165Upgradeable.__ERC165_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol#28-29)\par
+        - PausableUpgradeable.__Pausable_init() (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#34-37)\par
+        - PausableUpgradeable.__Pausable_init_unchained() (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#39-41)\par
+        - ERC1155Upgradeable._asSingletonArray(uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#465-470)\par
+        - Posts._beforeTokenTransfer(address,address,address,uint256[],uint256[],bytes) (contracts/Posts.sol#314-320)\par
+        - ERC1155Upgradeable._burn(address,uint256,uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#324-342)\par
+        - ERC1155Upgradeable._burnBatch(address,uint256[],uint256[]) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#351-375)\par
+        - AccessControlUpgradeable._checkRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#104-117)\par
+        - ERC1155Upgradeable._doSafeBatchTransferAcceptanceCheck(address,address,address,uint256[],uint256[],bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#442-463)\par
+        - ERC1155Upgradeable._doSafeTransferAcceptanceCheck(address,address,address,uint256,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#421-440)\par
+        - AccessControlUpgradeable._grantRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#214-219)\par
+        - Initializable._isConstructor() (node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol#77-79)\par
+        - ERC1155Upgradeable._mint(address,uint256,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#267-283)\par
+        - ERC1155Upgradeable._mintBatch(address,uint256[],uint256[],bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#294-314)\par
+        - ContextUpgradeable._msgData() (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#28-30)\par
+        - ContextUpgradeable._msgSender() (node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol#24-26)\par
+        - PausableUpgradeable._pause() (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#81-84)\par
+        - AccessControlUpgradeable._revokeRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#226-231)\par
+        - ERC1155Upgradeable._safeBatchTransferFrom(address,address,uint256[],uint256[],bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#202-231)\par
+        - ERC1155Upgradeable._safeTransferFrom(address,address,uint256,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#167-190)\par
+        - ERC1155Upgradeable._setApprovalForAll(address,address,bool) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#382-390)\par
+        - AccessControlUpgradeable._setRoleAdmin(bytes32,bytes32) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#203-207)\par
+        - ERC1155Upgradeable._setURI(string) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#252-254)\par
+        - AccessControlUpgradeable._setupRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#194-196)\par
+        - PausableUpgradeable._unpause() (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#93-96)\par
+        - ERC1155Upgradeable.balanceOf(address,uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#77-80)\par
+        - ERC1155Upgradeable.balanceOfBatch(address[],uint256[]) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#89-105)\par
+        - ERC1155BurnableUpgradeable.burn(address,uint256,uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#24-35)\par
+        - ERC1155BurnableUpgradeable.burnBatch(address,uint256[],uint256[]) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#37-48)\par
+        - Posts.channelOwnershipMatch(address) (contracts/Posts.sol#251-266)\par
+        - ERC1155SupplyUpgradeable.exists(uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#38-40)\par
+        - Posts.getChannelToken() (contracts/Posts.sol#192-194)\par
+        - Posts.getCost(uint256) (contracts/Posts.sol#208-210)\par
+        - Posts.getCurrentCount() (contracts/Posts.sol#196-198)\par
+        - AccessControlUpgradeable.getRoleAdmin(bytes32) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#125-127)\par
+        - Posts.getTokenIndex() (contracts/Posts.sol#301-303)\par
+        - AccessControlUpgradeable.grantRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#139-141)\par
+        - AccessControlUpgradeable.hasRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#93-95)\par
+        - ERC1155Upgradeable.isApprovedForAll(address,address) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#117-119)\par
+        - Posts.isBuyable(uint256) (contracts/Posts.sol#204-206)\par
+        - Posts.isMintable(uint256) (contracts/Posts.sol#200-202)\par
+        - Posts.membershipMatch(uint256,address) (contracts/Posts.sol#228-249)\par
+        - Posts.ownershipMatch(address,uint256) (contracts/Posts.sol#268-274)\par
+        - Posts.pause() (contracts/Posts.sol#306-308)\par
+        - PausableUpgradeable.paused() (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#46-48)\par
+        - Posts.paywallUri(address,uint256,uint256,uint256) (contracts/Posts.sol#276-284)\par
+        - Posts.postMint(address,uint256) (contracts/Posts.sol#153-182)\par
+        - AccessControlUpgradeable.renounceRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#170-174)\par
+        - AccessControlUpgradeable.revokeRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#152-154)\par
+        - ERC1155Upgradeable.safeBatchTransferFrom(address,address,uint256[],uint256[],bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#141-153)\par
+        - ERC1155Upgradeable.safeTransferFrom(address,address,uint256,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#124-136)\par
+        - ERC1155Upgradeable.setApprovalForAll(address,bool) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#110-112)\par
+        - Posts.setTokenLevelsInternal(uint256,uint256[]) (contracts/Posts.sol#291-294)\par
+        - Posts.setTokenUri(uint256,string) (contracts/Posts.sol#296-299)\par
+        - Posts.setTokenUrisInternal(uint256,string,string) (contracts/Posts.sol#286-289)\par
+        - Posts.setURI(string) (contracts/Posts.sol#322-324)\par
+        - Posts.supportsInterface(bytes4) (contracts/Posts.sol#326-333)\par
+        - ERC1155SupplyUpgradeable.totalSupply(uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#31-33)\par
+        - Posts.unpause() (contracts/Posts.sol#310-312)\par
+        - Posts.uri(uint256) (contracts/Posts.sol#212-218)\par
+        - Posts.uri2(uint256,address) (contracts/Posts.sol#220-226)\par
+        - Posts.withdrawBalance() (contracts/Posts.sol#184-190)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#unimplemented-functions }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#unimplemented-functions\ul0\cf0}}}}\f0\fs22\par
+\par
+ERC1155BurnableUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#49) is never used in Broadcasts (contracts/Broadcasts.sol#19-198)\par
+ERC721BurnableUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol#35) is never used in Channels (contracts/Channels.sol#19-165)\par
+ERC1155BurnableUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#49) is never used in Memberships (contracts/Memberships.sol#21-229)\par
+AccessControlUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#232) is never used in PostFactory (contracts/PostFactory.sol#16-78)\par
+PostFactory.broadcastsAddress (contracts/PostFactory.sol#25) is never used in PostFactory (contracts/PostFactory.sol#16-78)\par
+ERC1155BurnableUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#49) is never used in Posts (contracts/Posts.sol#24-336)\par
+ERC1155Upgradeable._balances (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#25) is never used in Posts (contracts/Posts.sol#24-336)\par
+ERC1155Upgradeable._operatorApprovals (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#28) is never used in Posts (contracts/Posts.sol#24-336)\par
+ERC1155Upgradeable._uri (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#31) is never used in Posts (contracts/Posts.sol#24-336)\par
+ERC1155SupplyUpgradeable._totalSupply (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#26) is never used in Posts (contracts/Posts.sol#24-336)\par
+PausableUpgradeable._paused (node_modules/@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol#29) is never used in Posts (contracts/Posts.sol#24-336)\par
+AccessControlUpgradeable._roles (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#64) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts.broadcastsAddress (contracts/Posts.sol#36) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts.broadcastsContract (contracts/Posts.sol#39) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._tokenIdCounter (contracts/Posts.sol#41) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._uris (contracts/Posts.sol#51) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._paywallUri (contracts/Posts.sol#52) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._paywallUriAccess (contracts/Posts.sol#53) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._mintable (contracts/Posts.sol#54) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._buyable (contracts/Posts.sol#55) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._cost (contracts/Posts.sol#56) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._tokenLevel (contracts/Posts.sol#57) is never used in Posts (contracts/Posts.sol#24-336)\par
+Posts._redemptions (contracts/Posts.sol#58) is never used in Posts (contracts/Posts.sol#24-336)\par
+AccessControlUpgradeable.__gap (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#232) is never used in WorksManager (contracts/WorksManager.sol#23-271)\par
+WorksManager.broadcastsAddress (contracts/WorksManager.sol#26) is never used in WorksManager (contracts/WorksManager.sol#23-271)\par
+WorksManager.broadcastContract (contracts/WorksManager.sol#33) is never used in WorksManager (contracts/WorksManager.sol#23-271)\par
+WorksManager.channelPostAddressMap (contracts/WorksManager.sol#35) is never used in WorksManager (contracts/WorksManager.sol#23-271)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variable }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variable\ul0\cf0}}}}\f0\fs22\par
+\par
+Broadcasts.symbol (contracts/Broadcasts.sol#25) should be constant\par
+Channels.cost (contracts/Channels.sol#25) should be constant\par
+Memberships.symbol (contracts/Memberships.sol#27) should be constant\par
+PostFactory.broadcastsAddress (contracts/PostFactory.sol#25) should be constant\par
+Posts.broadcastsAddress (contracts/Posts.sol#36) should be constant\par
+Posts.description (contracts/Posts.sol#31) should be constant\par
+Posts.symbol (contracts/Posts.sol#32) should be constant\par
+WorksManager.broadcastsAddress (contracts/WorksManager.sol#26) should be constant\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant\ul0\cf0}}}}\f0\fs22\par
+\par
+grantRole(bytes32,address) should be declared external:\par
+        - AccessControlUpgradeable.grantRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#139-141)\par
+revokeRole(bytes32,address) should be declared external:\par
+        - AccessControlUpgradeable.revokeRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#152-154)\par
+renounceRole(bytes32,address) should be declared external:\par
+        - AccessControlUpgradeable.renounceRole(bytes32,address) (node_modules/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol#170-174)\par
+renounceOwnership() should be declared external:\par
+        - OwnableUpgradeable.renounceOwnership() (node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol#60-62)\par
+uri(uint256) should be declared external:\par
+        - Broadcasts.uri(uint256) (contracts/Broadcasts.sol#131-133)\par
+        - ERC1155Upgradeable.uri(uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#66-68)\par
+        - Memberships.uri(uint256) (contracts/Memberships.sol#142-144)\par
+        - Posts.uri(uint256) (contracts/Posts.sol#212-218)\par
+balanceOfBatch(address[],uint256[]) should be declared external:\par
+        - ERC1155Upgradeable.balanceOfBatch(address[],uint256[]) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#89-105)\par
+setApprovalForAll(address,bool) should be declared external:\par
+        - ERC1155Upgradeable.setApprovalForAll(address,bool) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#110-112)\par
+safeTransferFrom(address,address,uint256,uint256,bytes) should be declared external:\par
+        - ERC1155Upgradeable.safeTransferFrom(address,address,uint256,uint256,bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#124-136)\par
+safeBatchTransferFrom(address,address,uint256[],uint256[],bytes) should be declared external:\par
+        - ERC1155Upgradeable.safeBatchTransferFrom(address,address,uint256[],uint256[],bytes) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol#141-153)\par
+burn(address,uint256,uint256) should be declared external:\par
+        - ERC1155BurnableUpgradeable.burn(address,uint256,uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#24-35)\par
+burnBatch(address,uint256[],uint256[]) should be declared external:\par
+        - ERC1155BurnableUpgradeable.burnBatch(address,uint256[],uint256[]) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol#37-48)\par
+exists(uint256) should be declared external:\par
+        - ERC1155SupplyUpgradeable.exists(uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155SupplyUpgradeable.sol#38-40)\par
+balanceOf(address) should be declared external:\par
+        - ERC721Upgradeable.balanceOf(address) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#69-72)\par
+name() should be declared external:\par
+        - ERC721Upgradeable.name() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#86-88)\par
+symbol() should be declared external:\par
+        - ERC721Upgradeable.symbol() (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#93-95)\par
+approve(address,uint256) should be declared external:\par
+        - ERC721Upgradeable.approve(address,uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#119-129)\par
+setApprovalForAll(address,bool) should be declared external:\par
+        - ERC721Upgradeable.setApprovalForAll(address,bool) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#143-145)\par
+transferFrom(address,address,uint256) should be declared external:\par
+        - ERC721Upgradeable.transferFrom(address,address,uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#157-166)\par
+safeTransferFrom(address,address,uint256) should be declared external:\par
+        - ERC721Upgradeable.safeTransferFrom(address,address,uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol#171-177)\par
+burn(uint256) should be declared external:\par
+        - ERC721BurnableUpgradeable.burn(uint256) (node_modules/@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol#30-34)\par
+initialize(string,address,address) should be declared external:\par
+        - Broadcasts.initialize(string,address,address) (contracts/Broadcasts.sol#51-73)\par
+transferOwnership(address) should be declared external:\par
+        - Broadcasts.transferOwnership(address) (contracts/Broadcasts.sol#75-77)\par
+broadcastTokenCreate(address,uint256,uint256,string,string) should be declared external:\par
+        - Broadcasts.broadcastTokenCreate(address,uint256,uint256,string,string) (contracts/Broadcasts.sol#79-93)\par
+broadcastMint(uint256,string,address) should be declared external:\par
+        - Broadcasts.broadcastMint(uint256,string,address) (contracts/Broadcasts.sol#95-119)\par
+withdrawBalance() should be declared external:\par
+        - Broadcasts.withdrawBalance() (contracts/Broadcasts.sol#121-129)\par
+setTokenUri(uint256,string) should be declared external:\par
+        - Broadcasts.setTokenUri(uint256,string) (contracts/Broadcasts.sol#140-143)\par
+getTokenIndex() should be declared external:\par
+        - Broadcasts.getTokenIndex() (contracts/Broadcasts.sol#145-147)\par
+getBroadcastList(uint256) should be declared external:\par
+        - Broadcasts.getBroadcastList(uint256) (contracts/Broadcasts.sol#149-151)\par
+getBroadcast(uint256) should be declared external:\par
+        - Broadcasts.getBroadcast(uint256) (contracts/Broadcasts.sol#153-155)\par
+pause() should be declared external:\par
+        - Broadcasts.pause() (contracts/Broadcasts.sol#158-160)\par
+unpause() should be declared external:\par
+        - Broadcasts.unpause() (contracts/Broadcasts.sol#162-164)\par
+setURI(string) should be declared external:\par
+        - Broadcasts.setURI(string) (contracts/Broadcasts.sol#174-176)\par
+safeMint(string,address) should be declared external:\par
+        - Channels.safeMint(string,address) (contracts/Channels.sol#49-72)\par
+getOwnerChannelIds(address) should be declared external:\par
+        - Channels.getOwnerChannelIds(address) (contracts/Channels.sol#74-77)\par
+withdrawBalance() should be declared external:\par
+        - Channels.withdrawBalance() (contracts/Channels.sol#100-108)\par
+getCurrentIndex() should be declared external:\par
+        - Channels.getCurrentIndex() (contracts/Channels.sol#110-112)\par
+uri(uint256) should be declared external:\par
+        - Channels.uri(uint256) (contracts/Channels.sol#114-116)\par
+setProfileUri(address,string) should be declared external:\par
+        - Channels.setProfileUri(address,string) (contracts/Channels.sol#123-125)\par
+getProfileUri(address) should be declared external:\par
+        - Channels.getProfileUri(address) (contracts/Channels.sol#127-129)\par
+pause() should be declared external:\par
+        - Channels.pause() (contracts/Channels.sol#136-138)\par
+unpause() should be declared external:\par
+        - Channels.unpause() (contracts/Channels.sol#140-142)\par
+_ownerOf(uint256) should be declared external:\par
+        - Channels._ownerOf(uint256) (contracts/Channels.sol#151-153)\par
+transferOwnership(address) should be declared external:\par
+        - Memberships.transferOwnership(address) (contracts/Memberships.sol#84-86)\par
+setMaxMemberships(string) should be declared external:\par
+        - Memberships.setMaxMemberships(string) (contracts/Memberships.sol#88-91)\par
+membershipTokenCreate(address,uint256,uint256,string) should be declared external:\par
+        - Memberships.membershipTokenCreate(address,uint256,uint256,string) (contracts/Memberships.sol#93-109)\par
+membershipMint(uint256,address) should be declared external:\par
+        - Memberships.membershipMint(uint256,address) (contracts/Memberships.sol#111-130)\par
+withdrawBalance() should be declared external:\par
+        - Memberships.withdrawBalance() (contracts/Memberships.sol#132-140)\par
+setTokenUri(uint256,string) should be declared external:\par
+        - Memberships.setTokenUri(uint256,string) (contracts/Memberships.sol#151-154)\par
+setChannelsAddress(address) should be declared external:\par
+        - Memberships.setChannelsAddress(address) (contracts/Memberships.sol#156-159)\par
+getTokenIndex() should be declared external:\par
+        - Memberships.getTokenIndex() (contracts/Memberships.sol#161-163)\par
+getMembershipList(uint256) should be declared external:\par
+        - Memberships.getMembershipList(uint256) (contracts/Memberships.sol#165-167)\par
+getMembership(uint256,address) should be declared external:\par
+        - Memberships.getMembership(uint256,address) (contracts/Memberships.sol#169-171)\par
+getOwnershipMap(uint256) should be declared external:\par
+        - Memberships.getOwnershipMap(uint256) (contracts/Memberships.sol#173-175)\par
+pause() should be declared external:\par
+        - Memberships.pause() (contracts/Memberships.sol#178-180)\par
+unpause() should be declared external:\par
+        - Memberships.unpause() (contracts/Memberships.sol#182-184)\par
+setURI(string) should be declared external:\par
+        - Memberships.setURI(string) (contracts/Memberships.sol#205-207)\par
+initialize(address) should be declared external:\par
+        - PostFactory.initialize(address) (contracts/PostFactory.sol#47-53)\par
+createPostContract(string,uint256,address) should be declared external:\par
+        - PostFactory.createPostContract(string,uint256,address) (contracts/PostFactory.sol#55-67)\par
+getChannelPostContract(uint256) should be declared external:\par
+        - PostFactory.getChannelPostContract(uint256) (contracts/PostFactory.sol#69-76)\par
+initialize(string,address) should be declared external:\par
+        - Posts.initialize(string,address) (contracts/Posts.sol#82-94)\par
+transferOwnership(address) should be declared external:\par
+        - Posts.transferOwnership(address) (contracts/Posts.sol#96-98)\par
+createPostToken(Posts.CreatePost) should be declared external:\par
+        - Posts.createPostToken(Posts.CreatePost) (contracts/Posts.sol#111-151)\par
+postMint(address,uint256) should be declared external:\par
+        - Posts.postMint(address,uint256) (contracts/Posts.sol#153-182)\par
+withdrawBalance() should be declared external:\par
+        - Posts.withdrawBalance() (contracts/Posts.sol#184-190)\par
+isMintable(uint256) should be declared external:\par
+        - Posts.isMintable(uint256) (contracts/Posts.sol#200-202)\par
+isBuyable(uint256) should be declared external:\par
+        - Posts.isBuyable(uint256) (contracts/Posts.sol#204-206)\par
+getCost(uint256) should be declared external:\par
+        - Posts.getCost(uint256) (contracts/Posts.sol#208-210)\par
+uri2(uint256,address) should be declared external:\par
+        - Posts.uri2(uint256,address) (contracts/Posts.sol#220-226)\par
+membershipMatch(uint256,address) should be declared external:\par
+        - Posts.membershipMatch(uint256,address) (contracts/Posts.sol#228-249)\par
+channelOwnershipMatch(address) should be declared external:\par
+        - Posts.channelOwnershipMatch(address) (contracts/Posts.sol#251-266)\par
+ownershipMatch(address,uint256) should be declared external:\par
+        - Posts.ownershipMatch(address,uint256) (contracts/Posts.sol#268-274)\par
+paywallUri(address,uint256,uint256,uint256) should be declared external:\par
+        - Posts.paywallUri(address,uint256,uint256,uint256) (contracts/Posts.sol#276-284)\par
+setTokenUri(uint256,string) should be declared external:\par
+        - Posts.setTokenUri(uint256,string) (contracts/Posts.sol#296-299)\par
+getTokenIndex() should be declared external:\par
+        - Posts.getTokenIndex() (contracts/Posts.sol#301-303)\par
+pause() should be declared external:\par
+        - Posts.pause() (contracts/Posts.sol#306-308)\par
+unpause() should be declared external:\par
+        - Posts.unpause() (contracts/Posts.sol#310-312)\par
+setURI(string) should be declared external:\par
+        - Posts.setURI(string) (contracts/Posts.sol#322-324)\par
+initialize() should be declared external:\par
+        - WorksManager.initialize() (contracts/WorksManager.sol#52-58)\par
+withdrawBalance() should be declared external:\par
+        - WorksManager.withdrawBalance() (contracts/WorksManager.sol#61-69)\par
+createPostMessage(address,uint256,string) should be declared external:\par
+        - WorksManager.createPostMessage(address,uint256,string) (contracts/WorksManager.sol#264-268)\par
+Reference: {{\field{\*\fldinst{HYPERLINK https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external }}{\fldrslt{https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external\ul0\cf0}}}}\f0\fs22\par
+\cf0 . analyzed (36 contracts with 78 detectors), 335 result(s) found\par
+}
+ 
