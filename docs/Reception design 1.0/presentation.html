@@ -1,0 +1,2381 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Reception.fm: The Next Generation of RSS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  <link rel="stylesheet" href="assets/styles/styles.css"></head>
+  <style type="text/css">.tk-brandon-grotesque{font-family:"brandon-grotesque",sans-serif;}</style>
+<style type="text/css">@font-face{font-family:brandon-grotesque;src:url(assets/fonts/brandon-grotesque-normal.woff2) format("woff2"),url(assets/fonts/brandon-grotesque-normal.woff) format("woff"),url(assets/fonts/brandon-grotesque-normal.opentype) format("opentype");font-weight:700;font-style:normal;font-stretch:normal;font-display:auto;}@font-face{font-family:brandon-grotesque;src:url(assets/fonts/brandon-grotesque-italic.woff2) format("woff2"),url(assets/fonts/brandon-grotesque-italic.woff) format("woff"),url(assets/fonts/brandon-grotesque-italic.opentype) format("opentype");font-weight:700;font-style:italic;font-stretch:normal;font-display:auto;}@font-face{font-family:brandon-grotesque;src:url(assets/fonts/brandon-grotesque-normal-1.woff2) format("woff2"),url(assets/fonts/brandon-grotesque-normal-1.woff) format("woff"),url(assets/fonts/brandon-grotesque-normal-1.opentype) format("opentype");font-weight:300;font-style:normal;font-stretch:normal;font-display:auto;}@font-face{font-family:brandon-grotesque;src:url(assets/fonts/brandon-grotesque-italic-1.woff2) format("woff2"),url(assets/fonts/brandon-grotesque-italic-1.woff) format("woff"),url(assets/fonts/brandon-grotesque-italic-1.opentype) format("opentype");font-weight:300;font-style:italic;font-stretch:normal;font-display:auto;}</style>
+<style type="text/css">.tk-brandon-grotesque{font-family:"brandon-grotesque",sans-serif;}</style>
+<style type="text/css">@font-face{font-family:brandon-grotesque;src:url(assets/fonts/brandon-grotesque-normal.woff2) format("woff2"),url(assets/fonts/brandon-grotesque-normal.woff) format("woff"),url(assets/fonts/brandon-grotesque-normal.opentype) format("opentype");font-weight:700;font-style:normal;font-stretch:normal;font-display:auto;}@font-face{font-family:brandon-grotesque;src:url(assets/fonts/brandon-grotesque-italic.woff2) format("woff2"),url(assets/fonts/brandon-grotesque-italic.woff) format("woff"),url(assets/fonts/brandon-grotesque-italic.opentype) format("opentype");font-weight:700;font-style:italic;font-stretch:normal;font-display:auto;}@font-face{font-family:brandon-grotesque;src:url(assets/fonts/brandon-grotesque-normal-1.woff2) format("woff2"),url(assets/fonts/brandon-grotesque-normal-1.woff) format("woff"),url(assets/fonts/brandon-grotesque-normal-1.opentype) format("opentype");font-weight:300;font-style:normal;font-stretch:normal;font-display:auto;}@font-face{font-family:brandon-grotesque;src:url(assets/fonts/brandon-grotesque-italic-1.woff2) format("woff2"),url(assets/fonts/brandon-grotesque-italic-1.woff) format("woff"),url(assets/fonts/brandon-grotesque-italic-1.opentype) format("opentype");font-weight:300;font-style:italic;font-stretch:normal;font-display:auto;}</style>
+</head>
+<body>
+  <app-root>
+    <div class="main-spinner text-muted">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <style media="screen">
+      @-webkit-keyframes dot-fx {
+        0%,
+        70%,
+        100% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        35% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @-moz-keyframes dot-fx {
+        0%,
+        70%,
+        100% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        35% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @-o-keyframes dot-fx {
+        0%,
+        70%,
+        100% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        35% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes dot-fx {
+        0%,
+        70%,
+        100% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        35% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .main-spinner {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        -webkit-transform: translate(-50%, -50%);
+           -moz-transform: translate(-50%, -50%);
+             -o-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+
+        display: flex;
+        flex-flow: row nowrap;
+        padding: 0.3em;
+      }
+
+      .main-spinner>.dot {
+        width: 1.4em;
+        height: 1.4em;
+        border-width: 0.28em;
+        border-style: solid;
+        border-color: inherit;
+        border-radius: 50%;
+        transform: scale(0);
+        -webkit-animation: dot-fx 1800ms ease infinite 0ms;
+           -moz-animation: dot-fx 1800ms ease infinite 0ms;
+             -o-animation: dot-fx 1800ms ease infinite 0ms;
+                animation: dot-fx 1800ms ease infinite 0ms;
+      }
+
+      .main-spinner>.dot:nth-child(2) {
+        margin-left: 0.28em;
+        -webkit-animation: dot-fx 1800ms ease infinite 270ms;
+           -moz-animation: dot-fx 1800ms ease infinite 270ms;
+             -o-animation: dot-fx 1800ms ease infinite 270ms;
+                animation: dot-fx 1800ms ease infinite 270ms;
+      }
+
+      .main-spinner>.dot:nth-child(3) {
+        margin-left: 0.28em;
+        -webkit-animation: dot-fx 1800ms ease infinite 540ms;
+           -moz-animation: dot-fx 1800ms ease infinite 540ms;
+             -o-animation: dot-fx 1800ms ease infinite 540ms;
+                animation: dot-fx 1800ms ease infinite 540ms;
+      }
+    </style>
+  </app-root>
+
+  
+  <script>
+  window.__sb__ = {
+    presentation: {
+  "id": "n7ih2zhl15",
+  "name": "Reception.fm: The Next Generation of RSS",
+  "slides": [
+    {
+      "id": "wmcdahtoo6",
+      "elements": [
+        {
+          "id": "u507ixc1x",
+          "type": "image",
+          "data": {
+            "image": {
+              "id": "xt0krilu25t",
+              "url": "assets/img/user_0f5065d5d1cc4f8eb999ba832d0b57f1_New-Reception-Logo-Design.png",
+              "crop": "fill"
+            },
+            "icon": null
+          },
+          "options": {
+            "imageCrop": "fill",
+            "imageCropRect": null,
+            "variation": "SquareFill"
+          },
+          "style": {
+            "x": 0.056720895588002945,
+            "y": 0.3510648844980426,
+            "w": 0.1413872380368652,
+            "h": 0.2531152024115525,
+            "z": 16
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "nakcsozi0",
+          "type": "image",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "PDX_a_82obo",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1505740420928-5e560c06d30e",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDR8fHBvZGNhc3R8ZW58MHwwfHx8MTY1MTg2MTMzNw&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/PDX_a_82obo/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDR8fHBvZGNhc3R8ZW58MHwwfHx8MTY1MTg2MTMzNw?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@cdx2?utm_source=slidebean&utm_medium=referral",
+              "owner": "C D-X",
+              "crop": "fill"
+            },
+            "icon": null
+          },
+          "options": {
+            "imageCrop": "circle",
+            "imageCropRect": null
+          },
+          "style": {
+            "x": 0.6000000000000001,
+            "y": 0,
+            "w": 0.4,
+            "h": 1,
+            "z": 15
+          },
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "we329k9is",
+          "type": "heading",
+          "data": {
+            "heading": "<p style=\"text-align: left;\"> </p>",
+            "subheading": "<p>The First NFT-powered Podcast Platform</p>"
+          },
+          "options": {
+            "variation": "default"
+          },
+          "style": {
+            "x": 0.04556641791839105,
+            "y": 0.54557537286551,
+            "w": 0.61,
+            "h": 0.214,
+            "z": 14
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        },
+        {
+          "id": "5yxz7dw4tk",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p style=\"text-align: left;\"><span class=\"textsize-smaller\">w w w . r e c e p t i o n . f m</span></p>"
+          },
+          "options": {},
+          "style": {
+            "x": 0.04877322970396078,
+            "y": 0.8324122117643679,
+            "z": 17
+          },
+          "fractionalIndex": [
+            3,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "logoSize": -0.4,
+        "textSize": 0,
+        "colorSet": 0,
+        "backgroundDim": 0.41,
+        "cropBackground": true,
+        "animate": true,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        2,
+        9
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "jggmOZ3XEI",
+      "elements": [
+        {
+          "id": "zled5uklb",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p><span class=\"textcolor-text\">1 . There’s no built-in security on an RSS feed, either public or private. RSS feeds are open, unencrypted XML files that can be read by any platform that supports RSS, a</span>nd Private RSS Links can easily be shared.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 1.4,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.18689618019779652,
+            "y": 0.24100002996817704,
+            "w": 0.6278643674950398,
+            "h": 0.2216634718229971,
+            "z": 12
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "87ifchcs9",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Problem</b></p>",
+            "subheading": ""
+          },
+          "options": {
+            "size": 0,
+            "textSize": 1,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.1,
+            "w": 0.31,
+            "h": 0.141,
+            "z": 16
+          },
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "ljqy7h199",
+          "type": "background",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "_t9c-kmMjl8",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1590602846989-e99596d2a6ee",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1590602846989-e99596d2a6ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDEwfHxwb2RjYXN0fGVufDB8MHx8fDE2NTE4NjEzMzc&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/_t9c-kmMjl8/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDEwfHxwb2RjYXN0fGVufDB8MHx8fDE2NTE4NjEzMzc?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@jukkaaalho?utm_source=slidebean&utm_medium=referral",
+              "owner": "Jukka Aalho"
+            },
+            "icon": null
+          },
+          "options": {},
+          "style": {},
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        },
+        {
+          "id": "2b1e3dec-1a60-4942-b867-dd9d3ca758de",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>2 . Podcast aggregators typically only broadcast audio-type podcasts, limiting the scope of podcasts in general to a single-format.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.18689451842520546,
+            "y": 0.4877061058821839,
+            "z": 14,
+            "w": 0.56,
+            "h": 0.158
+          },
+          "fractionalIndex": [
+            3,
+            1
+          ]
+        },
+        {
+          "id": "e8e506c3-fed8-48ba-b532-bd7feee9bb11",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>3 . Podcasters are forced to use 3rd party applications (such as \"Patreon\") to create membership and monetization models (direct to consumer) for their podcast channels.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.18689451842520546,
+            "y": 0.6963175576471264,
+            "z": 15,
+            "w": 0.6525001096462799,
+            "h": 0.11831750535166817
+          },
+          "fractionalIndex": [
+            4,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "textSize": 0,
+        "colorSet": "default",
+        "backgroundDim": 0.7,
+        "cropBackground": true,
+        "animate": true,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        1,
+        4
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "eKDkCQUAR1",
+      "elements": [
+        {
+          "id": "ocx3zrwkk",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Solution</b></p>",
+            "subheading": ""
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0.6,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.1,
+            "w": 0.31,
+            "h": 0.141,
+            "z": 10
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "og320ekzn",
+          "type": "image",
+          "data": {
+            "image": null,
+            "icon": {
+              "__typename": "ExternalAsset",
+              "id": "4340145",
+              "source": "NounProject",
+              "url": "assets/img/proy-sust_4340145.svg",
+              "thumbnailUrl": "assets/img/png_4340145-200.png",
+              "usageReportUrl": null,
+              "creditUrl": null,
+              "owner": null
+            },
+            "caption": "<p><br></p><p><b>1 . NFT-Gated Podcast Channels </b></p><p>Allowing creators to gate their content to audiences, as well as license and authorize their channels to broadcasters.</p>"
+          },
+          "options": {
+            "size": -0.8,
+            "textSize": 3.2,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "imageCropRect": null
+          },
+          "style": {
+            "x": 0.05663634048245269,
+            "y": 0.331,
+            "w": 0.32561953921984604,
+            "h": 0.5047227821909206,
+            "z": 11
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "k5vdxttbr",
+          "type": "image",
+          "data": {
+            "image": null,
+            "icon": {
+              "__typename": "ExternalAsset",
+              "id": "15307",
+              "source": "NounProject",
+              "url": "assets/img/proy-sust_15307.svg",
+              "thumbnailUrl": "assets/img/png_15307-200.png",
+              "usageReportUrl": null,
+              "creditUrl": null,
+              "owner": null
+            },
+            "caption": "<p><br></p><p><b>2 . Mixed-media Podcast Players</b></p><p>Allowing podcasters to create transmedia narratives to fully engage their audience.</p>"
+          },
+          "options": {
+            "size": -0.8,
+            "textSize": 3.2,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "imageCropRect": null
+          },
+          "style": {
+            "x": 0.36852194705890795,
+            "y": 0.20499999797512317,
+            "w": 0.2950011719042408,
+            "h": 0.5033618196527396,
+            "z": 9
+          },
+          "fractionalIndex": [
+            2,
+            3
+          ]
+        },
+        {
+          "id": "eezvvvvmv",
+          "type": "image",
+          "data": {
+            "image": null,
+            "icon": {
+              "__typename": "ExternalAsset",
+              "id": "168654",
+              "source": "NounProject",
+              "url": "assets/img/proy-sust_168654.svg",
+              "thumbnailUrl": "assets/img/png_168654-200.png",
+              "usageReportUrl": null,
+              "creditUrl": null,
+              "owner": null
+            },
+            "caption": "<p><br></p><p><b>3 . Cross-Platform Memberships</b></p><p>Encode membership metadata directly into your channel to monetize your podcast on any service that supports this new syndication standard.</p>"
+          },
+          "options": {
+            "size": -0.8,
+            "textSize": 3.2,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "imageCropRect": null
+          },
+          "style": {
+            "x": 0.6635155159008805,
+            "y": 0.33068754490164365,
+            "w": 0.2968831618886172,
+            "h": 0.5428071170367658,
+            "z": 8
+          },
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "mned5czwa",
+          "type": "background",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "-CbLJAUI_js",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1581368135153-a506cf13b1e1",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1581368135153-a506cf13b1e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDE5fHxwb2RjYXN0fGVufDB8MHx8fDE2NTE4NjEzMzc&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/-CbLJAUI_js/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDE5fHxwb2RjYXN0fGVufDB8MHx8fDE2NTE4NjEzMzc?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@convertkit?utm_source=slidebean&utm_medium=referral",
+              "owner": "ConvertKit"
+            },
+            "icon": null
+          },
+          "options": {},
+          "style": {},
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "iconSize": 3.3,
+        "logoPosition": "off",
+        "textSize": 0,
+        "figureSize": 0,
+        "colorSet": "default",
+        "backgroundDim": 0.75,
+        "cropBackground": true,
+        "animate": true
+      },
+      "notes": "",
+      "fractionalIndex": [
+        2,
+        7
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "kvJgQLulgU",
+      "elements": [
+        {
+          "id": "bb8e7bdqj",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Market Validation</b></p>"
+          },
+          "options": {
+            "textSize": 1,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.1,
+            "w": 0.3999999999999999,
+            "h": 0.141,
+            "z": 79
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "lq36pjccu",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>Insider Intelligence projects 424.2 million podcast listeners worldwide in 2022, accounting for 20.3% of internet users globally.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 5,
+            "textAlign": "center",
+            "imageCrop": "default",
+            "xRatio": 2.28,
+            "yRatio": 100.7
+          },
+          "style": {
+            "x": 0.08076035557360672,
+            "y": 0.2870000174139407,
+            "w": 0.39202012051384116,
+            "h": 0.503625687772224,
+            "z": 87
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "06zmkqcir",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>As of May 2022, there are nearly 2.5 Million valid podcasts with 65 Million Episodes in the US alone.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 5,
+            "textAlign": "center",
+            "imageCrop": "default",
+            "xRatio": -6.85,
+            "yRatio": 102.91
+          },
+          "style": {
+            "x": 0.5373225235301723,
+            "y": 0.2870000174139407,
+            "w": 0.34375,
+            "h": 0.4,
+            "z": 88
+          },
+          "fractionalIndex": [
+            2,
+            3
+          ]
+        },
+        {
+          "id": "6ed4if7yt",
+          "type": "image",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "tN7QTFMFobc",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1610351038317-1baed1ec74e7",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1610351038317-1baed1ec74e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDIwfHxwb2RjYXN0fGVufDB8MHx8fDE2NTE4NjEzMzc&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/tN7QTFMFobc/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDIwfHxwb2RjYXN0fGVufDB8MHx8fDE2NTE4NjEzMzc?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@amr_taha?utm_source=slidebean&utm_medium=referral",
+              "owner": "Amr Taha™",
+              "crop": "fill"
+            },
+            "icon": null
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "fill",
+            "imageCropRect": {
+              "x": -0.001036426101186918,
+              "y": -1.0853976395523404,
+              "w": 1,
+              "h": 2.6707825568075707
+            },
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0,
+            "y": 0.6326249369074789,
+            "w": 1,
+            "h": 0.36746880971045953,
+            "z": 89
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "bodyVerticalAlign": "top",
+        "imageCrop": "contain",
+        "imageSize": 2,
+        "textSize": 0,
+        "colorSet": 0,
+        "backgroundDim": 0.3,
+        "cropBackground": true,
+        "animate": false,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        1,
+        3
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "5itokPU487",
+      "elements": [
+        {
+          "id": "r0uazx25e",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Market Size</b></p>"
+          },
+          "options": {
+            "textSize": 1,
+            "xRatio": -0.54,
+            "yRatio": 60.35,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.1,
+            "w": 0.36,
+            "h": 0.141,
+            "z": 82
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "d4446f30-176a-4cea-a0fa-f88c9d8a2569",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p><b>Total Market Size: $14 Billion </b></p><p>Includes ads, sponsors, paid subscriptions &amp; hosting worldwide (estimated at $95 Billion by 2028)</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "variation": "default"
+          },
+          "style": {
+            "x": 0.031249982203233943,
+            "y": 0.2954969341155181,
+            "z": 88,
+            "w": 0.3125,
+            "h": 0.25
+          },
+          "fractionalIndex": [
+            3,
+            1
+          ]
+        },
+        {
+          "id": "dc41dec6-290b-4107-a083-a498fb6a65aa",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p><b>Available Market: $2 Billion</b> </p><p>Focusing on paid subscriptions &amp; content hosting services</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.34374024934961916,
+            "y": 0.29548440318375435,
+            "z": 89,
+            "w": 0.3125,
+            "h": 0.25
+          },
+          "fractionalIndex": [
+            4,
+            1
+          ]
+        },
+        {
+          "id": "3c362e29-476d-43ba-a16c-bf997a9b6ba5",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p><b>Market Share: $100 Million</b></p><p>5% share of available market in this segment</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.656240134659349,
+            "y": 0.29548440318375435,
+            "z": 90,
+            "w": 0.3125,
+            "h": 0.25
+          },
+          "fractionalIndex": [
+            5,
+            1
+          ]
+        },
+        {
+          "id": "1c00107d-e0f4-41e3-9161-ac95411d436e",
+          "type": "image",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "VCFxt2yT1eQ",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1556761175-129418cb2dfe",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1556761175-129418cb2dfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDJ8fHBvZGNhc3R8ZW58MHwwfHx8MTY1MjEyMzUxOA&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/VCFxt2yT1eQ/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDJ8fHBvZGNhc3R8ZW58MHwwfHx8MTY1MjEyMzUxOA?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@austindistel?utm_source=slidebean&utm_medium=referral",
+              "owner": "Austin Distel",
+              "crop": "fill"
+            },
+            "icon": null
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "fill",
+            "imageCropRect": {
+              "x": -0.000057782437913524165,
+              "y": -2.144461598372133,
+              "w": 1,
+              "h": 4.016196385952046
+            },
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "w": 1,
+            "h": 0.2990154917712247,
+            "x": 0,
+            "y": 0.701,
+            "z": 91
+          },
+          "fractionalIndex": [
+            6,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "bodyVerticalAlign": "top",
+        "imageCrop": "default",
+        "imageSize": 2,
+        "logoPosition": "off",
+        "textSize": 0,
+        "figureSize": 0,
+        "colorSet": "default",
+        "backgroundDim": 0.3,
+        "cropBackground": true,
+        "animate": false
+      },
+      "notes": "",
+      "fractionalIndex": [
+        3,
+        8
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "aOeDpxkbIb",
+      "elements": [
+        {
+          "id": "as0twrbgm",
+          "type": "heading",
+          "data": {
+            "heading": "<h1><b>Product</b></h1>",
+            "subheading": "<p>A Web 3.0 Media Syndication Standard</p>"
+          },
+          "options": {
+            "textSize": 1,
+            "variation": "Scala"
+          },
+          "style": {
+            "x": 0.04855152647054599,
+            "y": 0.5896175835339068,
+            "w": 0.3509092351258401,
+            "h": 0.19994450938029282,
+            "z": 1
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "7kfajdiis",
+          "type": "background",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "TMOeGZw9NY4",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1421757350652-9f65a35effc7",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1421757350652-9f65a35effc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDI3fHxwb2RjYXN0fGVufDB8MHx8fDE2NTIxMjQxNzA&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/TMOeGZw9NY4/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDI3fHxwb2RjYXN0fGVufDB8MHx8fDE2NTIxMjQxNzA?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@firmbee?utm_source=slidebean&utm_medium=referral",
+              "owner": "Firmbee.com"
+            },
+            "icon": null
+          },
+          "options": {},
+          "style": {},
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "textSize": 0,
+        "colorSet": "default",
+        "backgroundDim": 0.68,
+        "cropBackground": true,
+        "animate": true,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        2,
+        5
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "e20e4de2-4a0c-42d1-a164-9f50f6484675",
+      "elements": [
+        {
+          "id": "gw8d55si0",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/26f2e776d4e596ff835ada274ed0f726_AirbnbProduct1.jpg"
+            },
+            "icon": null
+          },
+          "options": {
+            "size": 4,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "fill",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0,
+            "y": 0.53436108470862,
+            "w": 1,
+            "h": 0.6,
+            "z": 13
+          },
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "66c56dea-ffc8-405a-aa8a-48ef534b5d95",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p><b>1 . Create a Gated Media Channel.</b></p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "variation": "default"
+          },
+          "style": {
+            "x": 0.03539694705890803,
+            "y": 0.08696640470459807,
+            "z": 14,
+            "w": 0.38124396041620423,
+            "h": 0.11495828073985505
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        },
+        {
+          "id": "tccn0dnc6k",
+          "type": "paragraph",
+          "data": {
+            "paragraph": ""
+          },
+          "options": {},
+          "style": {
+            "x": 0.05617977768886341,
+            "y": 0.201906239941772,
+            "z": 15
+          },
+          "fractionalIndex": [
+            3,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "backgroundDim": 0.49,
+        "logoPosition": "off",
+        "textSize": 0,
+        "colorSet": "default",
+        "cropBackground": true,
+        "animate": true,
+        "backgroundFill": "solid"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        4,
+        7
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "0bc3952d-fdbb-4c94-88ec-18d90bb115de",
+      "elements": [
+        {
+          "id": "xsws53low",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/d0544ee3d072819fd474df90366e3678_AirbnbProduct2.jpg"
+            },
+            "icon": null
+          },
+          "options": {
+            "size": 4,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "fill",
+            "xRatio": 0,
+            "yRatio": 0,
+            "imageCropRect": null
+          },
+          "style": {
+            "x": 0,
+            "y": 0.39337494725195854,
+            "w": 1,
+            "h": 0.6086250147816072,
+            "z": 11
+          },
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "16002f3a-4141-4318-a190-92c7e8b74489",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p><b>2 . Set your Membership Tiers.</b></p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.15,
+            "z": 12,
+            "w": 0.3330201630333349,
+            "h": 0.12304684048165063
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "backgroundDim": 0.3,
+        "logoPosition": "off",
+        "textSize": 0,
+        "colorSet": "default",
+        "backgroundFill": "solid",
+        "cropBackground": true,
+        "animate": true
+      },
+      "notes": "",
+      "fractionalIndex": [
+        7,
+        12
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "a2d6d192-309a-48dd-b33c-8c8c19e04b3e",
+      "elements": [
+        {
+          "id": "tys4nhcyw",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/f0fc9f34b77b85828a1dbc0beeefcbf3_AirbnbProduct3.jpg"
+            },
+            "icon": null
+          },
+          "options": {
+            "size": 4,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "fill",
+            "xRatio": 0,
+            "yRatio": 0,
+            "imageCropRect": {
+              "x": 0.0004919601892719473,
+              "y": -0.23429972981298397,
+              "w": 1,
+              "h": 1.2499999449738572
+            }
+          },
+          "style": {
+            "x": 0,
+            "y": 0.4,
+            "w": 1,
+            "h": 0.6,
+            "z": 9
+          },
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "4ed8ed13-a033-4bb5-a4dd-f08f3b11d2c5",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>3 . Post Mixed-Media Content pegged to NFTs.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.15000000000000002,
+            "z": 10
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "backgroundDim": 0.3,
+        "logoPosition": "off",
+        "textSize": 0,
+        "colorSet": "default",
+        "cropBackground": true,
+        "animate": true,
+        "backgroundFill": "solid"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        10,
+        17
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "8d54150c-25cf-4a6e-a64c-08c1cd9f0f1d",
+      "elements": [
+        {
+          "id": "zcywc6lti",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Business Model</b></p>",
+            "subheading": ""
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0.2,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": -6.22,
+            "yRatio": 20.45,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.1,
+            "w": 0.41000000000000003,
+            "h": 0.141,
+            "z": 15
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "7n8x1put4",
+          "type": "background",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "B2fNlHHI7dI",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1593697821094-53ed19153f21",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1593697821094-53ed19153f21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDI2fHxwb2RjYXN0fGVufDB8MHx8fDE2NTIxMjQxNzA&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/B2fNlHHI7dI/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDI2fHxwb2RjYXN0fGVufDB8MHx8fDE2NTIxMjQxNzA?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@soundtrap?utm_source=slidebean&utm_medium=referral",
+              "owner": "Soundtrap"
+            },
+            "icon": null
+          },
+          "options": {},
+          "style": {},
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        },
+        {
+          "id": "d38993f1-b0ca-4963-b92b-da4a2a1ef515",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>1% transaction fee on our platform, this includes both memberships and NFT sales.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "variation": "default"
+          },
+          "style": {
+            "x": 0.041875,
+            "y": 0.392,
+            "z": 21,
+            "w": 0.26898216453080814,
+            "h": 0.32757728003723846
+          },
+          "fractionalIndex": [
+            3,
+            1
+          ]
+        },
+        {
+          "id": "8ce7ef43-7ca0-4824-8df9-e94f7a8fb3bd",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>$100 Million in creator revenue from the gated member channels created through Reception, capturing 5% of Available Market Size.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "variation": "default"
+          },
+          "style": {
+            "x": 0.35254758454408114,
+            "y": 0.3920000558866004,
+            "z": 22,
+            "w": 0.2956885166032446,
+            "h": 0.32517661235454404
+          },
+          "fractionalIndex": [
+            4,
+            1
+          ]
+        },
+        {
+          "id": "ae21e74e-fcad-49a2-8213-a587a8e2ed8f",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>$X. Average cost of Membership and NFTs sold per Channel.</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "variation": "default"
+          },
+          "style": {
+            "x": 0.6843875697066135,
+            "y": 0.392,
+            "z": 23,
+            "w": 0.2713045521881858,
+            "h": 0.3252326170588866
+          },
+          "fractionalIndex": [
+            5,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "bodyVerticalAlign": "top",
+        "textSize": 0,
+        "colorSet": 0,
+        "backgroundDim": 0.6,
+        "cropBackground": true,
+        "animate": true,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        13,
+        21
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "7vo0tDGgLE",
+      "elements": [
+        {
+          "id": "2ye2nkk0w",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Market Adoption</b></p>",
+            "subheading": ""
+          },
+          "options": {
+            "size": 0,
+            "textSize": 1,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.0125,
+            "y": 0.085,
+            "w": 0.5698788389487675,
+            "h": 0.12438278746781038,
+            "z": 52
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "w5g4mo8ge",
+          "type": "image",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "YOCDD-D4oOM",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1636587224433-3cd253788c40",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1636587224433-3cd253788c40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDF8fHRva2VufGVufDB8MHx8fDE2NTE3Nzk2NDc&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/YOCDD-D4oOM/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDF8fHRva2VufGVufDB8MHx8fDE2NTE3Nzk2NDc?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@ferhat?utm_source=slidebean&utm_medium=referral",
+              "owner": "Ferhat Deniz Fors",
+              "crop": "contain"
+            },
+            "icon": null,
+            "caption": "Token Offerings: Offerings to Early Adopters and First \"Founders\" in our Discord"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "contain",
+            "xRatio": 0,
+            "yRatio": 0,
+            "imageCropRect": null
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.22883589087325149,
+            "w": 0.35750594494253185,
+            "h": 0.6211689593357619,
+            "z": 49
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "4zvqtfz1t",
+          "type": "image",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "Hg3BHX6U5jg",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1559523161-0fc0d8b38a7a",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1559523161-0fc0d8b38a7a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDh8fHBvZGNhc3R8ZW58MHwwfHx8MTY1MTg2MTMzNw&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/Hg3BHX6U5jg/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDh8fHBvZGNhc3R8ZW58MHwwfHx8MTY1MTg2MTMzNw?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@austindistel?utm_source=slidebean&utm_medium=referral",
+              "owner": "Austin Distel",
+              "crop": "contain"
+            },
+            "icon": null,
+            "caption": "Strategic Partnerships: Creating a roster of Dynamic Creatives who we partner with to produce their channels and manage their offerings to their audience."
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "contain",
+            "xRatio": 0,
+            "yRatio": 0,
+            "imageCropRect": null
+          },
+          "style": {
+            "x": 0.36625002884239866,
+            "y": 0.3000000228596091,
+            "w": 0.3125,
+            "h": 0.55,
+            "z": 50
+          },
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "awbg6qf26",
+          "type": "image",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "TZCppMjaOHU",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1442504028989-ab58b5f29a4a",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1442504028989-ab58b5f29a4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDl8fGNvbW11bml0eXxlbnwwfDB8fHwxNjUyMDY4ODA1&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/TZCppMjaOHU/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDl8fGNvbW11bml0eXxlbnwwfDB8fHwxNjUyMDY4ODA1?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@wrwhite3?utm_source=slidebean&utm_medium=referral",
+              "owner": "William White",
+              "crop": "fill"
+            },
+            "icon": null,
+            "caption": "Launching a DAO: Creating a Governance Token for the Platform, which can also be staked, to allow for the product and the protocol to be self-governing."
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "contain",
+            "xRatio": 0,
+            "yRatio": 0,
+            "imageCropRect": null
+          },
+          "style": {
+            "x": 0.665838263235273,
+            "y": 0.3360000117442856,
+            "w": 0.316387364146033,
+            "h": 0.5280361008574891,
+            "z": 53
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "bodyVerticalAlign": "top",
+        "textSize": 0,
+        "colorSet": 0,
+        "backgroundDim": 0.3,
+        "cropBackground": true,
+        "animate": true,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        1,
+        1
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "yZJq6TGCaQ",
+      "elements": [
+        {
+          "id": "dzgl471or",
+          "type": "heading",
+          "data": {
+            "heading": "<h1><b>Competition</b></h1>"
+          },
+          "options": {
+            "textSize": 1,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.045233583364445176,
+            "y": 0.4090000361352417,
+            "w": 0.32,
+            "h": 0.12437812479612838,
+            "z": 1
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "bxg620o4d",
+          "type": "background",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "h6PDEdr9IZo",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1593697820826-2e76c9720a99",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1593697820826-2e76c9720a99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDZ8fHBvZGNhc3R8ZW58MHwwfHx8MTY1MjEyMzUxOA&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/h6PDEdr9IZo/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDZ8fHBvZGNhc3R8ZW58MHwwfHx8MTY1MjEyMzUxOA?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@soundtrap?utm_source=slidebean&utm_medium=referral",
+              "owner": "Soundtrap"
+            },
+            "icon": null
+          },
+          "options": {},
+          "style": {},
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "colorSet": "default",
+        "backgroundDim": 0.65,
+        "cropBackground": true,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        4,
+        3
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "ON8wJQ39c5",
+      "elements": [
+        {
+          "id": "qwugjy8ou",
+          "type": "background",
+          "data": {
+            "image": null,
+            "icon": {
+              "source": "NounProject",
+              "id": "6979",
+              "thumbnailUrl": "assets/img/png_6979-200.png"
+            }
+          },
+          "options": {},
+          "style": {},
+          "fractionalIndex": [
+            1,
+            4
+          ]
+        },
+        {
+          "id": "xf3p6sp6g",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p style=\"text-align: center;\">CREATIVE CONTENT</p>"
+          },
+          "options": {
+            "textSize": 3,
+            "textAlign": "center",
+            "xRatio": 148.64,
+            "yRatio": -646.39
+          },
+          "style": {
+            "x": 0.4149999560222137,
+            "y": 0,
+            "w": 0.1875,
+            "h": 0.15000000000000002,
+            "z": 2
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "687lfn10g",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p style=\"text-align: center;\">COURSE CONTENT</p>"
+          },
+          "options": {
+            "textSize": 3,
+            "textAlign": "center",
+            "xRatio": 47.59,
+            "yRatio": 897.4
+          },
+          "style": {
+            "x": 0.4149902893090819,
+            "y": 0.865,
+            "w": 0.15625,
+            "h": 0.1499999999999999,
+            "z": 3
+          },
+          "fractionalIndex": [
+            2,
+            5
+          ]
+        },
+        {
+          "id": "ym4ycwe8r",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>PODCAST ORIENTED</p>"
+          },
+          "options": {
+            "textSize": 3,
+            "textAlign": "center",
+            "xRatio": 83.82,
+            "yRatio": 8.04
+          },
+          "style": {
+            "x": 0.7474189469312922,
+            "y": 0.425,
+            "w": 0.1875,
+            "h": 0.15000000000000002,
+            "z": 11
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "7mxj252qw",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "<p>COURSE ORIENTED</p>"
+          },
+          "options": {
+            "textSize": 3,
+            "textAlign": "center",
+            "xRatio": -290.61,
+            "yRatio": 8.04
+          },
+          "style": {
+            "x": 0.0600051738349323,
+            "y": 0.425,
+            "w": 0.1875,
+            "h": 0.15000000000000008,
+            "z": 12
+          },
+          "fractionalIndex": [
+            2,
+            3
+          ]
+        },
+        {
+          "id": "0mrj11k2w",
+          "type": "image",
+          "data": {
+            "image": {
+              "id": "wdn9pylyeyn",
+              "url": "assets/img/user_8eb9e01fa90049bca8c1d9a80797eaf1_transparent-reception.png",
+              "crop": "fill"
+            },
+            "icon": null,
+            "caption": ""
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "fill",
+            "imageCropRect": null,
+            "xRatio": 270.75,
+            "yRatio": -245.36
+          },
+          "style": {
+            "x": 0.5404936591310123,
+            "y": 0.17600547272947129,
+            "w": 0.1875,
+            "h": 0.25,
+            "z": 30
+          },
+          "fractionalIndex": [
+            1,
+            1
+          ]
+        },
+        {
+          "id": "241cc84c-562c-4195-b329-55cb40b1b9dd",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/photo-1571892413116-7fa28aaf3632",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1571892413116-7fa28aaf3632?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjIwMzcxfQ",
+              "source": "Unsplash",
+              "id": "9vDogAmbE9Q",
+              "name": null,
+              "owner": "mitulgrover",
+              "ownerName": "Mitul Grover",
+              "ownerId": "-SQSKFkubQs",
+              "usageReportUrl": "https://api.unsplash.com/photos/9vDogAmbE9Q/download?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "crop": "fill"
+            },
+            "icon": null,
+            "caption": "<p>Podia</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "contain",
+            "imageCropRect": null,
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "w": 0.1875,
+            "h": 0.25,
+            "x": 0.5625,
+            "y": 0.6000000000000001,
+            "z": 26
+          },
+          "fractionalIndex": [
+            4,
+            1
+          ]
+        },
+        {
+          "id": "290c3294-4451-4af5-b0ed-4e0d94753be4",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/photo-1571892413116-7fa28aaf3632",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1571892413116-7fa28aaf3632?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjIwMzcxfQ",
+              "source": "Unsplash",
+              "id": "9vDogAmbE9Q",
+              "name": null,
+              "owner": "mitulgrover",
+              "ownerName": "Mitul Grover",
+              "ownerId": "-SQSKFkubQs",
+              "usageReportUrl": "https://api.unsplash.com/photos/9vDogAmbE9Q/download?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "crop": "fill"
+            },
+            "icon": null,
+            "caption": "<p>Patreon</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "contain",
+            "imageCropRect": null,
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "w": 0.1875,
+            "h": 0.25,
+            "x": 0.25,
+            "y": 0.15000000000000002,
+            "z": 29
+          },
+          "fractionalIndex": [
+            5,
+            1
+          ]
+        },
+        {
+          "id": "073bb2de-bfac-4ef4-8034-9060bbea6429",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/photo-1571892413116-7fa28aaf3632",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1571892413116-7fa28aaf3632?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjIwMzcxfQ",
+              "source": "Unsplash",
+              "id": "9vDogAmbE9Q",
+              "name": null,
+              "owner": "mitulgrover",
+              "ownerName": "Mitul Grover",
+              "ownerId": "-SQSKFkubQs",
+              "usageReportUrl": "https://api.unsplash.com/photos/9vDogAmbE9Q/download?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "crop": "fill"
+            },
+            "icon": null,
+            "caption": "<p>Memberful</p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "contain",
+            "imageCropRect": null,
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "w": 0.1875,
+            "h": 0.25,
+            "x": 0.25,
+            "y": 0.6000000000000001,
+            "z": 28
+          },
+          "fractionalIndex": [
+            6,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "colorSet": 0,
+        "backgroundDim": 0.2,
+        "cropBackground": true,
+        "animate": false,
+        "logoPosition": "off",
+        "backgroundFill": "solid"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        3,
+        2
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "Y4YCLsPbbS",
+      "elements": [
+        {
+          "id": "xhayurgk9",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Competitive Advantage</b></p>"
+          },
+          "options": {
+            "textSize": 0.6,
+            "xRatio": -1,
+            "yRatio": -40.14,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.1,
+            "w": 0.51,
+            "h": 0.141,
+            "z": 70
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "6sy8e7zsf",
+          "type": "image",
+          "data": {
+            "image": null,
+            "icon": {
+              "source": "NounProject",
+              "id": "67489",
+              "thumbnailUrl": "assets/img/png_67489-200.png"
+            },
+            "caption": "First to Market: for a NFT-powered Podcast Platform."
+          },
+          "options": {
+            "size": -1.4,
+            "textSize": 2.6,
+            "xRatio": -4.56,
+            "yRatio": -21.65
+          },
+          "style": {
+            "x": 0.025000000000000022,
+            "y": 0.3363333333333333,
+            "w": 0.2,
+            "h": 0.43,
+            "z": 63
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "r2vw1j0h9",
+          "type": "image",
+          "data": {
+            "image": null,
+            "icon": {
+              "source": "NounProject",
+              "id": "36867",
+              "thumbnailUrl": "assets/img/png_36867-200.png"
+            },
+            "caption": "Mixed Media Podcasting: offering a new format of podcast that allows creators to incorporate multiple mediums into the same channel."
+          },
+          "options": {
+            "size": -1.4,
+            "textSize": 2.6,
+            "xRatio": -5.6,
+            "yRatio": -21.65
+          },
+          "style": {
+            "x": 0.275,
+            "y": 0.3363333333333333,
+            "w": 0.2,
+            "h": 0.43,
+            "z": 66
+          },
+          "fractionalIndex": [
+            2,
+            3
+          ]
+        },
+        {
+          "id": "aci0qgo14",
+          "type": "image",
+          "data": {
+            "image": null,
+            "icon": {
+              "source": "NounProject",
+              "id": "2036017",
+              "thumbnailUrl": "assets/img/png_2036017-200.png"
+            },
+            "caption": "Built-In NFT Utility: creating a practical utility to the creation, distribution and management of NFTs for brands and creatives, directly in the platform."
+          },
+          "options": {
+            "size": -1.4,
+            "textSize": 2.6
+          },
+          "style": {
+            "x": 0.5250000000000001,
+            "y": 0.3363333333333333,
+            "w": 0.2,
+            "h": 0.494,
+            "z": 67
+          },
+          "fractionalIndex": [
+            3,
+            2
+          ]
+        },
+        {
+          "id": "j6rx80o5h",
+          "type": "image",
+          "data": {
+            "image": null,
+            "icon": {
+              "id": "89684",
+              "source": "NounProject",
+              "thumbnailUrl": "assets/img/png_89684-200.png"
+            },
+            "caption": "A New Standard for Media Syndication: introducing a new podcast protocol that can reshape the industry."
+          },
+          "options": {
+            "size": -1.4,
+            "textSize": 2.6,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.775,
+            "y": 0.3363333333333334,
+            "w": 0.2,
+            "h": 0.47,
+            "z": 65
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "figureSize": 0,
+        "iconSize": 2.7,
+        "imageSize": -2,
+        "textSize": 0,
+        "bodyVerticalAlign": "top",
+        "colorSet": 0,
+        "backgroundDim": 0.3,
+        "cropBackground": true,
+        "animate": false,
+        "logoPosition": "off",
+        "backgroundFill": "solid"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        5,
+        3
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "g6cPc7S3iu",
+      "elements": [
+        {
+          "id": "xvg2oz91y",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Team</b></p>"
+          },
+          "options": {
+            "size": 0,
+            "textSize": 1,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": -0.92,
+            "yRatio": -28.69,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.1,
+            "w": 0.21875,
+            "h": 0.15000000000000002,
+            "z": 17
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "ytu8rhbms",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/68bda0d5fb866a6dc871e7a28ff4a365_AirbnbBioPicsJoeGebbia.jpg"
+            },
+            "icon": null,
+            "caption": "Dustin Warren: Co-Founder & CEO"
+          },
+          "options": {
+            "size": -0.6,
+            "xRatio": -3.82,
+            "yRatio": -12.35,
+            "imageCrop": "circle"
+          },
+          "style": {
+            "x": 0.0625,
+            "y": 0.25,
+            "w": 0.25,
+            "h": 0.6000000000000001,
+            "z": 16
+          },
+          "fractionalIndex": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "x3k2pun16",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/d4b94fd1f3f114a21a1e00570b554a62_AirbnbBioPicsBrianChesky.jpg"
+            },
+            "icon": null,
+            "caption": "Jordan Paul: Co-Founder & CTO"
+          },
+          "options": {
+            "size": -0.6,
+            "xRatio": -1.91,
+            "yRatio": -13.14,
+            "imageCrop": "circle"
+          },
+          "style": {
+            "x": 0.375,
+            "y": 0.25,
+            "w": 0.25,
+            "h": 0.606,
+            "z": 14
+          },
+          "fractionalIndex": [
+            2,
+            3
+          ]
+        },
+        {
+          "id": "b274lwdv8",
+          "type": "image",
+          "data": {
+            "image": {
+              "url": "assets/img/02f1dac5937f2d9cc9b384f1b17a4c72_AirbnbBioPicsNathanBlecharczyk.jpg"
+            },
+            "icon": null,
+            "caption": "<p><b>Dustin W. L. Warren</b></p><p><b>Co-Founder / CEO</b></p><p><br></p><p>Created Facebook Apps \"Your neighbors\" (75,000 users). Computer Science from Harvard Nate. Worked @ Microsoft, OPNET Technologies and Batiq.</p>"
+          },
+          "options": {
+            "size": -0.6,
+            "xRatio": 3.82,
+            "yRatio": -12.35,
+            "imageCrop": "circle"
+          },
+          "style": {
+            "x": 0.6617509352259368,
+            "y": 0.22162405107272476,
+            "w": 0.25,
+            "h": 0.63694900024382,
+            "z": 18
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "bodyVerticalAlign": "top",
+        "imageCrop": "circle",
+        "imageSize": 0,
+        "textSize": 0,
+        "colorSet": 0,
+        "backgroundDim": 0.3,
+        "cropBackground": true,
+        "animate": false,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        2,
+        1
+      ],
+      "hasBeenManuallyArranged": true
+    },
+    {
+      "id": "IeArkXuqQz",
+      "elements": [
+        {
+          "id": "lfpa4ex5k",
+          "type": "heading",
+          "data": {
+            "heading": "<p><b>Financial</b></p>",
+            "subheading": ""
+          },
+          "options": {
+            "xRatio": -6.73,
+            "yRatio": 24.41,
+            "variation": "Boulevard"
+          },
+          "style": {
+            "x": 0.03125,
+            "y": 0.1,
+            "w": 0.31,
+            "h": 0.141,
+            "z": 38
+          },
+          "fractionalIndex": [
+            1,
+            3
+          ]
+        },
+        {
+          "id": "kydt9kkca",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "We are looking for financing to invest into our front-end development to launch our beta as a iOS and Android Mobile Application. As well as Marketing and Ad spend."
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.375,
+            "y": 0.35000000000000003,
+            "z": 45,
+            "w": 0.59375,
+            "h": 0.19999999999999996
+          },
+          "fractionalIndex": [
+            2,
+            1
+          ]
+        },
+        {
+          "id": "923d1651-679d-4818-9dd8-3a38aed97e02",
+          "type": "paragraph",
+          "data": {
+            "paragraph": "$250K Angel Round of Investment."
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "default",
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "x": 0.0625,
+            "y": 0.35000000000000003,
+            "z": 46,
+            "w": 0.3125,
+            "h": 0.20000000000000007
+          },
+          "fractionalIndex": [
+            3,
+            1
+          ]
+        },
+        {
+          "id": "b42468e5-4944-409d-9786-1cb8a8f5607f",
+          "type": "image",
+          "data": {
+            "image": {
+              "__typename": "ExternalAsset",
+              "id": "Qruwi3Ur3Ak",
+              "source": "Unsplash",
+              "url": "assets/img/photo-1619490287893-862fd1808407",
+              "thumbnailUrl": "https://images.unsplash.com/photo-1619490287893-862fd1808407?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMDM3MXwwfDF8c2VhcmNofDE3fHxwb2RjYXN0fGVufDB8MHx8fDE2NTE4NjEzMzc&ixlib=rb-1.2.1&q=80&w=200",
+              "usageReportUrl": "https://api.unsplash.com/photos/Qruwi3Ur3Ak/download?ixid=MnwyMDM3MXwwfDF8c2VhcmNofDE3fHxwb2RjYXN0fGVufDB8MHx8fDE2NTE4NjEzMzc?client_id=64d34c0d4b13e39fcc76c60a7f874b20746ab70331c32d6ab3444d9ed2dba794",
+              "creditUrl": "http://unsplash.com/@chris_lynch_?utm_source=slidebean&utm_medium=referral",
+              "owner": "Chris Lynch",
+              "crop": "fill"
+            },
+            "icon": null
+          },
+          "options": {
+            "size": 0,
+            "textSize": 0,
+            "textAlign": "default",
+            "imageCrop": "fill",
+            "imageCropRect": null,
+            "xRatio": 0,
+            "yRatio": 0
+          },
+          "style": {
+            "w": 1,
+            "h": 0.35,
+            "x": 0,
+            "y": 0.65,
+            "z": 47
+          },
+          "fractionalIndex": [
+            4,
+            1
+          ]
+        }
+      ],
+      "options": {
+        "bodyVerticalAlign": "bottom",
+        "figureSize": 0,
+        "iconSize": 5,
+        "textSize": 0,
+        "colorSet": 0,
+        "backgroundDim": 0.3,
+        "cropBackground": true,
+        "animate": true,
+        "logoPosition": "off"
+      },
+      "notes": "",
+      "fractionalIndex": [
+        4,
+        1
+      ],
+      "hasBeenManuallyArranged": true
+    }
+  ],
+  "layoutId": null,
+  "formula": {
+    "id": "45HT7jNcMe",
+    "defaultElementVariations": {},
+    "defaultSlideOptions": {}
+  },
+  "palette": {
+    "id": "igmzFJQ3ue",
+    "colorSets": [
+      {
+        "back": "#ffffff",
+        "text": "#26272c",
+        "highlight": "#f9c00d",
+        "chart1": "#f9c00d",
+        "chart2": "#e38a06",
+        "chart3": "#e26102",
+        "chart4": "#e03902",
+        "chart5": "#ffdd88",
+        "chart6": "#b22600"
+      },
+      {
+        "back": "#26272c",
+        "text": "#ffffff",
+        "highlight": "#f9c00d",
+        "chart1": "#f9c00d",
+        "chart2": "#e38a06",
+        "chart3": "#e26102",
+        "chart4": "#e03902",
+        "chart5": "#ffdd88",
+        "chart6": "#b22600"
+      }
+    ]
+  },
+  "textFont": {
+    "id": "SGpIvDU81W",
+    "fontId": "brandon-grotesque",
+    "fontFamily": "'brandon-grotesque'",
+    "webfont": {
+      "typekit": {
+        "id": "ngq4jsf"
+      }
+    }
+  },
+  "headingFont": {
+    "id": "SGpIvDU81W",
+    "fontId": "brandon-grotesque",
+    "fontFamily": "'brandon-grotesque'",
+    "webfont": {
+      "typekit": {
+        "id": "ngq4jsf"
+      }
+    }
+  },
+  "logoLightBg": "https://slidebean-uploads.s3.amazonaws.com/cbe1b1a96d6d203bdd0f62f1a006d87a_airbnb.png",
+  "logoDarkBg": "https://slidebean-uploads.s3.amazonaws.com/c771d1ada0a718262c92b10ad7e54b02_white2.png"
+}
+
+  };
+  </script>
+  
+  <div id="embedded-icons"><div id="icon-4340145" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" x="0px" y="0px"><g data-name="Layer 4"><path d="M56.184,33a3,3,0,1,0,0-2H50V22.414L52.414,20h1.77a3,3,0,1,0,0-2H52a1,1,0,0,0-.707.293l-2.478,2.478L43,17.692V12h3.184a3,3,0,1,0,0-2H42a1,1,0,0,0-1,1v5.633L33,12.4V7.816a3,3,0,1,0-2,0V12.4l-8,4.235V11a1,1,0,0,0-1-1H17.816a3,3,0,1,0,0,2H21v5.692l-5.815,3.079-2.478-2.478A1,1,0,0,0,12,18H9.816a3,3,0,1,0,0,2h1.77L14,22.414V31H7.816a3,3,0,1,0,0,2H14v8.586L11.586,44H9.816a3,3,0,1,0,0,2H12a1,1,0,0,0,.707-.293l2.478-2.478L21,46.308V52H17.816a3,3,0,1,0,0,2H22a1,1,0,0,0,1-1V47.367L31,51.6v4.582a3,3,0,1,0,2,0V51.6l8-4.235V53a1,1,0,0,0,1,1h4.184a3,3,0,1,0,0-2H43V46.308l5.815-3.079,2.478,2.478A1,1,0,0,0,52,46h2.184a3,3,0,1,0,0-2h-1.77L50,41.586V33ZM59,31a1,1,0,1,1-1,1A1,1,0,0,1,59,31ZM57,18a1,1,0,1,1-1,1A1,1,0,0,1,57,18Zm-8-8a1,1,0,1,1-1,1A1,1,0,0,1,49,10ZM15,12a1,1,0,1,1,1-1A1,1,0,0,1,15,12ZM7,20a1,1,0,1,1,1-1A1,1,0,0,1,7,20ZM5,33a1,1,0,1,1,1-1A1,1,0,0,1,5,33ZM7,46a1,1,0,1,1,1-1A1,1,0,0,1,7,46Zm8,8a1,1,0,1,1,1-1A1,1,0,0,1,15,54Zm34-2a1,1,0,1,1-1,1A1,1,0,0,1,49,52Zm8-8a1,1,0,1,1-1,1A1,1,0,0,1,57,44ZM32,4a1,1,0,1,1-1,1A1,1,0,0,1,32,4Zm0,56a1,1,0,1,1,1-1A1,1,0,0,1,32,60ZM48,41.4,32,49.869,16,41.4V22.6l16-8.471L48,22.6Z"></path><path d="M31.553,16.105l-14,7A1,1,0,0,0,17,24V40a1,1,0,0,0,.553.9l14,7a1,1,0,0,0,.894,0l14-7A1,1,0,0,0,47,40V24a1,1,0,0,0-.553-.895l-14-7A1,1,0,0,0,31.553,16.105ZM45,24.618V39.382l-13,6.5-13-6.5V24.618l13-6.5Z"></path><path d="M25,31.764,22.9,27.553A1,1,0,0,0,21,28v9h2V32.236l2.105,4.211A1,1,0,0,0,27,36V27H25Z"></path><path d="M29,28v9h2V33h3V31H31V29h4V27H30A1,1,0,0,0,29,28Z"></path><polygon points="39 37 41 37 41 29 43 29 43 27 37 27 37 29 39 29 39 37"></polygon></g></svg></div>
+<div id="icon-15307" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"><g><path fill="#000000" d="M26.156,17.608c10.595-0.015,21.19-0.002,31.786-0.007c5.051,0.004,10.102-0.008,15.151,0.007   c0.011,6.716,0.01,13.433,0,20.149c-0.98,0.054-1.955,0.19-2.924,0.351c-0.007-5.857,0-11.716-0.003-17.573   c-13.694-0.002-27.389-0.002-41.083,0c-0.001,7.069,0,14.138-0.001,21.207c0.008,1.738-0.016,3.477,0.012,5.216   c4.459-0.018,8.919-0.004,13.378-0.008c4.192,0.008,8.385-0.016,12.576,0.01c-0.723,0.938-1.446,1.877-2.055,2.895   c-8.937,0.018-17.876-0.008-26.813,0.014c-0.043-0.268-0.022-0.539-0.025-0.807c0-6.211,0-12.421,0-18.63   C26.16,26.156,26.138,21.882,26.156,17.608z"></path><path fill="#000000" d="M39.082,23.79c1.153-0.081,2.333,0.323,3.196,1.094c0.934,0.819,1.502,2.056,1.476,3.302   c0.031,1.326-0.619,2.636-1.659,3.452c-0.932,0.743-2.181,1.088-3.36,0.901c-0.966-0.13-1.885-0.598-2.551-1.31   c-1.056-1.071-1.476-2.713-1.082-4.162C35.542,25.269,37.232,23.876,39.082,23.79z"></path><path fill="#000000" d="M55.106,29.596c0.131-0.189,0.24-0.396,0.396-0.566c1.684,2.835,3.392,5.656,5.084,8.486   c0.646,1.102,1.34,2.179,1.956,3.298c-1.45,0.785-2.819,1.719-4.089,2.77c-0.112,0.119-0.281,0.103-0.429,0.105   c-7.667-0.01-15.336,0.01-23.005-0.011c0.064-0.167,0.223-0.269,0.34-0.397c2.745-2.745,5.491-5.486,8.232-8.233   c0.071-0.062,0.157-0.194,0.265-0.109c1.92,0.958,3.839,1.92,5.759,2.878C51.458,35.084,53.274,32.335,55.106,29.596z"></path><g><path fill="#000000" d="M3.314,32.83c0.187-0.042,0.378-0.028,0.567-0.028c6.709,0.005,13.418-0.005,20.127,0.005l0.047,0.056    c0.012,0.959-0.009,1.92,0.011,2.88c-3.961,0.028-7.923,0.001-11.885,0.013c-0.008,5.854-0.01,11.708,0.001,17.562    c8.715,0.01,17.43,0.01,26.145,0c0.016-0.494-0.001-0.99,0.009-1.484c2.95,0.008,5.901,0.008,8.852,0    c0.002,8.324,0.007,16.648-0.002,24.973c-8.835-0.018-17.67-0.002-26.505-0.008c-5.785,0.006-11.571-0.01-17.356,0.008    C3.311,62.147,3.332,47.487,3.314,32.83z M5.826,35.796c-0.661,0.173-1.153,0.845-1.084,1.53c0.058,0.731,0.727,1.347,1.462,1.335    c1,0.001,2.001,0.011,3.002-0.005c0.76-0.027,1.41-0.73,1.373-1.489c-0.002-0.731-0.634-1.391-1.366-1.412    c-0.946-0.007-1.89,0.001-2.836-0.004C6.193,35.754,6.004,35.742,5.826,35.796z M5.666,41.713    c-0.596,0.232-1.004,0.882-0.919,1.522c0.073,0.688,0.688,1.265,1.382,1.288c0.914,0.012,1.829-0.001,2.744,0.006    c0.321,0.006,0.658-0.018,0.942-0.18c0.534-0.286,0.858-0.922,0.745-1.522c-0.099-0.652-0.694-1.188-1.354-1.207    c-0.971-0.005-1.94,0.002-2.91-0.003C6.083,41.614,5.865,41.629,5.666,41.713z M5.826,47.524    c-0.557,0.146-1.003,0.648-1.076,1.221c-0.093,0.619,0.281,1.26,0.847,1.514c0.295,0.141,0.628,0.139,0.947,0.133    c0.89-0.006,1.78,0.008,2.67-0.006c0.755-0.035,1.404-0.732,1.366-1.492c-0.005-0.729-0.636-1.387-1.368-1.41    c-0.945-0.008-1.889,0.002-2.835-0.004C6.193,47.479,6.005,47.474,5.826,47.524z M5.818,53.394    c-0.744,0.182-1.247,1.021-1.033,1.762c0.154,0.637,0.773,1.109,1.427,1.098c0.997-0.002,1.994,0.008,2.991-0.004    c0.745-0.025,1.393-0.703,1.376-1.449c0.019-0.746-0.627-1.436-1.375-1.453c-0.915-0.008-1.83,0.002-2.745-0.002    C6.246,53.343,6.027,53.333,5.818,53.394z M40.999,53.394c-0.817,0.199-1.309,1.178-0.968,1.951    c0.216,0.539,0.779,0.914,1.361,0.908c0.969,0.002,1.939,0.002,2.908,0c0.772,0.018,1.486-0.672,1.459-1.451    c0.033-0.75-0.628-1.438-1.375-1.455c-0.915-0.006-1.83,0.002-2.745-0.002C41.425,53.345,41.207,53.333,40.999,53.394z     M12.184,56.282c-0.011,5.854-0.009,11.707-0.001,17.561c8.715,0.002,17.431,0.002,26.146,0c0.008-5.854,0.01-11.707-0.001-17.561    C29.613,56.271,20.898,56.271,12.184,56.282z M5.826,59.253c-0.583,0.152-1.04,0.691-1.084,1.293    c-0.082,0.785,0.589,1.543,1.377,1.568c1.003,0.01,2.006,0.002,3.008,0.004c0.757,0.008,1.446-0.652,1.452-1.414    c0.04-0.758-0.607-1.469-1.367-1.494c-0.917-0.008-1.834,0.002-2.752-0.004C6.249,59.206,6.033,59.196,5.826,59.253z     M41.007,59.255c-0.696,0.172-1.187,0.912-1.065,1.619c0.09,0.695,0.743,1.254,1.442,1.244c0.975,0,1.949,0,2.923,0    c0.754,0.01,1.458-0.65,1.451-1.414c0.052-0.76-0.606-1.475-1.365-1.494c-0.917-0.008-1.835,0.002-2.752-0.004    C41.429,59.206,41.212,59.196,41.007,59.255z M5.819,65.12c-0.699,0.178-1.195,0.926-1.061,1.639    c0.102,0.66,0.7,1.201,1.371,1.219c0.997,0.008,1.994,0,2.991,0.004c0.775,0.016,1.479-0.678,1.46-1.455    c0.02-0.748-0.629-1.432-1.376-1.453c-0.886-0.008-1.774,0.002-2.66-0.002C6.301,65.071,6.055,65.056,5.819,65.12z M40.999,65.122    c-0.678,0.17-1.159,0.877-1.065,1.57c0.068,0.686,0.684,1.264,1.374,1.285c0.998,0.008,1.996,0,2.993,0.004    c0.772,0.012,1.494-0.672,1.458-1.455c0.033-0.75-0.628-1.436-1.375-1.453c-0.915-0.008-1.829,0.002-2.744-0.002    C41.425,65.069,41.207,65.062,40.999,65.122z M5.826,70.981c-0.583,0.15-1.04,0.689-1.084,1.291    c-0.081,0.785,0.587,1.549,1.377,1.568c1.003,0.01,2.006,0.002,3.008,0.004c0.757,0.012,1.446-0.654,1.452-1.414    c0.04-0.758-0.61-1.465-1.367-1.494c-0.917-0.008-1.834,0.002-2.752-0.004C6.249,70.933,6.033,70.925,5.826,70.981z     M41.007,70.981c-0.649,0.162-1.129,0.82-1.08,1.488c0.026,0.715,0.653,1.348,1.371,1.371c1.002,0.01,2.005,0.002,3.008,0.004    c0.756,0.012,1.458-0.648,1.452-1.412c0.052-0.762-0.609-1.471-1.366-1.496c-0.917-0.008-1.835,0.002-2.752-0.004    C41.429,70.933,41.212,70.925,41.007,70.981z"></path></g><g><path fill="#000000" d="M73.597,40.01c4.928-0.264,9.932,1.07,14.056,3.787c2.73,1.778,5.079,4.136,6.859,6.864    c1.979,3.029,3.241,6.523,3.648,10.119c0.452,3.938-0.089,7.994-1.61,11.658c-1.277,3.125-3.254,5.957-5.722,8.26    c-2.402,2.234-5.273,3.969-8.379,5.029c-3.619,1.246-7.545,1.584-11.325,0.982c-3.449-0.535-6.77-1.865-9.642-3.846    c-3.762-2.582-6.744-6.283-8.458-10.512c-1.33-3.252-1.902-6.811-1.683-10.314c0.201-3.395,1.155-6.742,2.777-9.73    c1.499-2.771,3.562-5.236,6.025-7.199C63.947,42.054,68.726,40.244,73.597,40.01z M84.882,48.835    c-6.18,0.719-12.36,1.42-18.538,2.145c-0.01,5.99,0.004,11.982-0.006,17.973c-1.682-0.623-3.628-0.582-5.237,0.234    c-0.962,0.488-1.804,1.295-2.168,2.328c-0.364,0.996-0.209,2.156,0.382,3.033c0.544,0.848,1.408,1.453,2.34,1.811    c1.071,0.418,2.253,0.496,3.385,0.332c1.366-0.217,2.707-0.898,3.517-2.045c0.485-0.688,0.698-1.545,0.647-2.379    c-0.01-5.182,0.006-10.363-0.007-15.545c1.429-0.207,2.868-0.336,4.301-0.514c3.576-0.412,7.15-0.826,10.725-1.236    c0,3.922,0,7.842,0,11.764c-1.213-0.414-2.536-0.555-3.795-0.266c-1.276,0.279-2.52,0.969-3.24,2.086    c-0.529,0.795-0.703,1.814-0.461,2.74c0.232,0.879,0.81,1.648,1.547,2.174c1.109,0.809,2.513,1.158,3.874,1.094    c1.473-0.061,2.974-0.619,3.977-1.729c0.692-0.754,1.041-1.797,0.961-2.814c-0.005-4.963-0.001-9.926-0.003-14.889    c0.042-2.176-0.002-4.352-0.002-6.527C86.345,48.644,85.613,48.761,84.882,48.835z"></path></g></g></svg></div>
+<div id="icon-168654" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"><path d="M45.394,22.654c0.169-0.099,0.361-0.179,0.581-0.233c2.246-0.553,4.172-1.488,4.186-1.494  c0.184-0.303,0.28-0.74,0.328-1.052c-0.573-0.751-0.839-1.653-0.958-2.426c-0.211-0.017-0.49-0.317-0.789-1.387  c-0.41-1.464,0.025-1.681,0.394-1.646c-0.271-0.769-0.276-1.526-0.095-2.226c0.191-0.824,0.631-1.484,1.125-1.995  c0.312-0.336,0.666-0.63,1.041-0.87c0.305-0.214,0.643-0.398,1.011-0.524l0,0l0,0c0.288-0.098,0.595-0.162,0.919-0.177  c1.003-0.088,1.763,0.166,2.308,0.493c0.815,0.455,1.124,1.056,1.124,1.056s2.05,0.146,1.153,4.492h0  c0.276,0.097,0.47,0.479,0.151,1.622c-0.393,1.406-0.751,1.483-0.966,1.335c-0.126,0.719-0.385,1.525-0.894,2.213  c0.051,0.346,0.163,0.874,0.397,1.186c0,0,1.87,0.846,4.123,1.401c0.22,0.054,0.412,0.134,0.581,0.233  c-1.699,2.528-4.586,4.192-7.861,4.192C49.98,26.846,47.093,25.183,45.394,22.654z M31.337,51.262  c-0.299-0.399-0.442-1.074-0.507-1.516c0.651-0.879,0.981-1.91,1.142-2.829c0.275,0.189,0.732,0.09,1.235-1.707  c0.409-1.46,0.16-1.95-0.193-2.073h0c1.147-5.556-1.474-5.743-1.474-5.743s-0.395-0.769-1.437-1.351  c-0.698-0.418-1.669-0.743-2.951-0.631c-0.415,0.02-0.807,0.101-1.175,0.227h0l-0.001,0c-0.471,0.161-0.903,0.396-1.293,0.67  c-0.479,0.307-0.932,0.683-1.331,1.112c-0.632,0.653-1.195,1.497-1.439,2.551c-0.232,0.895-0.225,1.862,0.121,2.846  c-0.471-0.045-1.027,0.232-0.504,2.104c0.383,1.368,0.739,1.752,1.009,1.774c0.151,0.989,0.492,2.142,1.224,3.102  c-0.062,0.399-0.185,0.957-0.419,1.345c-0.017,0.008-2.48,1.203-5.351,1.91c-0.282,0.069-0.527,0.171-0.743,0.298  c2.172,3.232,5.863,5.359,10.05,5.359c4.187,0,7.877-2.127,10.05-5.359c-0.215-0.127-0.461-0.229-0.743-0.298  C33.727,52.344,31.337,51.262,31.337,51.262z M89.851,72.856c0,12.802-10.378,23.179-23.179,23.179S43.492,85.657,43.492,72.856  c0-3.926,0.978-7.624,2.7-10.864l-6.075-3.982c-3.142,3.53-7.719,5.754-12.816,5.754c-9.473,0-17.153-7.68-17.153-17.153  c0-9.473,7.68-17.153,17.153-17.153c3.856,0,7.415,1.273,10.28,3.421l5.837-6.376c-2.221-2.394-3.58-5.598-3.58-9.121  c0-7.41,6.007-13.417,13.417-13.417c7.41,0,13.417,6.007,13.417,13.417s-6.007,13.417-13.417,13.417  c-2.668,0-5.153-0.782-7.242-2.125l-5.94,6.488c2.724,3.036,4.381,7.049,4.381,11.449c0,3.16-0.856,6.12-2.347,8.663l5.885,3.857  c4.22-5.733,11.014-9.454,18.679-9.454C79.473,49.676,89.851,60.054,89.851,72.856z M42.133,17.382  c0,6.142,4.979,11.122,11.122,11.122c6.142,0,11.122-4.979,11.122-11.122S59.397,6.26,53.255,6.26  C47.113,6.26,42.133,11.239,42.133,17.382z M41.521,46.611c0-7.853-6.366-14.219-14.219-14.219s-14.219,6.366-14.219,14.219  S19.449,60.83,27.302,60.83S41.521,54.464,41.521,46.611z M85.886,72.856c0-10.612-8.603-19.215-19.215-19.215  c-10.612,0-19.215,8.603-19.215,19.215S56.06,92.07,66.672,92.07C77.284,92.07,85.886,83.468,85.886,72.856z M72.051,79.221  c-0.404-0.539-0.597-1.45-0.685-2.047c0.879-1.187,1.324-2.579,1.543-3.82c0.372,0.256,0.989,0.122,1.668-2.305  c0.552-1.972,0.216-2.633-0.26-2.799h0c1.549-7.503-1.99-7.755-1.99-7.755s-0.534-1.039-1.94-1.824  c-0.942-0.564-2.254-1.003-3.985-0.851c-0.561,0.027-1.09,0.136-1.587,0.306h0l-0.001,0c-0.636,0.218-1.219,0.535-1.746,0.905  c-0.647,0.415-1.258,0.922-1.797,1.502c-0.853,0.882-1.613,2.021-1.943,3.444c-0.313,1.209-0.304,2.515,0.164,3.843  c-0.636-0.061-1.387,0.313-0.68,2.841c0.517,1.847,0.998,2.366,1.362,2.395c0.204,1.336,0.664,2.892,1.653,4.189  c-0.083,0.538-0.249,1.293-0.566,1.816c-0.023,0.011-3.349,1.624-7.227,2.58c-0.38,0.094-0.712,0.231-1.003,0.403  c2.934,4.365,7.917,7.237,13.571,7.237c5.654,0,10.638-2.872,13.571-7.237c-0.291-0.171-0.623-0.309-1.003-0.403  C75.279,80.682,72.051,79.221,72.051,79.221z"></path></svg></div>
+<div id="icon-6979" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"><g><polygon points="100,48 52,48 52,0 48,0 48,48 0,48 0,52 48,52 48,100 52,100 52,52 100,52  "></polygon></g></svg></div>
+<div id="icon-67489" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 96 96" x="0px" y="0px"><path d="M2 94c-1.1 0-2-0.9-2-2v-88c0-1.104 0.896-2 2-2s2 0.896 2 2v88c0 1.1-0.896 2-2 2z" fill="#000000"></path><path d="M94 76h-52c-1.104 0-2-0.9-2-2v-10c0-1.1 0.896-2 2-2s2 0.9 2 2v8h46.968l-10.804-25.212c-0.212-0.5-0.212-1.080 0-1.584l10.804-25.212h-34.968c-1.1 0-2-0.896-2-2s0.9-2 2-2h38c0.672 0 1.304 0.336 1.672 0.9s0.428 1.272 0.164 1.888l-11.664 27.212 11.664 27.212c0.264 0.616 0.204 1.328-0.164 1.888-0.368 0.572-1 0.908-1.672 0.908z" fill="#000000"></path><path d="M54 64h-44c-1.1 0-2-0.9-2-2v-56c0-1.104 0.9-2 2-2h44c1.104 0 2 0.896 2 2v56c0 1.1-0.896 2-2 2zM12 60h40v-52h-40v52z" fill="#000000"></path><path d="M42 76c-0.512 0-1.024-0.196-1.416-0.584-0.78-0.776-0.78-2.048 0-2.828l12-12c0.78-0.776 2.048-0.776 2.828 0 0.78 0.78 0.78 2.052 0 2.828l-12 12c-0.388 0.388-0.9 0.584-1.412 0.584z" fill="#000000"></path></svg></div>
+<div id="icon-36867" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"><path d="M20.293,47.661v37.467c0,1.204,0.976,2.18,2.18,2.18h20.68h13.079h21.296c1.204,0,2.18-0.976,2.18-2.18V47.661l7.68,7.68  c0.426,0.426,0.984,0.639,1.542,0.639s1.115-0.213,1.541-0.639c0.852-0.851,0.852-2.231,0-3.083L79.707,41.496V26.273  c0-1.204-0.976-2.18-2.18-2.18H64.979c-0.729,0-1.37,0.36-1.765,0.91L51.541,13.331c-0.851-0.852-2.23-0.852-3.082,0L9.53,52.259  c-0.852,0.851-0.852,2.232,0,3.083c0.852,0.852,2.231,0.852,3.083,0L20.293,47.661z M45.333,82.948V67.689h8.719v15.258H45.333z   M67.159,28.453h8.188v8.684l-8.188-8.188V28.453z M50,17.954l25.348,25.347v2.059v37.587H58.411V65.51  c0-1.205-0.976-2.18-2.18-2.18H43.153c-1.205,0-2.18,0.976-2.18,2.18v17.438h-16.32V43.301L50,17.954z"></path></svg></div>
+<div id="icon-2036017" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 128 128" x="0px" y="0px"><title>Miscellaneous 17 final</title><path d="M24.87,27.2a2,2,0,0,0,0,2.83L42.53,47.7a2,2,0,0,0,2.83-2.83L27.69,27.2A2,2,0,0,0,24.87,27.2Z"></path><path d="M81.95,36.95V12.28a2,2,0,1,0-4,0V36.95a2,2,0,0,0,4,0Z"></path><path d="M50.94,1.52a2,2,0,1,0-3.88,1l6,24a2,2,0,1,0,3.88-1Z"></path><path d="M24.57,72.8c6.28,9,6.23,13.06,6.19,17C30.46,118.44,50.31,127.29,62.1,128c.9.05,1.77.08,2.64.08a38.56,38.56,0,0,0,29-12.63l6.55-7.22.11-.13,3.25-3.59a9.06,9.06,0,0,0-4.5-15.26A8.14,8.14,0,0,0,92.2,79a8.38,8.38,0,0,0,.5-2.8,9,9,0,0,0-7.24-8.85L96.31,56.46a9.05,9.05,0,1,0-13-12.59C71.42,56.56,56.64,71,50.81,73.37c-3.4,1.4-4.22.31-6.85-4a31.62,31.62,0,0,0-7.16-8.9c-3.46-2.81-7.53-2.89-10.9-.22C22.09,63.26,21.54,68.44,24.57,72.8ZM97.22,93.06a5,5,0,0,1,3.57,1.48,5.09,5.09,0,0,1-.07,7.22l-3.17,3.49a4.6,4.6,0,0,1-5.18-.87l-.18-.19A4.63,4.63,0,0,1,91.81,98l5-5Zm-3-8.94a4.14,4.14,0,0,1,.24,5.62,2,2,0,0,0-.23.25l0,0-5.74,5.74a4.62,4.62,0,0,1-4.78-1l-.24-.24a4.67,4.67,0,0,1-.28-6.16c.8-.62,4.15-3.27,5.93-4.8A4.17,4.17,0,0,1,94.2,84.12Zm-7-11.51a5,5,0,0,1,1.48,3.57,6.33,6.33,0,0,1-2.1,4.22c-1.22,1.06-3.85,3.17-5.79,4.69a4.8,4.8,0,0,1-4.73-1.24l-.13-.13a4.86,4.86,0,0,1,0-6.87l4.7-4.7A5,5,0,0,1,87.21,72.6ZM28.39,63.34c1.92-1.52,3.85-1.46,5.89.19a27.89,27.89,0,0,1,6.26,7.86A21.25,21.25,0,0,0,44,76.14a2,2,0,0,0,.12.16c.17.18,4,4.37.1,10.46a2,2,0,0,0,3.37,2.15,13,13,0,0,0,1.84-11,11.37,11.37,0,0,0,2.88-.79c7.87-3.23,26.32-22.38,33.9-30.47a5,5,0,0,1,3.6-1.6,5.07,5.07,0,0,1,3.66,1.48,5.05,5.05,0,0,1,0,7.15L73.11,74a8.86,8.86,0,0,0,0,12.56l.11.11a8.78,8.78,0,0,0,5.11,2.51,8.7,8.7,0,0,0,2.28,8.17l.08.07.08.08A8.63,8.63,0,0,0,86.87,100a8.59,8.59,0,0,0,2.48,7l.15.17a8.68,8.68,0,0,0,4.21,2.32l-3,3.31-.08.09A35.08,35.08,0,0,1,62.34,124a31.27,31.27,0,0,1-14.44-5c.31,0,.63,0,.95,0l.85,0c5-.32,9.57-3.35,13.65-9a2,2,0,0,0-3.25-2.33c-3.33,4.64-6.9,7.12-10.62,7.37-5.19.34-9.18-3.81-9.24-3.87a2,2,0,0,0-.29-.25c-3.13-4.94-5.28-11.72-5.18-21.09.06-5.29-.42-10.07-6.91-19.35C26.35,68.36,25.94,65.3,28.39,63.34Z"></path><polygon points="59.53 40.78 55.11 41.42 58.31 44.54 57.55 48.94 61.5 46.86 65.45 48.94 64.69 44.54 67.89 41.42 63.47 40.78 61.5 36.78 59.53 40.78"></polygon><polygon points="65.96 16.73 67.31 19.77 68.91 16.84 72.22 16.5 69.93 14.08 70.63 10.82 67.62 12.25 64.73 10.58 65.16 13.89 62.68 16.12 65.96 16.73"></polygon><polygon points="39.35 15.39 36.94 13.1 36.58 16.41 33.65 18 36.69 19.36 37.3 22.64 39.53 20.16 42.84 20.6 41.17 17.71 42.61 14.71 39.35 15.39"></polygon></svg></div>
+<div id="icon-89684" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"><g><path d="M50,86.913c-20.353,0-36.913-16.56-36.913-36.913c0-20.354,16.559-36.913,36.913-36.913S86.913,29.646,86.913,50   C86.913,70.353,70.353,86.913,50,86.913z M50,17.126c-18.126,0-32.873,14.747-32.873,32.874c0,18.126,14.747,32.874,32.873,32.874   S82.873,68.126,82.873,50C82.873,31.873,68.126,17.126,50,17.126z"></path><path d="M50,60.918c-6.843,0-12.41-5.568-12.41-12.411S43.156,36.097,50,36.097c6.845,0,12.412,5.568,12.412,12.411   S56.844,60.918,50,60.918z M50,40.136c-4.616,0-8.371,3.756-8.371,8.371s3.755,8.371,8.371,8.371c4.617,0,8.373-3.756,8.373-8.371   S54.617,40.136,50,40.136z"></path><path d="M50,86.913c-7.667,0-15.026-2.338-21.281-6.762l-0.953-0.673l0.108-1.162C28.938,66.827,38.45,58.163,50,58.163   s21.062,8.663,22.126,20.152l0.108,1.162l-0.952,0.673C65.026,84.575,57.667,86.913,50,86.913z M32.041,77.527   C37.39,81.029,43.573,82.874,50,82.874c6.428,0,12.611-1.845,17.96-5.347C66.582,68.712,59.056,62.203,50,62.203   C40.943,62.203,33.418,68.712,32.041,77.527z"></path></g></svg></div></div>
+  <script src="assets/js/runtime-es2015.js" type="text/javascript"></script>
+  <script src="assets/js/polyfills-es2015.js" type="text/javascript"></script>
+  <script src="assets/js/scripts.js" type="text/javascript" defer></script>
+  <script src="assets/js/vendor-es2015.js" type="text/javascript"></script>
+  <script src="assets/js/main-es2015.js" type="text/javascript"></script>
+</body>
+</html>
