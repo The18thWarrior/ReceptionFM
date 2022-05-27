@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/extensions/ERC1155BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 //import "./libraries/Strings.sol";
 import { Structs } from "./libraries/ReceptionStructs.sol";
 import { Channels } from "./Channels.sol";
@@ -29,6 +30,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   //string public description;
 	//string public symbol;
   address private depositorAddress;
+  address private treasuryAddress;
   address private channelAddress;
   address private membershipsAddress;
   //address private broadcastsAddress;
@@ -45,6 +47,9 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   
 
   uint256 public channelToken;
+  uint256 private commission;
+  uint256 private treasuryBalance;
+  uint256 private ownerBalance;
   //mapping(address => Membership) public membershipOwnershipMap;
   mapping(uint256 => string) private _uris;
   mapping(uint256 => string) private _paywallUri;
@@ -74,8 +79,12 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     require(tempMembershipsAddress != address(0), "membershipAddress required");
     membershipsAddress = tempMembershipsAddress;
     membershipsContract = Memberships(membershipsAddress);
+    commission = 5;
+    ownerBalance = 0;
+    treasuryBalance = 0;
 
     require(tempOwnerAddress != address(0), "owner required");
+    treasuryAddress = tempOwnerAddress;
     _grantRole(DEFAULT_ADMIN_ROLE, tempOwnerAddress);
     _grantRole(ADMIN_ROLE, tempOwnerAddress);
     _grantRole(OWNER_ROLE, to);
@@ -169,19 +178,37 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       require(_redemptions[to][i] != tokenId, 'Sorry, you have already redeemed this NFT');
     }
     _redemptions[to].push(tokenId); 
+    //Settle Reception.fm commission
+    uint yield = commissionYield(msg.value, commission);
+    treasuryBalance += yield;
+    require(msg.value > yield, string(abi.encodePacked("Amount is not enough: ", Strings.toString(msg.value),  " : ", Strings.toString(yield))));
+    ownerBalance += msg.value - yield;   
+
     emit NewPostMinted(to, tokenId);
-    _mint(to, tokenId, 1, "");
+
+    _mint(to, tokenId, 1, "");     
   }
 
   function getBalance() view external returns(uint256){
-    return address(this).balance;
+    return ownerBalance;
+  }
+
+  function withdrawTreasuryBalance() external onlyRole(ADMIN_ROLE) {
+    address payable treasuryPayable = payable(treasuryAddress);
+    // send all Ether to owner
+    // Owner can receive Ether since the address of owner is payable
+    uint currentBalance = treasuryBalance + 0;
+    treasuryBalance = 0;
+    treasuryPayable.transfer(currentBalance);
   }
 
   function withdrawBalance() external onlyRole(OWNER_ROLE) {
     address payable ownerPayable = payable(depositorAddress);
     // send all Ether to owner
     // Owner can receive Ether since the address of owner is payable
-    ownerPayable.transfer(address(this).balance);
+    uint currentBalance = ownerBalance + 0;
+    ownerBalance = 0;
+    ownerPayable.transfer(currentBalance);
   }
 
   function getChannelToken() external view returns(uint256) {
@@ -295,6 +322,14 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
 
   function getTokenIndex() external view returns (uint256) {
     return _tokenIdCounter.current();
+  }
+
+  function divider(uint numerator, uint denominator, uint precision) public pure returns(uint) {
+    return (numerator*(uint(10)**uint(precision+1))/denominator + 5)/uint(10);
+  }
+
+  function commissionYield(uint total, uint percentage) public pure returns(uint) {
+    return divider(total * percentage, 100, 0);
   }
 
   // DEFAULT METHODS REQUIRED BY INTERFACES

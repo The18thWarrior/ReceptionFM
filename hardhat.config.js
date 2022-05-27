@@ -30,6 +30,8 @@ module.exports = {
     }
   },
   networks: {
+    hardhat: {
+    },
     mumbai: {
       url: process.env.NETWORK_URL,
       accounts: [process.env.DEVACCOUNTKEY],

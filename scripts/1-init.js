@@ -161,26 +161,85 @@ const mainChannels = async (worksManager, channelName) => {
 };
 
 const deployContracts = async () => {
+  const accounts = await hre.ethers.getSigners();
+  const executor = await accounts[0].getAddress();
+  const name = "ReceptionDAO"
+  const symbol = "RFM"
+  const supply = 10000 // 1000 Tokens
+
+  // Deploy token
+  const tokenFactory = await hre.ethers.getContractFactory('Token');
+  const token = await tokenFactory.deploy(name, symbol, supply);
+  await token.deployed();
+  console.log('token address : ', token.address);
+  const amount = 250;
+  const voter1 = hre.ethers.utils.getAddress("0x836C31094bEa1aE6b65F76D1C906b01329645a94");
+  await token.transfer(voter1, amount);
+  // Deploy timelock
+  const minDelay = 1 // How long do we have to wait until we can execute after a passed proposal
+
+  // In addition to passing minDelay, we also need to pass 2 arrays.
+  // The 1st array contains addresses of those who are allowed to make a proposal.
+  // The 2nd array contains addresses of those who are allowed to make executions.
+  const timelockFactory = await hre.ethers.getContractFactory('TimeLock');
+  const timelock = await timelockFactory.deploy(minDelay, [voter1, executor], [voter1, executor]);
+  await timelock.deployed();
+  console.log('timelock address : ', timelock.address);
   
+  // Deploy governanace
+  const quorum = 5 // Percentage of total supply of tokens needed to aprove proposals (5%)
+  const votingDelay = 0 // How many blocks after proposal until voting becomes active
+  const votingPeriod = 5 // How many blocks to allow voters to vote
+  const daoFactory = await hre.ethers.getContractFactory('ReceptionDAO');
+  const dao = await daoFactory.deploy(token.address, timelock.address, quorum, votingDelay, votingPeriod);
+  await dao.deployed();
+  console.log('dao address : ',dao.address);
+
+  // Deploy Treasury
+  const funds = hre.ethers.utils.parseEther('0.5');
+  const treasuryFactory = await hre.ethers.getContractFactory('Treasury');
+  const treasury = await treasuryFactory.deploy(executor, {value: funds});
+  await treasury.deployed();
+  console.log('treasury deployed : ', treasury.address);
+  await treasury.transferOwnership(timelock.address, { from: executor });
+
+  // Grant Treasury Roles
+  const proposerRole = await timelock.PROPOSER_ROLE();
+  const executorRole = await timelock.EXECUTOR_ROLE();
+
+  await timelock.grantRole(proposerRole, dao.address, { from: executor });
+  await timelock.grantRole(executorRole, dao.address, { from: executor });
+  console.log('timelock roles granted');
+
+  // Deploy WorksManager
   const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
   const worksManager = await worksManagerFactory.deploy();
   await worksManager.deployed();
   console.log('worksManager address : ',worksManager.address);
+
+  // Grant WorksManager Token Ownership
+  await token.transferTokenOwnership(worksManager.address);
+  await worksManager.setTokenAddress(token.address);
   
+  // Deploy Channel
   const channelContractFactory = await hre.ethers.getContractFactory('Channels');
   const channelContract = await channelContractFactory.deploy(worksManager.address);
   await channelContract.deployed();
   console.log('channels address : ' + channelContract.address);
   
   await worksManager.setChannelsAddress(channelContract.address);
-  console.log('setChannelsAddress complete');
+  const channelCost = hre.ethers.utils.parseEther('0');
+  await worksManager.setChannelCost(channelCost);
 
+  // Deploy Channel
   const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
   const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
   await membershipsContract.deployed();
   console.log('memberships address : ' + membershipsContract.address);
   
+  const membershipCommission = hre.ethers.utils.parseEther('0');
   await worksManager.setMembershipsAddress(membershipsContract.address);
+  await membershipsContract.setCommission(1.5);
   //await membershipsContract.setChannelsAddress(channelContract.address);
   console.log('setMembershipsAddress complete');
 
@@ -240,7 +299,7 @@ const sendMoney = async () => {
   
 }
 
-const runMain = async () => {
+const main = async () => {
   try {
     await hre.network.provider.send("hardhat_reset");
     let [worksManager, channelContract] = await deployContracts();
@@ -274,4 +333,4 @@ if (!String.format) {
 
 
 
-runMain();
+main();

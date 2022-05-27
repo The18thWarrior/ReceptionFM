@@ -24,6 +24,8 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
   string public name;
   address private channelAddress;
   address private payableAddress;
+  uint256 private commission;
+  uint256 private treasuryBalance;
 
   Channels channelContract;
 
@@ -57,11 +59,11 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
   mapping(uint256 => uint256) private _channelBalance;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, address tempOwnerContract, address tempChannelAddress) initializer {
-    initialize(tokenName, tempOwnerContract, tempChannelAddress);
+  constructor(string memory tokenName, address tempOwnerContract, address tempChannelAddress, uint256 tempCommission) initializer {
+    initialize(tokenName, tempOwnerContract, tempChannelAddress, tempCommission);
   }
 
-  function initialize(string memory tokenName, address tempOwnerContract, address tempChannelAddress) initializer public {
+  function initialize(string memory tokenName, address tempOwnerContract, address tempChannelAddress, uint256 tempCommission) initializer public {
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
     __ERC1155Supply_init();
@@ -83,8 +85,8 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     require(tempChannelAddress != address(0), "channelAddress required");
     channelAddress = tempChannelAddress;
     channelContract = Channels(channelAddress);
-  
-    
+    commission = tempCommission; 
+    treasuryBalance = 0;   
   }
 
   function transferOwnership(address to) external onlyRole(ADMIN_ROLE) {
@@ -134,7 +136,11 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     uint256 cost = _tokenCost[membership];
     require( msg.value >= cost, 'Not enough $$ :( ');
     emit NewMembershipMinted(to, membership);
-    _channelBalance[_membershipToChannel[membership]] = _channelBalance[_membershipToChannel[membership]] + msg.value;
+
+    //Settle Reception.fm commission
+    uint yield = commissionYield(msg.value, commission);
+    treasuryBalance += yield;
+    _channelBalance[_membershipToChannel[membership]] = _channelBalance[_membershipToChannel[membership]] + (msg.value-yield);
         
     _mint(to, membership, 1, "");    
   }
@@ -143,7 +149,9 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     address payable ownerPayable = payable(payableAddress);
     // send all Ether to owner
     // Owner can receive Ether since the address of owner is payable
-    ownerPayable.transfer(address(this).balance);
+    uint256 currentBalance = treasuryBalance + 0;
+    treasuryBalance = 0; 
+    ownerPayable.transfer(currentBalance);
   }
   
   function uri(uint256 tokenId) override public view returns (string memory) {
@@ -166,6 +174,10 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
     channelAddress = tempChannelAddress;
     channelContract = Channels(tempChannelAddress);
     
+  }
+
+  function setCommission(uint256 tempCommission) external onlyRole(OWNER_ROLE) {
+    commission = tempCommission;
   }
 
   function getTokenIndex() external view returns (uint256) {
@@ -223,6 +235,14 @@ contract Memberships is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradea
       returns (bool)
   {
       return super.supportsInterface(interfaceId);
+  }
+
+  function divider(uint numerator, uint denominator, uint precision) public pure returns(uint) {
+    return (numerator*(uint(10)**uint(precision+1))/denominator + 5)/uint(10);
+  }
+
+  function commissionYield(uint total, uint percentage) public pure returns(uint) {
+    return divider(total * percentage, 100, 0);
   }
   
 }

@@ -14,6 +14,7 @@ import { Memberships } from "./Memberships.sol";
 import { Channels } from "./Channels.sol";
 //import { Broadcasts } from "./Broadcasts.sol";
 import { Posts } from "./Posts.sol";
+import { Token } from "./Token.sol";
 import { Structs } from "./libraries/ReceptionStructs.sol";
 
 
@@ -25,10 +26,12 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   address private channelsAddress;
   address private postsAddress;
   address private depositorAddress;
+  address private tokenAddress;
 
   PostFactory postFactoryContract;
   Memberships membershipContract;
   Channels channelContract;
+  Token tokenContract;
   //Broadcasts broadcastContract;
 
   //mapping(uint256 => address) private channelPostAddressMap;
@@ -59,11 +62,21 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
   }
 
   // Admin Action
-  function withdrawBalance() external onlyRole(ADMIN_ROLE) {
+  function withdrawTreasury() external onlyRole(ADMIN_ROLE) {
     address payable ownerPayable = payable(depositorAddress);
     // send all Ether to owner
     // Owner can receive Ether since the address of owner is payable
     ownerPayable.transfer(address(this).balance);
+  }
+  
+  function withdrawPostTreasuryBalance(address contractAddress) external onlyRole(ADMIN_ROLE) {
+    Posts postContract = Posts(contractAddress);
+    postContract.withdrawTreasuryBalance();
+  }
+  
+  function withdrawPostBalance(address contractAddress) external onlyRole(ADMIN_ROLE) {
+    Posts postContract = Posts(contractAddress);
+    postContract.withdrawTreasuryBalance();
   }
 
   function withdrawChannelBalance(uint256 channel) external {
@@ -241,6 +254,12 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     require(tempMembershipAddress != address(0), "memberships required");
     membershipsAddress = tempMembershipAddress;
     membershipContract = Memberships(tempMembershipAddress);
+  }
+
+  function setTokenAddress(address tempTokenAddress) external onlyRole(ADMIN_ROLE) {
+    require(tempTokenAddress != address(0), "memberships required");
+    tokenAddress = tempTokenAddress;
+    tokenContract = Token(tempTokenAddress);
   }
 
   /*function setBroadcastsAddress(address _broadcastsAddress) public onlyRole(ADMIN_ROLE) {

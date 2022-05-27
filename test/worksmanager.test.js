@@ -22,10 +22,63 @@ if (!String.format) {
 }
 describe("All contracts deployment", function () {
   it("Deployment should create all contracts and add sub contract addresses to worksmanager", async function () {
+    const accounts = await hre.ethers.getSigners();
+    const executor = await accounts[0].getAddress();
+    const name = "ReceptionDAO"
+    const symbol = "RFM"
+    const supply = 10000 // 1000 Tokens
+
+    // Deploy token
+    const tokenFactory = await hre.ethers.getContractFactory('Token');
+    const token = await tokenFactory.deploy(name, symbol, supply);
+    await token.deployed();
+    
+    assert(token.address != null, 'Token should be deployed');
+    // Deploy timelock
+    const minDelay = 1 // How long do we have to wait until we can execute after a passed proposal
+
+    // In addition to passing minDelay, we also need to pass 2 arrays.
+    // The 1st array contains addresses of those who are allowed to make a proposal.
+    // The 2nd array contains addresses of those who are allowed to make executions.
+    const timelockFactory = await hre.ethers.getContractFactory('TimeLock');
+    const timelock = await timelockFactory.deploy(minDelay, [executor], [executor]);
+    await timelock.deployed();
+    assert(timelock.address != null, 'Timelock should be deployed');
+    
+    // Deploy governanace
+    const quorum = 5 // Percentage of total supply of tokens needed to aprove proposals (5%)
+    const votingDelay = 0 // How many blocks after proposal until voting becomes active
+    const votingPeriod = 5 // How many blocks to allow voters to vote
+    const daoFactory = await hre.ethers.getContractFactory('ReceptionDAO');
+    const dao = await daoFactory.deploy(token.address, timelock.address, quorum, votingDelay, votingPeriod);
+    await dao.deployed();
+    assert(dao.address != null, 'Dao should be deployed');
+
+    // Deploy Treasury
+    const funds = hre.ethers.utils.parseEther('0.5');
+    const treasuryFactory = await hre.ethers.getContractFactory('Treasury');
+    const treasury = await treasuryFactory.deploy(executor, {value: funds});
+    await treasury.deployed();
+    assert(treasury.address != null, 'Treasury should be deployed');
+
+    await treasury.transferOwnership(timelock.address, { from: executor });
+    const  timelockOwner = await treasury.owner();
+    assert(timelock.address === timelockOwner, 'Timelock should be owner of treasury');
+    // Grant Treasury Roles
+    const proposerRole = await timelock.PROPOSER_ROLE();
+    const executorRole = await timelock.EXECUTOR_ROLE();
+
+    await timelock.grantRole(proposerRole, dao.address, { from: executor });
+    await timelock.grantRole(executorRole, dao.address, { from: executor });
+    // add assert for timelock role granting
+        
     const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
     const worksManager = await worksManagerFactory.deploy();
     await worksManager.deployed();
     assert(worksManager.address != null, 'works manager should be deployed');
+
+    await token.transferTokenOwnership(worksManager.address);
+    await worksManager.setTokenAddress(token.address);
 
     const channelContractFactory = await hre.ethers.getContractFactory('Channels');
     const channelContract = await channelContractFactory.deploy(worksManager.address);
@@ -41,7 +94,7 @@ describe("All contracts deployment", function () {
     assert(newChannelCost > 0, 'channel cost should be greater than 0: '+newChannelCost);
 
     const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
-    const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
+    const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address, 5);
     await membershipsContract.deployed();
     assert(membershipsContract.address != null, 'membershipsContract should be deployed');
     
@@ -66,31 +119,7 @@ describe('Minting checks', function() {
   let _channelList;
   // eslint-disable-next-line no-undef
   before(async function () {
-    const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
-    const worksManager = await worksManagerFactory.deploy();
-    await worksManager.deployed();
-
-    const channelContractFactory = await hre.ethers.getContractFactory('Channels');
-    const channelContract = await channelContractFactory.deploy(worksManager.address);
-    await channelContract.deployed();
-    
-    await worksManager.setChannelsAddress(channelContract.address);
-    const _channelAddress = await worksManager.getChannelsAddress();
-
-    const channelCostUpdate = await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
-    
-    const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
-    const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
-    await membershipsContract.deployed();
-    
-    await worksManager.setMembershipsAddress(membershipsContract.address);
-    const _membershipsContract = await worksManager.getMembershipsAddress();
-    
-    const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
-    const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address);
-    await postFactoryContract.deployed();
-    
-    await worksManager.setPostFactoryAddress(postFactoryContract.address);
+    const [worksManager, channelContract] = await deployContracts();
     _worksManager = worksManager;
     _channelContract = channelContract;
   });
@@ -176,59 +205,177 @@ describe('GET Request Checks', function() {
   let _channelList;
   // eslint-disable-next-line no-undef
   before(async function () {
-    const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
-    const worksManager = await worksManagerFactory.deploy();
-    await worksManager.deployed();
-
-    const channelContractFactory = await hre.ethers.getContractFactory('Channels');
-    const channelContract = await channelContractFactory.deploy(worksManager.address);
-    await channelContract.deployed();
-    
-    await worksManager.setChannelsAddress(channelContract.address);
-    const _channelAddress = await worksManager.getChannelsAddress();
-    const channelCostUpdate = await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
-    
-    const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
-    const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
-    await membershipsContract.deployed();
-    
-    await worksManager.setMembershipsAddress(membershipsContract.address);
-    const _membershipsContract = await worksManager.getMembershipsAddress();
-    
-    const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
-    const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address);
-    await postFactoryContract.deployed();
-    
-    await worksManager.setPostFactoryAddress(postFactoryContract.address);
+    const [worksManager, channelContract] = await deployContracts();
     _worksManager = worksManager;
     _channelContract = channelContract;
+    await mintNFTs(_worksManager, _channelContract);
+    
+  });
+  it('Channel Contract', async function() {
+    let ownerChannelIds = await _worksManager.getOwnerChannelIds();
+    assert(ownerChannelIds.length > 0, 'channel list should be returned:' + ownerChannelIds.length);
+    
+    const accounts = await hre.ethers.getSigners(); 
+    
+    let artistChannelIds = await _worksManager.getArtistChannelIds(accounts[0].address);
+    assert(artistChannelIds.length > 0, 'artist list should be returned: '+ artistChannelIds);
+    
+    let channelIndex = await _worksManager.getCurrentChannelIndex();
+    assert(hre.ethers.BigNumber.from("0").eq(channelIndex), 'channel index should be 0: ' + channelIndex);
 
-    let channelName = 'testChannel';
+    let channelMetadata = await _worksManager.getChannelMetadata(channelIndex);
+    assert(channelMetadata.length > 0, 'channel metadata should return');
+
+    let profileUri = await _worksManager.setProfileUri('test', 'test2');
+    await profileUri.wait();
+    let profileUrl = await _worksManager.getProfileUri(accounts[0].address);
+    assert(profileUrl.length > 0, 'profile url should return');
+  });
+  it('Memberships Contract', async function() {
+    let membershipsList = await _worksManager.getMembershipList(hre.ethers.BigNumber.from('0'));
+    assert(membershipsList.length > 0, 'membership list should be returned');
+
+    const membershipMintOptions = {value: hre.ethers.utils.parseEther("1")};
+    let membershipMint = await _worksManager.membershipMint(membershipsList[0], membershipMintOptions);
+    await membershipMint.wait();
+
+    let membership = await _worksManager.getMembership(membershipsList[0]);
+    assert(hre.ethers.BigNumber.from("1").eq(membership), 'user should have membership: '+ membership);
+
+    let membershipUri = await _worksManager.membershipUri(membershipsList[0]);
+    assert(membershipUri.length > 0, 'membership URI should be returned: '+ membershipUri);
+
+    let ownershipMap = await _worksManager.membershipGetOwnershipMap(membershipsList[0]);
+    assert(ownershipMap.length > 0, 'ownership list should be returned');
+    
+  });  
+  it('Post Contract', async function() {
+    let ownerChannelIds = await _worksManager.getOwnerChannelIds();
+    let postContract = await _worksManager.getChannelPostContract(ownerChannelIds[0]);
+    assert(postContract !== '', 'post contract address should be returned');
+
+    let nextTokenIndex = await _worksManager.getPostTokenIndex(postContract);
+    assert(hre.ethers.BigNumber.from("1").eq(nextTokenIndex), 'post token index should be 1:'+nextTokenIndex);
+    
+    let tokenIndex = hre.ethers.BigNumber.from("0");
+    let postUri = await _worksManager.getPostUri(postContract, tokenIndex);
+    assert(postUri !== '', 'post uri should be returned');
+
+    let tokenBalance = await _worksManager.getPostTokenBalance(postContract, tokenIndex);
+    assert(hre.ethers.BigNumber.from("1").eq(tokenBalance), 'user should have post balance: '+tokenBalance);
+    
+    let postMintable = await _worksManager.postIsMintable(postContract, tokenIndex);
+    assert(postMintable === true, 'post should be mintable:'+ postMintable);
+
+    let postBuyable = await _worksManager.postIsBuyable(postContract, tokenIndex);
+    assert(postBuyable === true, 'post should be buyable');
+
+    let postCost = await _worksManager.postGetCost(postContract, tokenIndex);
+    assert(hre.ethers.BigNumber.from("1").eq(postCost), 'post cost should be 1:'+postCost);
+  });
+})
+
+const deployContracts = async () => {
+  const accounts = await hre.ethers.getSigners();
+  const executor = await accounts[0].getAddress();
+  const name = "ReceptionDAO"
+  const symbol = "RFM"
+  const supply = 10000 // 1000 Tokens
+
+  // Deploy token
+  const tokenFactory = await hre.ethers.getContractFactory('Token');
+  const token = await tokenFactory.deploy(name, symbol, supply);
+  await token.deployed();
+  
+  assert(token.address != null, 'Token should be deployed');
+  // Deploy timelock
+  const minDelay = 1 // How long do we have to wait until we can execute after a passed proposal
+
+  // In addition to passing minDelay, we also need to pass 2 arrays.
+  // The 1st array contains addresses of those who are allowed to make a proposal.
+  // The 2nd array contains addresses of those who are allowed to make executions.
+  const timelockFactory = await hre.ethers.getContractFactory('TimeLock');
+  const timelock = await timelockFactory.deploy(minDelay, [executor], [executor]);
+  await timelock.deployed();
+  
+  // Deploy governanace
+  const quorum = 5 // Percentage of total supply of tokens needed to aprove proposals (5%)
+  const votingDelay = 0 // How many blocks after proposal until voting becomes active
+  const votingPeriod = 5 // How many blocks to allow voters to vote
+  const daoFactory = await hre.ethers.getContractFactory('ReceptionDAO');
+  const dao = await daoFactory.deploy(token.address, timelock.address, quorum, votingDelay, votingPeriod);
+  await dao.deployed();
+
+  // Deploy Treasury
+  const funds = hre.ethers.utils.parseEther('0.5');
+  const treasuryFactory = await hre.ethers.getContractFactory('Treasury');
+  const treasury = await treasuryFactory.deploy(executor, {value: funds});
+  await treasury.deployed();
+
+  await treasury.transferOwnership(timelock.address, { from: executor });
+  const  timelockOwner = await treasury.owner();
+  // Grant Treasury Roles
+  const proposerRole = await timelock.PROPOSER_ROLE();
+  const executorRole = await timelock.EXECUTOR_ROLE();
+
+  await timelock.grantRole(proposerRole, dao.address, { from: executor });
+  await timelock.grantRole(executorRole, dao.address, { from: executor });
+  // add assert for timelock role granting
+      
+  const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
+  const worksManager = await worksManagerFactory.deploy();
+  await worksManager.deployed();
+
+  await token.transferTokenOwnership(worksManager.address);
+  await worksManager.setTokenAddress(token.address);
+
+  const channelContractFactory = await hre.ethers.getContractFactory('Channels');
+  const channelContract = await channelContractFactory.deploy(worksManager.address);
+  await channelContract.deployed();
+  
+  await worksManager.setChannelsAddress(channelContract.address);
+  const _channelAddress = await worksManager.getChannelsAddress();
+
+  const channelCostUpdate = await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
+  
+  const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
+  const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address, 5);
+  await membershipsContract.deployed();
+  
+  await worksManager.setMembershipsAddress(membershipsContract.address);
+  const _membershipsContract = await worksManager.getMembershipsAddress();
+  
+  const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
+  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address);
+  await postFactoryContract.deployed();
+  
+  await worksManager.setPostFactoryAddress(postFactoryContract.address);
+  return [worksManager, channelContract];
+} 
+
+const mintNFTs = async (_worksManager, _channelContract) => {
+  let channelName = 'testChannel';
     // 1.2
     // Call the function.
     //channelName, channelUri, msg.sender, author, copyright, language
-    
     const generalOptions = {value: hre.ethers.utils.parseEther("1")};
     let txn = await _worksManager.mintChannel('test', channelName + ' r&b', generalOptions);
     // Wait for it to be mined.
     await txn.wait();
-
-    // 1.3
     let txn2 = await _worksManager.getOwnerChannelIds();
-    const channel = txn2[0];
-
-    // 1.5a
-    // Call the function.
+    const channel = txn2[0];    
     let txn3 = await _worksManager.membershipTokenCreate(channel.toHexString(), 1, 'test');
     // Wait for it to be mined.
     await txn3.wait();
-
     let txn4 = await _worksManager.createPostContract(channelName, channel.toHexString());
     // Wait for it to be mined.
     await txn4.wait();
+    assert(txn4 != null, 'post contract should be deployed');
 
     // 1.6
     let postContract = await _worksManager.getChannelPostContract(channel.toHexString());
+    
+    assert(postContract != null, 'postContract should be deployed');
 
     //let channelOwner = await channelContract._ownerOf(channel);
     const accounts = await hre.ethers.getSigners();
@@ -255,78 +402,11 @@ describe('GET Request Checks', function() {
     }
     let postTokenId = await _worksManager.createPostToken(postData);
     await postTokenId.wait();
+    
+    assert(postTokenId != null, 'postToken nft should be deployed');
 
     // 2.10
     const options = {value: hre.ethers.utils.parseEther("1")};
     let postMint = await _worksManager.postMint(postContract, postTokenId.value, options);
     await postMint.wait();
-
-    // 2.8
-    await _worksManager.getPostUri(postContract, postTokenId.value);
-  });
-  it('Channel Contract', async function() {
-    
-    let ownerChannelIds = await _worksManager.getOwnerChannelIds();
-    assert(ownerChannelIds.length > 0, 'channel list should be returned');
-    
-    const accounts = await hre.ethers.getSigners(); 
-    
-    let artistChannelIds = await _worksManager.getArtistChannelIds(accounts[0].address);
-    assert(artistChannelIds.length > 0, 'artist list should be returned: '+ artistChannelIds);
-    
-    let channelIndex = await _worksManager.getCurrentChannelIndex();
-    assert(hre.ethers.BigNumber.from("0").eq(channelIndex), 'channel index should be 0: ' + channelIndex);
-
-    let channelMetadata = await _worksManager.getChannelMetadata(channelIndex);
-    assert(channelMetadata.length > 0, 'channel metadata should return');
-
-    let profileUri = await _worksManager.setProfileUri('test', 'test2');
-    await profileUri.wait();
-    let profileUrl = await _worksManager.getProfileUri(accounts[0].address);
-    assert(profileUrl.length > 0, 'profile url should return');
-  });
-  it('Memberships Contract', async function() {
-    
-    let membershipsList = await _worksManager.getMembershipList(hre.ethers.BigNumber.from('0'));
-    assert(membershipsList.length > 0, 'membership list should be returned');
-
-    const membershipMintOptions = {value: hre.ethers.utils.parseEther("1")};
-    let membershipMint = await _worksManager.membershipMint(membershipsList[0], membershipMintOptions);
-    await membershipMint.wait();
-
-    let membership = await _worksManager.getMembership(membershipsList[0]);
-    assert(hre.ethers.BigNumber.from("1").eq(membership), 'user should have membership: '+ membership);
-
-    let membershipUri = await _worksManager.membershipUri(membershipsList[0]);
-    assert(membershipUri.length > 0, 'membership URI should be returned: '+ membershipUri);
-
-    let ownershipMap = await _worksManager.membershipGetOwnershipMap(membershipsList[0]);
-    assert(ownershipMap.length > 0, 'ownership list should be returned');
-    
-  });
-  
-  it('Post Contract', async function() {
-    let ownerChannelIds = await _worksManager.getOwnerChannelIds();
-    let postContract = await _worksManager.getChannelPostContract(ownerChannelIds[0]);
-    assert(postContract !== '', 'post contract address should be returned');
-
-    let nextTokenIndex = await _worksManager.getPostTokenIndex(postContract);
-    assert(hre.ethers.BigNumber.from("1").eq(nextTokenIndex), 'post token index should be 1:'+nextTokenIndex);
-    
-    let tokenIndex = hre.ethers.BigNumber.from("0");
-    let postUri = await _worksManager.getPostUri(postContract, tokenIndex);
-    assert(postUri !== '', 'post uri should be returned');
-
-    let tokenBalance = await _worksManager.getPostTokenBalance(postContract, tokenIndex);
-    assert(hre.ethers.BigNumber.from("1").eq(tokenBalance), 'user should have post balance: '+tokenBalance);
-    
-    let postMintable = await _worksManager.postIsMintable(postContract, tokenIndex);
-    assert(postMintable === true, 'post should be mintable:'+ postMintable);
-
-    let postBuyable = await _worksManager.postIsBuyable(postContract, tokenIndex);
-    assert(postBuyable === true, 'post should be buyable');
-
-    let postCost = await _worksManager.postGetCost(postContract, tokenIndex);
-    assert(hre.ethers.BigNumber.from("1").eq(postCost), 'post cost should be 1:'+postCost);
-  });
-})
+}

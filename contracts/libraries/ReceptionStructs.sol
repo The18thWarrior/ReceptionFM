@@ -24,4 +24,12 @@ library Structs {
   }
 
   enum Level{ BRONZE, SILVER, GOLD, PLATINUM, ALL }
+
+  function divider(uint numerator, uint denominator, uint precision) public pure returns(uint) {
+    return (numerator*(uint(10)**uint(precision+1))/denominator + 5)/uint(10);
+  }
+
+  function commissionYield(uint total, uint percentage) public pure returns(uint) {
+    return divider(total * percentage, 100, 4);
+  }
 }
