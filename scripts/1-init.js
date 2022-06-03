@@ -239,22 +239,8 @@ const deployContracts = async () => {
   
   const membershipCommission = hre.ethers.utils.parseEther('0');
   await worksManager.setMembershipsAddress(membershipsContract.address);
-  await membershipsContract.setCommission(1.5);
+  await membershipsContract.setCommission(2);
   //await membershipsContract.setChannelsAddress(channelContract.address);
-  console.log('setMembershipsAddress complete');
-
-  //const broadcastsContractFactory = await hre.ethers.getContractFactory('Broadcasts');
-  //const broadcastsContract = await broadcastsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
-  //await broadcastsContract.deployed();
-  
-  //await worksManager.setBroadcastsAddress(broadcastsContract.address);
-  //console.log('setBroadcastsAddress complete');
-  
-  //const postContractFactory = await hre.ethers.getContractFactory('Posts');
-  //const postContract = await postContractFactory.deploy("default Post", 0, "DFLT", worksManager.address, channelContract.address, membershipsContract.address);
-  //await postContract.deployed();
-  //await worksManager.setPostAddress(postContract.address);
-  //console.log('postContract complete');
   
   const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
   const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address);
@@ -305,8 +291,8 @@ const main = async () => {
     let [worksManager, channelContract] = await deployContracts();
     console.log('runMain - worksManager address : ', worksManager.address);
     
-    let sendMoney1 = await sendMoney();
-    let testResult = await mainTest(worksManager, 'TestChannel1', channelContract);
+    //let sendMoney1 = await sendMoney();
+    //let testResult = await mainTest(worksManager, 'TestChannel1', channelContract);
 
     //let channelId = await mainChannels(worksManager, channelName);
     //console.log(channelId);

@@ -116,14 +116,17 @@ describe("All contracts deployment", function () {
 describe('Minting checks', function() {
   let _worksManager;
   let _channelContract;
-  let _channelList;
+  let _tokenContract;
   // eslint-disable-next-line no-undef
   before(async function () {
-    const [worksManager, channelContract] = await deployContracts();
+    const [worksManager, channelContract, tokenContract] = await deployContracts();
     _worksManager = worksManager;
     _channelContract = channelContract;
+    _tokenContract = tokenContract;
   });
   it('Channel / Membership / Post mint', async function() {
+    const accounts = await hre.ethers.getSigners();
+    let oldTokenBalance = await _tokenContract.balanceOf(accounts[0].address);
     let channelName = 'testChannel';
     // 1.2
     // Call the function.
@@ -132,6 +135,9 @@ describe('Minting checks', function() {
     let txn = await _worksManager.mintChannel('test', channelName + ' r&b', generalOptions);
     // Wait for it to be mined.
     await txn.wait();
+
+    let newTokenBalance = await _tokenContract.balanceOf(accounts[0].address);
+    assert(newTokenBalance.gt(oldTokenBalance), 'user should have been minted appropriate volume of tokens - old : '+oldTokenBalance + ' new : ' + newTokenBalance);
 
     // 1.3
     let txn2 = await _worksManager.getOwnerChannelIds();
@@ -156,9 +162,8 @@ describe('Minting checks', function() {
     assert(postContract != null, 'postContract should be deployed');
 
     //let channelOwner = await channelContract._ownerOf(channel);
-    const accounts = await hre.ethers.getSigners();
-    const toAddress = await hre.ethers.utils.getAddress("0x836C31094bEa1aE6b65F76D1C906b01329645a94");
-    await _channelContract.transferFrom(accounts[0].address,toAddress,channel)
+    //const toAddress = await hre.ethers.utils.getAddress("0x836C31094bEa1aE6b65F76D1C906b01329645a94");
+    //await _channelContract.transferFrom(accounts[0].address,toAddress,channel)
 
     // 1.8
     let today = new Date();
@@ -189,6 +194,9 @@ describe('Minting checks', function() {
     await postMint.wait();
     assert(postMint.confirmations > 0, 'post nft should be minted');
 
+    let newTokenBalance2 = await _tokenContract.balanceOf(accounts[0].address);
+    assert(newTokenBalance2.gt(newTokenBalance), 'user should have been minted appropriate volume of tokens - old : '+newTokenBalance + ' new : ' + newTokenBalance2);
+
     // 2.8
     let postMetadata = await _worksManager.getPostUri(postContract, postTokenId.value);
     assert(postMetadata != null, 'post nft metadata url should return');
@@ -205,7 +213,7 @@ describe('GET Request Checks', function() {
   let _channelList;
   // eslint-disable-next-line no-undef
   before(async function () {
-    const [worksManager, channelContract] = await deployContracts();
+    const [worksManager, channelContract, _tokenContract] = await deployContracts();
     _worksManager = worksManager;
     _channelContract = channelContract;
     await mintNFTs(_worksManager, _channelContract);
@@ -273,7 +281,7 @@ describe('GET Request Checks', function() {
     let postCost = await _worksManager.postGetCost(postContract, tokenIndex);
     assert(hre.ethers.BigNumber.from("1").eq(postCost), 'post cost should be 1:'+postCost);
   });
-})
+});
 
 const deployContracts = async () => {
   const accounts = await hre.ethers.getSigners();
@@ -350,7 +358,7 @@ const deployContracts = async () => {
   await postFactoryContract.deployed();
   
   await worksManager.setPostFactoryAddress(postFactoryContract.address);
-  return [worksManager, channelContract];
+  return [worksManager, channelContract, token];
 } 
 
 const mintNFTs = async (_worksManager, _channelContract) => {

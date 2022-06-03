@@ -25,6 +25,19 @@ library Structs {
 
   enum Level{ BRONZE, SILVER, GOLD, PLATINUM, ALL }
 
+  struct CreatePost {
+      address contractAddress;
+      uint256 cost;
+      bool isBuyable;
+      bool isPublic;
+      bool airdrop;
+      string computedUri;
+      uint256 channelId;
+      string paywallUri; 
+      bool mintable;
+      uint256[] levels;
+  }
+
   function divider(uint numerator, uint denominator, uint precision) public pure returns(uint) {
     return (numerator*(uint(10)**uint(precision+1))/denominator + 5)/uint(10);
   }
