@@ -33,6 +33,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   address private treasuryAddress;
   address private channelAddress;
   address private membershipsAddress;
+  address private apiAddress;
   //address private broadcastsAddress;
   Channels channelContract;
   Memberships membershipsContract;
@@ -57,11 +58,13 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
   mapping(uint256 => bool) private _mintable;
   mapping(uint256 => bool) private _buyable;
   mapping(uint256 => uint256) private _cost;
+  mapping(uint256 => uint256) private _count;
+  mapping(uint256 => uint256) private _mintTotal;
   mapping(uint256 => uint256[]) private _tokenLevelList;
   mapping(address => uint256[]) private _redemptions;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(string memory tokenName, uint256 tempChannelToken, address to, address tempOwnerAddress, address tempChannelAddress, address tempMembershipsAddress) initializer {
+  constructor(string memory tokenName, uint256 tempChannelToken, address to, address tempOwnerAddress, address tempChannelAddress, address tempMembershipsAddress, address tempApiAddress) initializer {
     __ERC1155_init(tokenName);
     __ERC1155Burnable_init();
     __ERC1155Supply_init();
@@ -85,10 +88,12 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
 
     require(tempOwnerAddress != address(0), "owner required");
     treasuryAddress = tempOwnerAddress;
+    apiAddress = tempApiAddress;
     _grantRole(DEFAULT_ADMIN_ROLE, tempOwnerAddress);
     _grantRole(ADMIN_ROLE, tempOwnerAddress);
     _grantRole(OWNER_ROLE, to);
-    _grantRole(OWNER_ROLE, tempOwnerAddress);  
+    _grantRole(OWNER_ROLE, tempOwnerAddress);
+    _grantRole(OWNER_ROLE, tempApiAddress);    
   }
 
   function initialize(string memory tokenName, address to) initializer external {
@@ -109,25 +114,15 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     _grantRole(OWNER_ROLE, to);
   }
 
-  struct CreatePost {
-      address owner;
-      uint256 cost;
-      bool isBuyable;
-      bool isPublic;
-      bool airdrop;
-      string computedUri;
-      string paywallUri; 
-      bool mintable;
-      uint256[] levels;
-  }
-  function createPostToken(CreatePost calldata post) external onlyRole(OWNER_ROLE) returns(uint256) {
+  
+  function createPostToken(Structs.CreatePost calldata post) external onlyRole(OWNER_ROLE) returns(uint256) {
       // TODO : Add function to validate that the msg.sender owns channel
       
       require(channelOwnershipMatch(post.owner), "You must be the channel owner to create posts");
       // Required inputs
-      if (!post.isPublic) {
+      /*if (!post.isPublic) {
         require(post.levels.length > 0, "You must include at least 1 level to create a non-public post");
-      }
+      }*/
       
       uint256 tokenId = _tokenIdCounter.current();
       _tokenIdCounter.increment();
@@ -136,9 +131,17 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
       _buyable[tokenId] = post.isBuyable;
       _mintable[tokenId] = post.mintable;
       _cost[tokenId] = post.cost;
-      
+      _count[tokenId] = post.premineAmount;
       if (!post.isPublic && post.levels.length > 0) {
         setTokenLevelsInternal(tokenId, post.levels);
+      }
+
+      if (post.premine) {
+        for(uint256 i = 0; i < post.premineAmount; i++) {
+          _mint(post.owner, tokenId, 1, "");  
+        } 
+        
+        _mintTotal[tokenId] = post.premineAmount;
       }
       
       emit NewPostTokenCreated(post.owner, tokenId);
@@ -173,9 +176,10 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     require(membershipMatch(tokenId, to) || hasPaid, "You do not have minting access");  
 
     require(_mintable[tokenId], "This post is not mintable");
+    require(_mintTotal[tokenId] < _count[tokenId], "All redemptions have been made");
 
     for(uint256 i = 0; i < _redemptions[to].length; i++) {
-      require(_redemptions[to][i] != tokenId, 'Sorry, you have already redeemed this NFT');
+      require(_redemptions[to][i] != tokenId || hasPaid, 'Sorry, you have already redeemed this NFT');
     }
     _redemptions[to].push(tokenId); 
     //Settle Reception.fm commission
@@ -185,7 +189,7 @@ contract Posts is Initializable, ERC1155Upgradeable, ERC1155SupplyUpgradeable, P
     ownerBalance += msg.value - yield;   
 
     emit NewPostMinted(to, tokenId);
-
+    _mintTotal[tokenId] = _mintTotal[tokenId]+1;
     _mint(to, tokenId, 1, "");     
   }
 

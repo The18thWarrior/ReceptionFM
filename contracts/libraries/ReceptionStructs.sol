@@ -26,11 +26,14 @@ library Structs {
   enum Level{ BRONZE, SILVER, GOLD, PLATINUM, ALL }
 
   struct CreatePost {
+      address owner;
       address contractAddress;
       uint256 cost;
       bool isBuyable;
       bool isPublic;
       bool airdrop;
+      bool premine;
+      uint256 premineAmount;
       string computedUri;
       uint256 channelId;
       string paywallUri; 

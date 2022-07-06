@@ -17,6 +17,7 @@ let svgString = svgPartOne + svgPartTwo + svgPartThree;
 // NFT Storage
 const nftStorageApiKey = process.env.NFT_STORAGE_API_KEY;
 const nftStorageClient = new nftStore.NFTStorage({ token: nftStorageApiKey })
+const apiAddress = process.env.API_ETH_ADDRESS;
 
 const mainTest = async (worksManager, channelName, channelContract) => {
   let channelList = await mainChannels(worksManager, channelName);
@@ -34,40 +35,47 @@ const mainTest = async (worksManager, channelName, channelContract) => {
   console.log(postContract);
 
   //let channelOwner = await channelContract._ownerOf(channel);
-  const accounts = await hre.ethers.getSigners();
-  const toAddress = await hre.ethers.utils.getAddress("0x836C31094bEa1aE6b65F76D1C906b01329645a94");
-  let txn2 = await channelContract.transferFrom(accounts[0].address,toAddress,channel)
-
+  
   // Construct/Store Metadata
   const metadata1Image = String.format(svgString, channelName + ' Post');
   const metadata1Blob = new nftStore.Blob([metadata1Image], {type: 'image/svg+xml'});
-  const metadata1 = await nftStorageClient.store({
+  /*const metadata1 = await nftStorageClient.store({
     name: channelName,
     description: 'Post',
     image: metadata1Blob,
     channel: channel.toHexString()
-  });
+  });*/
 
   // 1.8
   let today = new Date();
   let postData = {
+    owner: postContract,
     contractAddress: postContract,
     cost:  1,
     isBuyable: false,
     isPublic: true,
     airdrop: false,
+    premine: true,
+    premineAmount: 2,
     channelId: channel.toHexString(),
-    computedUri: metadata1.ipnft,
-    paywallUri: metadata1.ipnft,
+    computedUri: 'bafyreibmmhpzanzhstfcxuj25yqqtiqpx5zajwixzolzbamqszisjunzwq',
+    paywallUri: 'bafyreidz7dzt5evqc5xknimsky7xrbcn4jcrcv2whlvidx7u23hyxbiyfm',
     mintable: false,
-    levels: ['0x00'],
+    levels: [],
     properties : {
       createdDate: today.toUTCString(),
       key: '353634-213213-j34b5324h-3445b325'
     }
   }
+  //console.log(postData);
   let postTokenId = await worksManager.createPostToken(postData);
   await postTokenId.wait();
+
+  const accounts = await hre.ethers.getSigners();
+  const toAddress = await hre.ethers.utils.getAddress("0x836C31094bEa1aE6b65F76D1C906b01329645a94");
+  console.log('got address');
+  let txn2 = await channelContract.transferFrom(accounts[0].address,toAddress,channel)
+  console.log('completed transfer');
 }
 
 const mainPosts = async (worksManager, channel, channelName) => {
@@ -161,6 +169,7 @@ const mainChannels = async (worksManager, channelName) => {
 };
 
 const deployContracts = async () => {
+  
   const accounts = await hre.ethers.getSigners();
   const executor = await accounts[0].getAddress();
   const name = "ReceptionDAO"
@@ -171,10 +180,6 @@ const deployContracts = async () => {
   const tokenFactory = await hre.ethers.getContractFactory('Token');
   const token = await tokenFactory.deploy(name, symbol, supply);
   await token.deployed();
-  console.log('token address : ', token.address);
-  const amount = 250;
-  const voter1 = hre.ethers.utils.getAddress("0x836C31094bEa1aE6b65F76D1C906b01329645a94");
-  await token.transfer(voter1, amount);
   // Deploy timelock
   const minDelay = 1 // How long do we have to wait until we can execute after a passed proposal
 
@@ -182,9 +187,8 @@ const deployContracts = async () => {
   // The 1st array contains addresses of those who are allowed to make a proposal.
   // The 2nd array contains addresses of those who are allowed to make executions.
   const timelockFactory = await hre.ethers.getContractFactory('TimeLock');
-  const timelock = await timelockFactory.deploy(minDelay, [voter1, executor], [voter1, executor]);
+  const timelock = await timelockFactory.deploy(minDelay, [executor], [executor]);
   await timelock.deployed();
-  console.log('timelock address : ', timelock.address);
   
   // Deploy governanace
   const quorum = 5 // Percentage of total supply of tokens needed to aprove proposals (5%)
@@ -193,65 +197,54 @@ const deployContracts = async () => {
   const daoFactory = await hre.ethers.getContractFactory('ReceptionDAO');
   const dao = await daoFactory.deploy(token.address, timelock.address, quorum, votingDelay, votingPeriod);
   await dao.deployed();
-  console.log('dao address : ',dao.address);
 
   // Deploy Treasury
   const funds = hre.ethers.utils.parseEther('0.5');
   const treasuryFactory = await hre.ethers.getContractFactory('Treasury');
   const treasury = await treasuryFactory.deploy(executor, {value: funds});
   await treasury.deployed();
-  console.log('treasury deployed : ', treasury.address);
-  await treasury.transferOwnership(timelock.address, { from: executor });
 
+
+  await treasury.transferOwnership(timelock.address, { from: executor });
+  const  timelockOwner = await treasury.owner();
   // Grant Treasury Roles
   const proposerRole = await timelock.PROPOSER_ROLE();
   const executorRole = await timelock.EXECUTOR_ROLE();
 
   await timelock.grantRole(proposerRole, dao.address, { from: executor });
   await timelock.grantRole(executorRole, dao.address, { from: executor });
-  console.log('timelock roles granted');
-
-  // Deploy WorksManager
+  // add assert for timelock role granting
+      
   const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
-  const worksManager = await worksManagerFactory.deploy();
+  const worksManager = await worksManagerFactory.deploy(apiAddress);
   await worksManager.deployed();
-  console.log('worksManager address : ',worksManager.address);
 
-  // Grant WorksManager Token Ownership
   await token.transferTokenOwnership(worksManager.address);
   await worksManager.setTokenAddress(token.address);
-  
-  // Deploy Channel
-  const channelContractFactory = await hre.ethers.getContractFactory('Channels');
-  const channelContract = await channelContractFactory.deploy(worksManager.address);
-  await channelContract.deployed();
-  console.log('channels address : ' + channelContract.address);
-  
-  await worksManager.setChannelsAddress(channelContract.address);
-  const channelCost = hre.ethers.utils.parseEther('0');
-  await worksManager.setChannelCost(channelCost);
 
-  // Deploy Channel
+  const channelContractFactory = await hre.ethers.getContractFactory('Channels');
+  const channelContract = await channelContractFactory.deploy(worksManager.address, apiAddress);
+  await channelContract.deployed();
+
+  await worksManager.setChannelsAddress(channelContract.address);
+  
+  await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
+  await channelContract.getCost();
+
   const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
-  const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address);
+  const membershipsContract = await membershipsContractFactory.deploy("RFMChannels", worksManager.address, channelContract.address, 5);
   await membershipsContract.deployed();
-  console.log('memberships address : ' + membershipsContract.address);
   
-  const membershipCommission = hre.ethers.utils.parseEther('0');
   await worksManager.setMembershipsAddress(membershipsContract.address);
-  await membershipsContract.setCommission(2);
-  //await membershipsContract.setChannelsAddress(channelContract.address);
-  
+  const _membershipsContract = await worksManager.getMembershipsAddress();
+
   const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
-  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address);
+  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address, apiAddress);
   await postFactoryContract.deployed();
-  console.log(postFactoryContract.address);
-  console.log('postFactory address : ' + postFactoryContract.address);
   
   await worksManager.setPostFactoryAddress(postFactoryContract.address);
-  console.log('Contract deployment complete');
 
-  return [worksManager,channelContract];
+  return [worksManager, token, channelContract, dao, timelock];
 }
 
 const sendMoney = async () => {
@@ -272,6 +265,10 @@ const sendMoney = async () => {
     value : hre.ethers.utils.parseEther('100'),
   });
 
+  let apiUserMoney = await account1.sendTransaction({
+    to: apiAddress, 
+    value: hre.ethers.utils.parseEther('100')
+  });
 
   let results3 = await account1.sendTransaction({
     to: '0x90096700E912D140931701d986F979b413488f5B',
@@ -283,21 +280,25 @@ const sendMoney = async () => {
     value : hre.ethers.utils.parseEther('100'),
   });
   
+  let results5 = await account1.sendTransaction({
+    to: '0xA617f0622F36E0D161cdAf1fD8460924B7B7b491',
+    value : hre.ethers.utils.parseEther('100'),
+  });
+  
 }
 
 const main = async () => {
   try {
     await hre.network.provider.send("hardhat_reset");
-    let [worksManager, channelContract] = await deployContracts();
-    console.log('runMain - worksManager address : ', worksManager.address);
+    let [worksManager, token, channelContract, dao, timelock] = await deployContracts();
+    console.log('worksManager address : ', worksManager.address);
+    console.log('token address : ', token.address);
+    console.log('channel address : ', channelContract.address);
+    console.log('dao address : ', dao.address);
+    console.log('timelock address : ', timelock.address);
     
-    //let sendMoney1 = await sendMoney();
-    //let testResult = await mainTest(worksManager, 'TestChannel1', channelContract);
-
-    //let channelId = await mainChannels(worksManager, channelName);
-    //console.log(channelId);
-    //await mainMemberships(worksManager, channelId[0], channel_base);
-    //await mainPosts(worksManager, channelId[0], channelName);
+    await sendMoney();
+    await mainTest(worksManager, 'TestChannel1', channelContract);
     process.exit(0);
   } catch (error) {
     console.log(error);

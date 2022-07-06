@@ -25,16 +25,17 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
 
   mapping(address => Structs.ChannelOwner) channelOwnerList;
   address private masterContract;
+  address private apiAddress;
   event NewReceptionChannelMinted(address sender, uint256 tokenId);
   event ReceptionProfileSet(address sender);
   event CostChange(uint256 cost);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor(address tempMasterContract) initializer {
-    initialize(tempMasterContract);
+  constructor(address tempMasterContract, address _apiAddress) initializer {
+    initialize(tempMasterContract, _apiAddress);
   }
   // Backend Initialization
-  function initialize(address tempMasterContract) initializer public {
+  function initialize(address tempMasterContract, address _apiAddress) initializer public {
     __ERC721_init("TestChannel", "testCHANNEL");
     __ERC721URIStorage_init();
     __Pausable_init();
@@ -43,6 +44,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     require(tempMasterContract != address(0), "master contract required");
     transferOwnership(tempMasterContract);
     masterContract = tempMasterContract;
+    apiAddress = _apiAddress;
   }
 
   function setCost(uint256 tempCost) external onlyOwner {

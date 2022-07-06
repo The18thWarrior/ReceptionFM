@@ -21,6 +21,7 @@ contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgrade
   address contractOwner;
   address channelsAddress;
   address membershipsAddress;
+  address apiAddress;
   //address broadcastsAddress;
   Channels channelContract;
 
@@ -29,7 +30,7 @@ contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgrade
   mapping(uint256 => address) postToAddress;
   bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-  constructor(address tempContractOwner, address tempChannelsAddress, address tempMembershipsAddress) initializer{
+  constructor(address tempContractOwner, address tempChannelsAddress, address tempMembershipsAddress, address tempApiAddress) initializer{
     
     __AccessControl_init();
     __Pausable_init();
@@ -44,6 +45,7 @@ contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgrade
     channelContract = Channels(channelsAddress);
     require(tempMembershipsAddress != address(0), "membership required");
     membershipsAddress = tempMembershipsAddress;
+    apiAddress = tempApiAddress;
   }
   
   function initialize(address tempContractOwner) initializer external {
@@ -66,7 +68,7 @@ contract PostFactory is Initializable, PausableUpgradeable, AccessControlUpgrade
     address channelOwner = channelContract.ownerOf(tokenChannel);
     require(to == channelOwner, "Must be Owner");
 
-    Posts child = new Posts(tokenName, tokenChannel, to, contractOwner, channelsAddress, membershipsAddress);
+    Posts child = new Posts(tokenName, tokenChannel, to, contractOwner, channelsAddress, membershipsAddress, apiAddress);
     //children.push(child);
     //uint256 tokenIndex = children.length;
     uint256 tokenIndex = _postContractIndex.current();
