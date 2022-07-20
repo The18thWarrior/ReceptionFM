@@ -62,6 +62,7 @@ contract Channels is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeab
     address to
     ) external onlyOwner payable returns(uint256) {
     //require(msg.value > cost, "Not enough MATIC to complete transaction");
+    require(msg.value >= cost, "Not enough MATIC to complete transaction");
     uint256 tokenId = _tokenIdCounter.current();
     _tokenIdCounter.increment();
     

@@ -90,7 +90,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     string calldata channelUri,
     string calldata keywords
   ) external payable returns(uint256){
-    uint256 channelId = channelContract.safeMint(channelUri, msg.sender);
+    uint256 channelId = channelContract.safeMint{ value: msg.value }(channelUri, msg.sender);
     emit NewChannel(channelId, msg.sender, keywords);
     {
       tokenContract.mint(msg.sender, CHANNEL_REWARD);
@@ -104,7 +104,7 @@ contract WorksManager is Initializable, PausableUpgradeable, AccessControlUpgrad
     string calldata tokenName,
     string calldata keywords
   ) external payable {
-    uint256 channelId = channelContract.safeMint(channelUri, msg.sender);
+    uint256 channelId = channelContract.safeMint{ value: msg.value }(channelUri, msg.sender);
     emit NewChannel(channelId, msg.sender, keywords);
     {
       tokenContract.mint(msg.sender, CHANNEL_REWARD);

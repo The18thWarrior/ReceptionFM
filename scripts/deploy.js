@@ -10,6 +10,11 @@ require("dotenv").config();
 // local execution - npx hardhat run scripts/1-init.js --network localhost
 // network deploy - npx hardhat run scripts/deploy.js --network mumbai
 
+
+const nftStorageApiKey = process.env.NFT_STORAGE_API_KEY;
+const nftStorageClient = new nftStore.NFTStorage({ token: nftStorageApiKey })
+const apiAddress = process.env.API_ETH_ADDRESS;
+
 const deployContracts = async () => {
   
   const accounts = await hre.ethers.getSigners();
@@ -58,14 +63,14 @@ const deployContracts = async () => {
   // add assert for timelock role granting
       
   const worksManagerFactory = await hre.ethers.getContractFactory('WorksManager');
-  const worksManager = await worksManagerFactory.deploy();
+  const worksManager = await worksManagerFactory.deploy(apiAddress);
   await worksManager.deployed();
 
   await token.transferTokenOwnership(worksManager.address);
   await worksManager.setTokenAddress(token.address);
 
   const channelContractFactory = await hre.ethers.getContractFactory('Channels');
-  const channelContract = await channelContractFactory.deploy(worksManager.address);
+  const channelContract = await channelContractFactory.deploy(worksManager.address, apiAddress);
   await channelContract.deployed();
 
   await worksManager.setChannelsAddress(channelContract.address);
@@ -81,7 +86,7 @@ const deployContracts = async () => {
   const _membershipsContract = await worksManager.getMembershipsAddress();
 
   const postFactoryContractFactory = await hre.ethers.getContractFactory('PostFactory');
-  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address);
+  const postFactoryContract = await postFactoryContractFactory.deploy(worksManager.address, channelContract.address, membershipsContract.address, apiAddress);
   await postFactoryContract.deployed();
   
   await worksManager.setPostFactoryAddress(postFactoryContract.address);

@@ -3,6 +3,7 @@
 let nftStore = require('nft.storage');
 require('ipfs-car/pack');
 require("hardhat");
+const ethers = require('ethers');
 require("dotenv").config();
 
 let svgPartOne = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2250" viewBox="0 0 2250 2250" height="2250" version="1.0"> <style> @import url("https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700,700i"); </style> <defs> <clipPath id="b"> <path d="M 0.5 0 L 2249.5 0 L 2249.5 2249 L 0.5 2249 Z M 0.5 0" /> </clipPath> <clipPath id="e"> <path d="M 0.5 0 L 2249.351562 0 L 2249.351562 2249 L 0.5 2249 Z M 0.5 0" /> </clipPath> <clipPath id="d"> <path d="M0 0H2250V2249H0z" /> </clipPath> <clipPath id="g"> <path d="M 567.492188 566.992188 L 1682.140625 566.992188 L 1682.140625 1681.640625 L 567.492188 1681.640625 Z M 567.492188 566.992188" /> </clipPath> <clipPath id="h"> <path d="M 1124.816406 1681.640625 C 817.761719 1681.640625 567.492188 1431.371094 567.492188 1124.316406 C 567.492188 817.261719 817.761719 566.992188 1124.816406 566.992188 C 1431.871094 566.992188 1682.140625 817.261719 1682.140625 1124.316406 C 1682.140625 1431.371094 1431.871094 1681.640625 1124.816406 1681.640625 Z M 1124.816406 672.148438 C 875.597656 672.148438 672.648438 875.097656 672.648438 1124.316406 C 672.648438 1373.535156 875.597656 1576.488281 1124.816406 1576.488281 C 1374.035156 1576.488281 1576.984375 1373.535156 1576.984375 1124.316406 C 1576.984375 875.097656 1374.035156 672.148438 1124.816406 672.148438 Z M 1124.816406 672.148438" /> </clipPath> <clipPath id="j"> <path d="M 1004.199219 841 L 1245.632812 841 L 1245.632812 1409 L 1004.199219 1409 Z M 1004.199219 841" /> </clipPath> <linearGradient x1=".173" gradientTransform="matrix(0 -4035.78953 2269.9908 0 -20.638 3607.925)" xmlns:xlink="http://www.w3.org/1999/xlink" y1=".173" x2=".947" gradientUnits="userSpaceOnUse" y2=".947" xlink:type="simple" xlink:actuate="onLoad" id="f" xlink:show="other"> <stop stop-color="#E0D8F1" offset="0" /> <stop stop-color="#5527B4" offset="1" /> </linearGradient> <linearGradient x1="0" gradientTransform="matrix(10.51557 0 0 10.51557 567.492 566.992)" xmlns:xlink="http://www.w3.org/1999/xlink" y1="53.005" x2="106" gradientUnits="userSpaceOnUse" y2="53.005" xlink:type="simple" xlink:actuate="onLoad" id="i" xlink:show="other"> <stop stop-color="#FF6DAF" offset="0" /> <stop stop-color="#4C1BB0" offset="1" /> </linearGradient>';
@@ -23,7 +24,7 @@ const mainTest = async (worksManager, channelName, channelContract) => {
   let channelList = await mainChannels(worksManager, channelName);
   let channel = channelList[0];
   console.log(channel);
-  let memberships = await mainMemberships(worksManager,channel, channelName);
+  //let memberships = await mainMemberships(worksManager,channel, channelName);
 
   let txn = await worksManager.createPostContract(channelName, channel.toHexString());
   // Wait for it to be mined.
@@ -31,14 +32,14 @@ const mainTest = async (worksManager, channelName, channelContract) => {
   console.log('create post contract complete', txn.value);
 
   // 1.6
-  let postContract = await worksManager.getChannelPostContract(channel.toHexString());
-  console.log(postContract);
+  //let postContract = await worksManager.getChannelPostContract(channel.toHexString());
+  //console.log(postContract);
 
   //let channelOwner = await channelContract._ownerOf(channel);
   
   // Construct/Store Metadata
-  const metadata1Image = String.format(svgString, channelName + ' Post');
-  const metadata1Blob = new nftStore.Blob([metadata1Image], {type: 'image/svg+xml'});
+  //const metadata1Image = String.format(svgString, channelName + ' Post');
+  //const metadata1Blob = new nftStore.Blob([metadata1Image], {type: 'image/svg+xml'});
   /*const metadata1 = await nftStorageClient.store({
     name: channelName,
     description: 'Post',
@@ -47,8 +48,8 @@ const mainTest = async (worksManager, channelName, channelContract) => {
   });*/
 
   // 1.8
-  let today = new Date();
-  let postData = {
+  //let today = new Date();
+  /*let postData = {
     owner: postContract,
     contractAddress: postContract,
     cost:  1,
@@ -75,7 +76,7 @@ const mainTest = async (worksManager, channelName, channelContract) => {
   const toAddress = await hre.ethers.utils.getAddress("0x836C31094bEa1aE6b65F76D1C906b01329645a94");
   console.log('got address');
   let txn2 = await channelContract.transferFrom(accounts[0].address,toAddress,channel)
-  console.log('completed transfer');
+  console.log('completed transfer');*/
 }
 
 const mainPosts = async (worksManager, channel, channelName) => {
@@ -132,7 +133,7 @@ const mainMemberships = async (worksManager, channel, name_base) => {
 
   // 1.5a
   // Call the function.
-  let txn = await worksManager.membershipTokenCreate(channel.toHexString(), 1, metadata1.ipnft);
+  let txn = await worksManager.membershipTokenCreate(channel.toHexString(), ethers.constants.WeiPerEther*1, metadata1.ipnft);
   // Wait for it to be mined.
   await txn.wait();
   console.log('create membership 1 complete', txn.value);
@@ -228,7 +229,7 @@ const deployContracts = async () => {
 
   await worksManager.setChannelsAddress(channelContract.address);
   
-  await worksManager.setChannelCost(hre.ethers.utils.parseEther('1'));
+  await worksManager.setChannelCost(hre.ethers.utils.parseEther('.002'));
   await channelContract.getCost();
 
   const membershipsContractFactory = await hre.ethers.getContractFactory('Memberships');
@@ -298,7 +299,7 @@ const main = async () => {
     console.log('timelock address : ', timelock.address);
     
     await sendMoney();
-    await mainTest(worksManager, 'TestChannel1', channelContract);
+    //await mainTest(worksManager, 'TestChannel1', channelContract);
     process.exit(0);
   } catch (error) {
     console.log(error);
