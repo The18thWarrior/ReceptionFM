@@ -3,6 +3,7 @@
 let nftStore = require('nft.storage');
 require('ipfs-car/pack');
 require("hardhat");
+const ethers = require('ethers');
 require("dotenv").config();
 
 // Run local node - npx hardhat node
